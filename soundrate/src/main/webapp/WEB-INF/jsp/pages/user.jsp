@@ -1,0 +1,186 @@
+<%@ page contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setBundle basename="i18n/strings"/>
+<c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="user" value="${requestScope.user}"/>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2962FF">
+    <link rel="icon" href="${context}/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="${context}/content/semantic/dist/semantic.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="${context}/content/semantic/dist/semantic.min.js"></script>
+    <script src="${context}/content/javascript/api-settings.js"></script>
+    <script src="${context}/content/javascript/sign-user.js"></script>
+    <script src="${context}/content/javascript/search.js"></script>
+    <script src="${context}/content/javascript/vote-review.js"></script>
+    <script src="${context}/content/javascript/sticky.js"></script>
+    <title>${not empty user ? user.username : ""}</title>
+</head>
+<body>
+    <c:import url="/header"/>
+    <c:if test="${empty sessionScope.username}">
+        <c:import url="/sign-in-modal"/>
+    </c:if>
+    <div class="ui container">
+        <c:choose>
+            <c:when test="${empty user}">
+                <div class="ui placeholder segment">
+                    <div class="ui large icon header">
+                        <i class="circular exclamation red icon"></i>
+                        <fmt:message key="error.nothingHere"/>
+                    </div>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <div class="ui two columns stackable grid">
+                    <div class="five wide column">
+                        <div class="ui sticky fluid card">
+                            <div class="image">
+                                <img src="${user.picture}" alt="avatar">
+                            </div>
+                            <div class="content">
+                                <div class="center aligned meta">
+                                    <a class="ui small header"
+                                       href="${context}/user?id=${user.username}">${user.username}</a>
+                                </div>
+                            </div>
+                            <c:if test="${not empty user.biography}">
+                                <div class="extra content">
+                                    <div class="center aligned meta">
+                                        ${user.biography}
+                                    </div>
+                                </div>
+                            </c:if>
+                            <div class="extra content">
+                                <div class="center aligned meta">
+                                    <span class="ui icon medium label">
+                                        <i class="blue thumbs up icon"></i>
+                                        <fmt:message key="label.totalRep"/>
+                                    </span>
+                                    <span class="ui blue circular medium label">
+                                        ${user.reputation}
+                                    </span>
+                                </div>
+                                <div class="center aligned meta">
+                                    <span class="ui icon medium label">
+                                        <i class="blue sort numeric up icon"></i>
+                                        <fmt:message key="label.averageAssignedRating"/>
+                                    </span>
+                                    <c:choose>
+                                        <c:when test="${user.numberOfReviews eq 0}">
+                                            <span class="ui blue circular medium label">N/A</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="ui blue circular medium label">
+                                                <fmt:formatNumber type="number" maxFractionDigits="1"
+                                                                  value="${user.averageAssignedRating}"/>
+                                            </span>
+                                            (<fmt:message key="label.basedOn">
+                                                <fmt:param value="${user.numberOfReviews}"/>
+                                            </fmt:message>)
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <div class="center aligned meta">
+                                    <span class="ui icon medium label">
+                                        <i class="blue calendar outline icon"></i>
+                                        <fmt:message key="label.signUpDate"/>
+                                    </span>
+                                    <fmt:formatDate dateStyle="short" type="date" value="${user.signUpDate}"/>
+                                </div>
+                            </div>
+                            <a class="ui bottom attached button" href="${context}/backlog?id=${user.username}">
+                                <i class="list icon"></i> <fmt:message key="label.backlog"/>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="eleven wide column">
+                        <div class="ui fluid segment">
+                            <div class="ui large blue header">
+                                <fmt:message key="label.reviews"/>
+                            </div>
+                            <c:forEach items="${user.reviews}" var="review">
+                                <div class="ui fluid card" data-type="review" data-published="true"
+                                     data-vote-enabled="${not empty sessionScope.username}"
+                                     data-reviewer="${review.reviewerUsername}" data-album="${review.reviewedAlbumId}">
+                                    <div class="meta content">
+                                        <div class="right floated meta">
+                                            <span class="ui icon label">
+                                                <i class="blue calendar outline icon"></i>
+                                                <fmt:formatDate dateStyle="short"
+                                                                type="date" value="${review.publicationDate}"/>
+                                            </span>
+                                            <span class="ui blue circular medium label">${review.rating}</span>
+                                        </div>
+                                    </div>
+                                    <div class="meta content">
+                                        <div class="ui items">
+                                            <div class="ui item">
+                                                <a class="ui tiny image" href="${context}/album?id=${review.reviewedAlbumId}">
+                                                    <img src="${review.reviewedAlbum.bigCover}" alt="artwork">
+                                                </a>
+                                                <div class="middle aligned content">
+                                                    <div class="center aligned meta">
+                                                        <a class="ui small header"
+                                                           href="${context}/album?id=${review.reviewedAlbumId}">
+                                                                ${review.reviewedAlbum.title}
+                                                        </a>
+                                                    </div>
+                                                    <div class="center aligned meta">
+                                                        <a class="ui small disabled header"
+                                                           href="${context}/artist?id=${review.reviewedAlbum.artist.id}">
+                                                                ${review.reviewedAlbum.artist.name}
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content">
+                                        <p>${review.content}</p>
+                                    </div>
+                                    <c:choose>
+                                        <c:when test="${empty sessionScope.username}">
+                                            <div class="bottom attached button"
+                                                 data-tooltip="<fmt:message key="tooltip.signInToVote"/>">
+                                                <div class="ui fluid buttons">
+                                                    <button class="ui disabled basic icon button">
+                                                        <i class="thumbs up icon"></i>
+                                                    </button>
+                                                    <div class="or" data-text="${review.score}"></div>
+                                                    <button class="ui disabled basic icon button">
+                                                        <i class="thumbs down icon"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="bottom attached button">
+                                                <div class="ui fluid buttons">
+                                                    <button class="ui basic icon button" data-value="true">
+                                                        <i class="thumbs up icon"></i>
+                                                    </button>
+                                                    <div class="or" data-text="${review.score}"></div>
+                                                    <button class="ui basic icon button" data-value="false">
+                                                        <i class="thumbs down icon"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </c:forEach>
+                        </div>
+                    </div>
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </div>
+</body>
+</html>
