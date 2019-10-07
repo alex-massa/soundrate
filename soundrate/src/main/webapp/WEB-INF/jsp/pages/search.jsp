@@ -64,7 +64,7 @@
                                                 </span>
                                                 <span>
                                                     (<fmt:message key="label.numberOfReviews">
-                                                        <fmt:param value="${artist.reviewsCount}"/>
+                                                        <fmt:param value="${artist.numberOfReviews}"/>
                                                     </fmt:message>)
                                                 </span>
                                             </c:otherwise>
