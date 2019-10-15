@@ -25,7 +25,7 @@
 .loadFonts();
 
 html,
-content {
+body {
   height: 100%;
 }
 
@@ -33,7 +33,7 @@ html {
   font-size: @emSize;
 }
 
-content {
+body {
   margin: 0;
   padding: 0;
   overflow-x: @pageOverflowX;
@@ -139,39 +139,39 @@ a:hover {
 .addScrollbars() when (@useCustomScrollbars) {
 
   /* Force Simple Scrollbars */
-  content ::-webkit-scrollbar {
+  body ::-webkit-scrollbar {
     -webkit-appearance: none;
     width: @customScrollbarWidth;
     height: @customScrollbarHeight;
   }
-  content ::-webkit-scrollbar-track {
+  body ::-webkit-scrollbar-track {
     background: @trackBackground;
     border-radius: @trackBorderRadius;
   }
-  content ::-webkit-scrollbar-thumb {
+  body ::-webkit-scrollbar-thumb {
     cursor: pointer;
     border-radius: @thumbBorderRadius;
     background: @thumbBackground;
     transition: @thumbTransition;
   }
-  content ::-webkit-scrollbar-thumb:window-inactive {
+  body ::-webkit-scrollbar-thumb:window-inactive {
     background: @thumbInactiveBackground;
   }
-  content ::-webkit-scrollbar-thumb:hover {
+  body ::-webkit-scrollbar-thumb:hover {
     background: @thumbHoverBackground;
   }
 
   /* Inverted UI */
-  content .ui.inverted:not(.dimmer)::-webkit-scrollbar-track {
+  body .ui.inverted:not(.dimmer)::-webkit-scrollbar-track {
     background: @trackInvertedBackground;
   }
-  content .ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb {
+  body .ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb {
     background: @thumbInvertedBackground;
   }
-  content .ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb:window-inactive {
+  body .ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb:window-inactive {
     background: @thumbInvertedInactiveBackground;
   }
-  content .ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb:hover {
+  body .ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb:hover {
     background: @thumbInvertedHoverBackground;
   }
 }

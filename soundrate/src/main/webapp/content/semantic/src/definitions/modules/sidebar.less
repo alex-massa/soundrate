@@ -95,18 +95,18 @@
 }
 
 /* Whole Page */
-content.pushable {
+body.pushable {
   background: @canvasBackground !important;
 }
 
 /* Page Context */
-.pushable:not(content) {
+.pushable:not(body) {
   transform: translate3d(0, 0, 0);
 }
 
-.pushable:not(content) > .ui.sidebar,
-.pushable:not(content) > .fixed,
-.pushable:not(content) > .pusher:after {
+.pushable:not(body) > .ui.sidebar,
+.pushable:not(body) > .fixed,
+.pushable:not(body) > .pusher:after {
   position: absolute;
 }
 
@@ -140,7 +140,7 @@ content.pushable {
   background: inherit;
 }
 
-content.pushable > .pusher {
+body.pushable > .pusher {
   background: @pageBackground;
 }
 

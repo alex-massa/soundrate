@@ -21,7 +21,7 @@
             Dimmer
 *******************************/
 
-.dimmable:not(content) {
+.dimmable:not(body) {
   position: @dimmablePosition;
 }
 
@@ -90,8 +90,8 @@
 *******************************/
 
 /* Animating */
-.animating.dimmable:not(content),
-.dimmed.dimmable:not(content) {
+.animating.dimmable:not(body),
+.dimmed.dimmable:not(body) {
   overflow: @overflow;
 }
 
@@ -149,12 +149,12 @@
   transform-origin: center center;
 }
 
-content.animating.in.dimmable,
-content.dimmed.dimmable {
+body.animating.in.dimmable,
+body.dimmed.dimmable {
   overflow: hidden;
 }
 
-content.dimmable > .dimmer {
+body.dimmable > .dimmer {
   position: fixed;
 }
 

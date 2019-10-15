@@ -7,39 +7,41 @@
     <i class="close icon"></i>
     <div class="content">
         <div class="ui top attached two item tabs inverted blue menu" id="sign-in-tabs-menu">
-            <a class="active item" data-tab="sign-in"><fmt:message key="label.signIn"/></a>
-            <a class="item" data-tab="sign-up"><fmt:message key="label.signUp"/></a>
+            <a class="active item" data-tab="log-in-form"><fmt:message key="label.logIn"/></a>
+            <a class="item" data-tab="sign-up-form"><fmt:message key="label.signUp"/></a>
         </div>
-        <div class="ui bottom attached active tab segment" data-tab="sign-in">
-            <form class="ui form" id="sign-in-form">
+        <div class="ui bottom attached active tab segment" data-tab="log-in-form">
+            <form class="ui form" id="log-in-form">
                 <div class="required field">
                     <label><fmt:message key="label.usernameField"/></label>
                     <div class="ui left icon input">
                         <i class="user icon"></i>
-                        <input type="text" name="username" placeholder="<fmt:message key="label.usernameField"/>"
-                               id="sign-in-username">
+                        <input type="text" name="username"
+                               placeholder="<fmt:message key="label.usernameField"/>" id="log-in-username">
                     </div>
                 </div>
                 <div class="required field">
                     <label><fmt:message key="label.passwordField"/></label>
                     <div class="ui left icon input">
                         <i class="lock icon"></i>
-                        <input type="password" name="password" placeholder="<fmt:message key="label.passwordField"/>"
-                               id="sign-in-password">
+                        <input type="password" name="password"
+                               placeholder="<fmt:message key="label.passwordField"/>" id="log-in-password">
                     </div>
                 </div>
-                <button class="ui primary fluid button" type="submit"><fmt:message key="label.signIn"/></button>
+                <button class="ui primary fluid button" type="button" id="log-in-button">
+                    <fmt:message key="label.logIn"/>
+                </button>
                 <div class="ui error message"></div>
             </form>
         </div>
-        <div class="ui bottom attached tab segment" data-tab="sign-up">
+        <div class="ui bottom attached tab segment" data-tab="sign-up-form">
             <form class="ui form" id="sign-up-form">
                 <div class="required field">
                     <label><fmt:message key="label.usernameField"/></label>
                     <div class="ui left icon input">
                         <i class="user icon"></i>
-                        <input type="text" name="username" placeholder="<fmt:message key="label.usernameField"/>"
-                               id="sign-up-user">
+                        <input type="text" name="username"
+                               placeholder="<fmt:message key="label.usernameField"/>" id="sign-up-username">
                     </div>
                 </div>
                 <div class="two fields">
@@ -47,8 +49,8 @@
                         <label><fmt:message key="label.emailAddressField"/></label>
                         <div class="ui left icon input">
                             <i class="envelope icon"></i>
-                            <input type="email" name="email" placeholder="<fmt:message key="label.emailAddressField"/>"
-                                   id="sign-up-email">
+                            <input type="email" name="email"
+                                   placeholder="<fmt:message key="label.emailAddressField"/>" id="sign-up-email">
                         </div>
                     </div>
                     <div class="required field">
@@ -56,8 +58,7 @@
                         <div class="ui left icon input">
                             <i class="envelope icon"></i>
                             <input type="email" name="email-match"
-                                   placeholder="<fmt:message key="label.matchEmailAddressField"/>"
-                                   id="sign-up-email-match">
+                                   placeholder="<fmt:message key="label.matchEmailAddressField"/>" id="sign-up-email-match">
                         </div>
                     </div>
                 </div>
@@ -75,12 +76,13 @@
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
                             <input type="password" name="password-match"
-                                   placeholder="<fmt:message key="label.matchPasswordField"/>"
-                                   id="sign-up-password-match">
+                                   placeholder="<fmt:message key="label.matchPasswordField"/>" id="sign-up-password-match">
                         </div>
                     </div>
                 </div>
-                <button class="ui primary fluid button" type="submit"><fmt:message key="label.signUp"/></button>
+                <button class="ui primary fluid button" type="button" id="sign-up-button">
+                    <fmt:message key="label.signUp"/>
+                </button>
                 <div class="ui error message"></div>
             </form>
         </div>

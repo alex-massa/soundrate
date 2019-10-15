@@ -6,8 +6,8 @@ Il progetto *soundrate* propone la costruzione di una piattaforma online per la 
 
 ## Utilizzo
 È necessaria un'installazione locale del modulo [`deezer-api`](https://github.com/alex-massa/deezer-api).
-Per eseguire l'applicazione web va eseguito il comando Maven `mvn clean package tomee:run` all'interno della directory `soundrate` contenente il file `pom.xml`; sarà quindi possibile raggiungere la piattaforma collegandosi tramite un browser web all'inidirizzo `localhost:8080/soundrate`.
+Per eseguire l'applicazione web va eseguito il comando Maven `mvn package tomee:run` all'interno della directory `soundrate` contenente il file `pom.xml`; sarà quindi possibile raggiungere la piattaforma collegandosi tramite un browser web all'inidirizzo `localhost:8080/soundrate`.
 
 ### Note
-- Nel suo stato attuale di snapshot, l'applicazione contiene numerose inconsistenze e inefficienze; verrà gradualmente raffinata e ottimizzata (e, più generalmente, riprogettata) coi successivi commit.
-- Il layer di persistenza è attualmente simulato utilizzando dei file JSON; tutte le modifiche vengono mantenute in memoria e perse in seguito ad un riavvio dell'applicazione.
+- Nel suo stato attuale di snapshot, l'applicazione contiene diverse inefficienze; verrà gradualmente raffinata coi successivi commit.
+- Il contenuto del layer di persistenza viene generato durante lo startup dell'applicazione e distrutto in seguito al suo shutdown; tutte le modifiche apportate vengono mantenute per la durata dell'applicazione, e perse al suo spegnimento. Per usare una base di dati persistente configurare in maniera appropriata i file `soundrate/webapp/WEB-INF/resource.xml` e `soundrate/webapp/META-INF/persistence.xml`.

@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="albums" value="${requestScope.albums}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +16,6 @@
     <link rel="stylesheet" type="text/css" href="${context}/content/semantic/dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="${context}/content/semantic/dist/semantic.min.js"></script>
-    <script src="${context}/content/javascript/api-settings.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
     <title><fmt:message key="label.topAlbums"/></title>
@@ -32,6 +32,8 @@
             </div>
             <div class="ui divided list">
                 <c:forEach items="${albums}" var="album">
+                    <c:set var="albumNumberOfReviews" value="${dataAgent.getAlbumNumberOfReviews(album)}"/>
+                    <c:set var="albumAverageRating" value="${dataAgent.getAlbumAverageRating(album)}"/>
                     <div class="item">
                         <img class="ui tiny image" src="${album.bigCover}" alt="artwork">
                         <div class="content">
@@ -43,17 +45,17 @@
                             </div>
                             <div class="extra">
                                 <c:choose>
-                                    <c:when test="${album.numberOfReviews eq 0}">
+                                    <c:when test="${albumNumberOfReviews eq 0}">
                                         <span class="ui blue circular medium label">N/A</span>
                                     </c:when>
                                     <c:otherwise>
                                         <span class="ui blue circular medium label">
                                             <fmt:formatNumber type="number" maxFractionDigits="1"
-                                                              value="${album.averageRating}"/>
+                                                              value="${albumAverageRating}"/>
                                         </span>
                                         <span>
                                             (<fmt:message key="label.numberOfReviews">
-                                                <fmt:param value="${album.numberOfReviews}"/>
+                                                <fmt:param value="${albumNumberOfReviews}"/>
                                             </fmt:message>)
                                         </span>
                                     </c:otherwise>

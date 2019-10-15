@@ -20,7 +20,7 @@ html {
  * Remove the margin in all browsers.
  */
 
-content {
+body {
   margin: 0;
 }
 

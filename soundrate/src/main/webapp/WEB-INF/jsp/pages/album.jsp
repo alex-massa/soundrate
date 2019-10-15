@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="album" value="${requestScope.album}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +16,6 @@
     <link rel="stylesheet" type="text/css" href="${context}/content/semantic/dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="${context}/content/semantic/dist/semantic.min.js"></script>
-    <script src="${context}/content/javascript/api-settings.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
     <script src="${context}/content/javascript/vote-review.js"></script>
@@ -45,6 +45,10 @@
                 </div>
             </c:when>
             <c:otherwise>
+                <c:set var="albumGenre" value="${dataAgent.getAlbumGenre(album)}"/>
+                <c:set var="albumReviews" value="${dataAgent.getAlbumReviews(album)}"/>
+                <c:set var="albumNumberOfReviews" value="${dataAgent.getAlbumNumberOfReviews(album)}"/>
+                <c:set var="albumAverageRating" value="${dataAgent.getAlbumAverageRating(album)}"/>
                 <div class="ui two columns stackable grid">
                     <div class="five wide column">
                         <div class="ui sticky fluid card" data-type="album"
@@ -73,16 +77,16 @@
                                         <fmt:message key="label.averageRating"/>
                                     </span>
                                     <c:choose>
-                                        <c:when test="${album.numberOfReviews eq 0}">
+                                        <c:when test="${albumNumberOfReviews eq 0}">
                                             <span class="ui blue circular medium label">N/A</span>
                                         </c:when>
                                         <c:otherwise>
                                             <span class="ui blue circular medium label">
                                                 <fmt:formatNumber type="number" maxFractionDigits="1"
-                                                                  value="${album.averageRating}"/>
+                                                                  value="${albumAverageRating}"/>
                                             </span>
                                             (<fmt:message key="label.basedOn">
-                                                <fmt:param value="${album.numberOfReviews}"/>
+                                                <fmt:param value="${albumNumberOfReviews}"/>
                                             </fmt:message>)
                                         </c:otherwise>
                                     </c:choose>
@@ -94,20 +98,20 @@
                                     </span>
                                     <fmt:formatDate dateStyle="short" type="date" value="${album.releaseDate}"/>
                                 </div>
-                                <c:if test="${not empty album.genre}">
+                                <c:if test="${not empty albumGenre}">
                                     <div class="center aligned meta">
                                         <span class="ui icon medium label">
                                             <i class="blue play icon"></i>
                                             <fmt:message key="label.genre"/>
                                         </span>
-                                        ${album.genre}
+                                        ${albumGenre.name}
                                     </div>
                                 </c:if>
                             </div>
                             <c:choose>
                                 <c:when test="${empty sessionScope.username}">
                                     <div class="ui bottom attached disabled button">
-                                        <i class="sign in icon"></i> <fmt:message key="label.signInForBacklog"/>
+                                        <i class="sign in icon"></i> <fmt:message key="label.logInForBacklog"/>
                                     </div>
                                 </c:when>
                                 <c:otherwise>
@@ -138,9 +142,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <c:forEach items="${album.reviews}" var="review">
-                                    <c:if test="${review.reviewerUsername eq sessionScope.username}">
+                                <c:forEach items="${albumReviews}" var="review">
+                                    <c:if test="${review.reviewer.username eq sessionScope.username}">
                                         <c:set var="userReview" value="${review}"/>
+                                        <c:set var="userReviewScore" value="${dataAgent.getReviewScore(review)}"/>
                                     </c:if>
                                 </c:forEach>
                                 <form class="ui form ${not empty userReview ? 'invisible' : ''}" id="review-form">
@@ -154,7 +159,8 @@
                                              data-rating="${not empty userReview ? userReview.rating : 5}"
                                              data-max-rating="10" id="review-rating"></div>
                                     </div>
-                                    <button class="ui positive small basic labeled icon button" type="submit">
+                                    <button class="ui positive small basic labeled icon button"
+                                            type="button" id="publish-review-button">
                                         <i class="plus icon"></i> <fmt:message key="tooltip.publish"/>
                                     </button>
                                 </form>
@@ -203,7 +209,7 @@
                                                 <i class="thumbs up icon"></i>
                                             </button>
                                             <div class="or"
-                                                 data-text="${not empty userReview ? userReview.score : 0}"></div>
+                                                 data-text="${not empty userReview ? userReviewScore : 0}"></div>
                                             <button class="ui basic icon button" data-value="false">
                                                 <i class="thumbs down icon"></i>
                                             </button>
@@ -211,11 +217,13 @@
                                     </div>
                                 </div>
                             </c:if>
-                            <c:forEach items="${album.reviews}" var="review">
-                                <c:if test="${empty sessionScope.username or sessionScope.username ne review.reviewerUsername}">
+                            <c:forEach items="${albumReviews}" var="review">
+                                <c:set var="reviewer" value="${dataAgent.getUser(review.reviewer.username)}"/>
+                                <c:set var="reviewScore" value="${dataAgent.getReviewScore(review)}"/>
+                                <c:if test="${empty sessionScope.username or sessionScope.username ne reviewer.username}">
                                     <div class="ui fluid card" data-type="review" data-published="true"
                                          data-vote-enabled="${not empty sessionScope.username}"
-                                         data-reviewer="${review.reviewerUsername}" data-album="${param.id}">
+                                         data-reviewer="${reviewer.username}" data-album="${param.id}">
                                         <div class="meta content">
                                             <div class="right floated meta">
                                                 <span class="ui icon label">
@@ -226,10 +234,10 @@
                                                 <span class="ui blue circular medium label">${review.rating}</span>
                                             </div>
                                             <a class="left floated author"
-                                               href="${context}/user?id=${review.reviewerUsername}">
-                                                <img class="ui avatar image" src="${review.reviewer.picture}"
+                                               href="${context}/user?id=${reviewer.username}">
+                                                <img class="ui avatar image" src="${reviewer.picture}"
                                                      alt="avatar">
-                                                <span class="user">${review.reviewerUsername}</span>
+                                                <span class="user">${reviewer.username}</span>
                                             </a>
                                         </div>
                                         <div class="content">
@@ -238,11 +246,11 @@
                                         <c:choose>
                                             <c:when test="${empty sessionScope.username}">
                                                 <div class="bottom attached button"
-                                                     data-tooltip="<fmt:message key="tooltip.signInToVote"/>">
+                                                     data-tooltip="<fmt:message key="tooltip.logInToVote"/>">
                                                     <div class="ui fluid buttons">
                                                         <button class="ui disabled basic icon button"><i
                                                                 class="thumbs up icon"></i></button>
-                                                        <div class="or" data-text="${review.score}"></div>
+                                                        <div class="or" data-text="${reviewScore}"></div>
                                                         <button class="ui disabled basic icon button"><i
                                                                 class="thumbs down icon"></i></button>
                                                     </div>
@@ -253,7 +261,7 @@
                                                     <div class="ui fluid buttons">
                                                         <button class="ui basic icon button" data-value="true"><i
                                                                 class="thumbs up icon"></i></button>
-                                                        <div class="or" data-text="${review.score}"></div>
+                                                        <div class="or" data-text="${reviewScore}"></div>
                                                         <button class="ui basic icon button" data-value="false"><i
                                                                 class="thumbs down icon"></i></button>
                                                     </div>

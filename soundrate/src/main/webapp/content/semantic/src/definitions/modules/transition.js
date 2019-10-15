@@ -177,7 +177,7 @@
                         }
                         module.debug('Preparing animation', settings.animation);
                         if (module.is.animating()) {
-                            if (settings.backlog) {
+                            if (settings.queue) {
                                 if (!settings.allowRepeats && module.has.direction() && module.is.occurring() && module.queuing !== true) {
                                     module.debug('Animation is currently occurring, preventing queueing same animation', settings.animation);
                                 } else {
@@ -210,7 +210,7 @@
                         module.debug('Queueing animation of', animation);
                         module.queuing = true;
                         $module
-                            .one(animationEnd + '.backlog.jsp' + eventNamespace, function () {
+                            .one(animationEnd + '.queue' + eventNamespace, function () {
                                 module.queuing = false;
                                 module.repaint();
                                 module.animate.apply(this, settings);
@@ -456,7 +456,7 @@
                             module.remove.completeCallback();
                         },
                         queueCallback: function () {
-                            $module.off('.backlog.jsp' + eventNamespace);
+                            $module.off('.queue' + eventNamespace);
                         },
                         completeCallback: function () {
                             $module.off('.complete' + eventNamespace);

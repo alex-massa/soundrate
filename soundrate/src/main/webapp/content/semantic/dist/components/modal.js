@@ -415,7 +415,7 @@
                                         .transition({
                                             debug: settings.debug,
                                             animation: settings.transition + ' in',
-                                            queue: settings.backlog,
+                                            queue: settings.queue,
                                             duration: settings.duration,
                                             useFailSafe: true,
                                             onComplete: function () {
@@ -464,7 +464,7 @@
                                     .transition({
                                         debug: settings.debug,
                                         animation: settings.transition + ' out',
-                                        queue: settings.backlog,
+                                        queue: settings.queue,
                                         duration: settings.duration,
                                         useFailSafe: true,
                                         onStart: function () {

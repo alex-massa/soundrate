@@ -1,4 +1,4 @@
-const voteButtonsStates = {
+const voteButtonsState = {
     POS: 'positive',
     NEG: 'negative'
 };
@@ -7,116 +7,110 @@ window.addEventListener('load', () => {
     let reviews = document.querySelectorAll('[data-type="review"]');
     reviews.forEach(review => {
         if (JSON.parse(review.dataset.voteEnabled)) {
-            attachButtonsCalls(review);
+            attachVoteButtonsClickEvent(review);
             if (JSON.parse(review.dataset.published))
-                getReviewVote(review);
+                getReviewVoteValue(review);
         }
     });
 });
 
-function getReviewVote(review) {
+function getReviewVoteValue(review) {
     let reviewerUsername = review.dataset.reviewer;
     let albumId = review.dataset.album;
     $.ajax({
         method: 'get',
-        dataType: 'json',
-        url: 'get-review-vote',
+        url: 'get-review-vote-value',
         data: {'reviewer': reviewerUsername, 'album': albumId}
     })
-        .done(data => {
-            let vote = data == null ? null : data.vote;
-            applyReviewButtonsVisualChanges(review, vote);
-            setReviewVoteValue(review, vote);
-        })
-        .fail(xhr => {
-            let toastMessage = xhr.responseText ? xhr.responseText : 'An unknown error occurred, please try again';
-            $('body').toast({
-                message: toastMessage,
-                position: 'bottom right',
-                class: 'error',
-                className: {toast: 'ui message'}
-            });
+    .done(data => {
+        let voteValue = !data ? null : JSON.parse(data);
+        applyReviewButtonsVisualChanges(review, voteValue);
+        setReviewVoteValue(review, voteValue);
+    })
+    .fail(xhr => {
+        let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
+        $('body').toast({
+            message: toastMessage,
+            position: 'bottom right',
+            class: 'error',
+            className: {toast: 'ui message'}
         });
+    });
 }
 
-function attachButtonsCalls(review) {
+function attachVoteButtonsClickEvent(review) {
     review.querySelectorAll('button[data-value]').forEach(button => {
-        $(button).api({
-            action: 'vote review',
-            method: 'POST',
-            dataType: 'text',
-            beforeSend: settings => {
-                let vote = getVoteValueToSet(review.dataset.vote, button.dataset.value);
-                if (vote == null)
-                    delete settings.urlData.vote;
-                else
-                    settings.urlData.vote = vote;
-                settings.urlData.album = review.dataset.album;
-                settings.urlData.reviewer = review.dataset.reviewer;
-                return settings;
-            },
-            onSuccess: () => {
-                let vote = getVoteValueToSet(review.dataset.vote, button.dataset.value);
-                applyReviewButtonsVisualChanges(review, vote);
-                applyReviewUpvotesVisualChanges(review, vote);
-                setReviewVoteValue(review, vote);
-            },
-            onError: (errorMessage, element, xhr) => {
-                let toastMessage = xhr.responseText ? xhr.responseText : 'An unknown error occurred, please try again';
+        button.addEventListener('click', () => {
+            let voteValue = getVoteValueToSet(review.dataset.vote, button.dataset.value);
+            let albumId = review.dataset.album;
+            let reviewerUsername = review.dataset.reviewer;
+            $.ajax({
+                method: 'POST',
+                url: 'vote-review',
+                data: {vote: voteValue, album: albumId, reviewer: reviewerUsername}
+            })
+            .done(() => {
+                let voteValue = getVoteValueToSet(review.dataset.vote, button.dataset.value);
+                applyReviewButtonsVisualChanges(review, voteValue);
+                applyReviewUpvotesVisualChanges(review, voteValue);
+                setReviewVoteValue(review, voteValue);
+            })
+            .fail(xhr => {
+                let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
                 $('body').toast({
                     message: toastMessage,
                     position: 'bottom right',
                     class: 'error',
                     className: {toast: 'ui message'}
                 });
-            }
+            });
         });
     });
 }
 
-function getVoteValueToSet(reviewVote, buttonValue) {
-    return reviewVote === buttonValue ? null : buttonValue;
+function getVoteValueToSet(reviewVoteValue, buttonValue) {
+    return reviewVoteValue === buttonValue ? null : buttonValue;
 }
 
-function applyReviewButtonsVisualChanges(review, newVote) {
-    newVote = JSON.parse(newVote);
+function applyReviewButtonsVisualChanges(review, newVoteValue) {
+    newVoteValue = JSON.parse(newVoteValue);
     let posButton = review.querySelector('button[data-value="true"]');
     let negButton = review.querySelector('button[data-value="false"]');
-    switch (newVote) {
+    switch (newVoteValue) {
         case null:
-            posButton.classList.remove(voteButtonsStates.POS);
-            negButton.classList.remove(voteButtonsStates.NEG);
+            posButton.classList.remove(voteButtonsState.POS);
+            negButton.classList.remove(voteButtonsState.NEG);
             break;
         case true:
-            posButton.classList.add(voteButtonsStates.POS);
-            negButton.classList.remove(voteButtonsStates.NEG);
+            posButton.classList.add(voteButtonsState.POS);
+            negButton.classList.remove(voteButtonsState.NEG);
             break;
         case false:
-            posButton.classList.remove(voteButtonsStates.POS);
-            negButton.classList.add(voteButtonsStates.NEG);
+            posButton.classList.remove(voteButtonsState.POS);
+            negButton.classList.add(voteButtonsState.NEG);
             break;
     }
 }
 
-function applyReviewUpvotesVisualChanges(review, newVote) {
-    newVote = JSON.parse(newVote);
+function applyReviewUpvotesVisualChanges(review, newVoteValue) {
+    newVoteValue = JSON.parse(newVoteValue);
     let currentVote = JSON.parse(review.dataset.vote || null);
     let reviewScore = JSON.parse(review.querySelector('[data-text]').dataset.text);
     if (currentVote && newVote == null)
         reviewScore -= 1;
-    else if (currentVote === true && newVote === false)
+    else if (currentVote === true && newVoteValue === false)
         reviewScore -= 2;
-    else if (currentVote === false && newVote == null)
+    else if (currentVote === false && newVoteValue == null)
         reviewScore += 1;
-    else if (currentVote === false && newVote === true)
+    else if (currentVote === false && newVoteValue === true)
         reviewScore += 2;
-    else if (currentVote == null && newVote === true)
+    else if (currentVote == null && newVoteValue === true)
         reviewScore += 1;
-    else if (currentVote == null && newVote === false)
+    else if (currentVote == null && newVoteValue === false)
         reviewScore -= 1;
     review.querySelector('[data-text]').dataset.text = reviewScore;
 }
 
-function setReviewVoteValue(review, newVote) {
-    review.dataset.vote = newVote == null ? null : newVote;
+function setReviewVoteValue(review, newVoteValue) {
+    review.dataset.vote = newVoteValue == null ? null : newVoteValue;
 }

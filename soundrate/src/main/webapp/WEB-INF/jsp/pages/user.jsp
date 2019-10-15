@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="user" value="${requestScope.user}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +16,6 @@
     <link rel="stylesheet" type="text/css" href="${context}/content/semantic/dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="${context}/content/semantic/dist/semantic.min.js"></script>
-    <script src="${context}/content/javascript/api-settings.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
     <script src="${context}/content/javascript/vote-review.js"></script>
@@ -38,6 +38,10 @@
                 </div>
             </c:when>
             <c:otherwise>
+                <c:set var="userReviews" value="${dataAgent.getUserReviews(user)}"/>
+                <c:set var="userNumberOfReviews" value="${dataAgent.getUserNumberOfReviews(user)}"/>
+                <c:set var="userAverageAssignedRating" value="${dataAgent.getUserAverageAssignedRating(user)}"/>
+                <c:set var="userReputation" value="${dataAgent.getUserReputation(user)}"/>
                 <div class="ui two columns stackable grid">
                     <div class="five wide column">
                         <div class="ui sticky fluid card">
@@ -64,7 +68,7 @@
                                         <fmt:message key="label.totalRep"/>
                                     </span>
                                     <span class="ui blue circular medium label">
-                                        ${user.reputation}
+                                        ${userReputation}
                                     </span>
                                 </div>
                                 <div class="center aligned meta">
@@ -73,16 +77,16 @@
                                         <fmt:message key="label.averageAssignedRating"/>
                                     </span>
                                     <c:choose>
-                                        <c:when test="${user.numberOfReviews eq 0}">
+                                        <c:when test="${userNumberOfReviews eq 0}">
                                             <span class="ui blue circular medium label">N/A</span>
                                         </c:when>
                                         <c:otherwise>
                                             <span class="ui blue circular medium label">
                                                 <fmt:formatNumber type="number" maxFractionDigits="1"
-                                                                  value="${user.averageAssignedRating}"/>
+                                                                  value="${userAverageAssignedRating}"/>
                                             </span>
                                             (<fmt:message key="label.basedOn">
-                                                <fmt:param value="${user.numberOfReviews}"/>
+                                                <fmt:param value="${userNumberOfReviews}"/>
                                             </fmt:message>)
                                         </c:otherwise>
                                     </c:choose>
@@ -105,10 +109,13 @@
                             <div class="ui large blue header">
                                 <fmt:message key="label.reviews"/>
                             </div>
-                            <c:forEach items="${user.reviews}" var="review">
+                            <c:forEach items="${userReviews}" var="review">
+                                <c:set var="reviewedAlbum" value="${dataAgent.getAlbum(review.reviewedAlbumId)}"/>
+                                <c:set var="reviewedAlbumArtist" value="${reviewedAlbum.artist}"/>
+                                <c:set var="reviewScore" value="${dataAgent.getReviewScore(review)}"/>
                                 <div class="ui fluid card" data-type="review" data-published="true"
                                      data-vote-enabled="${not empty sessionScope.username}"
-                                     data-reviewer="${review.reviewerUsername}" data-album="${review.reviewedAlbumId}">
+                                     data-reviewer="${review.reviewer.username}" data-album="${review.reviewedAlbumId}">
                                     <div class="meta content">
                                         <div class="right floated meta">
                                             <span class="ui icon label">
@@ -123,19 +130,19 @@
                                         <div class="ui items">
                                             <div class="ui item">
                                                 <a class="ui tiny image" href="${context}/album?id=${review.reviewedAlbumId}">
-                                                    <img src="${review.reviewedAlbum.bigCover}" alt="artwork">
+                                                    <img src="${reviewedAlbum.bigCover}" alt="artwork">
                                                 </a>
                                                 <div class="middle aligned content">
                                                     <div class="center aligned meta">
                                                         <a class="ui small header"
                                                            href="${context}/album?id=${review.reviewedAlbumId}">
-                                                                ${review.reviewedAlbum.title}
+                                                                ${reviewedAlbum.title}
                                                         </a>
                                                     </div>
                                                     <div class="center aligned meta">
                                                         <a class="ui small disabled header"
-                                                           href="${context}/artist?id=${review.reviewedAlbum.artist.id}">
-                                                                ${review.reviewedAlbum.artist.name}
+                                                           href="${context}/artist?id=${reviewedAlbumArtist.id}">
+                                                                ${reviewedAlbumArtist.name}
                                                         </a>
                                                     </div>
                                                 </div>
@@ -148,12 +155,12 @@
                                     <c:choose>
                                         <c:when test="${empty sessionScope.username}">
                                             <div class="bottom attached button"
-                                                 data-tooltip="<fmt:message key="tooltip.signInToVote"/>">
+                                                 data-tooltip="<fmt:message key="tooltip.logInToVote"/>">
                                                 <div class="ui fluid buttons">
                                                     <button class="ui disabled basic icon button">
                                                         <i class="thumbs up icon"></i>
                                                     </button>
-                                                    <div class="or" data-text="${review.score}"></div>
+                                                    <div class="or" data-text="${reviewScore}"></div>
                                                     <button class="ui disabled basic icon button">
                                                         <i class="thumbs down icon"></i>
                                                     </button>
@@ -166,7 +173,7 @@
                                                     <button class="ui basic icon button" data-value="true">
                                                         <i class="thumbs up icon"></i>
                                                     </button>
-                                                    <div class="or" data-text="${review.score}"></div>
+                                                    <div class="or" data-text="${reviewScore}"></div>
                                                     <button class="ui basic icon button" data-value="false">
                                                         <i class="thumbs down icon"></i>
                                                     </button>

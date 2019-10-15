@@ -25,8 +25,8 @@
                     <i class="list icon"></i> <fmt:message key="label.backlog"/>
                 </a>
                 <div class="item">
-                    <div class="ui inverted button" id="sign-out-button">
-                        <i class="sign out alternate icon"></i> <fmt:message key="label.signOut"/>
+                    <div class="ui inverted button" id="log-out-button">
+                        <i class="sign out alternate icon"></i> <fmt:message key="label.logOut"/>
                     </div>
                 </div>
             </c:otherwise>

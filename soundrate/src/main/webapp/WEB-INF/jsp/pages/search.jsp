@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="artists" value="${requestScope.artists}"/>
 <c:set var="albums" value="${requestScope.albums}"/>
 <!DOCTYPE html>
@@ -16,7 +17,6 @@
     <link rel="stylesheet" type="text/css" href="${context}/content/semantic/dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="${context}/content/semantic/dist/semantic.min.js"></script>
-    <script src="${context}/content/javascript/api-settings.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
     <title><fmt:message key="label.searchResults"/></title>
@@ -41,6 +41,8 @@
                 <c:otherwise>
                     <div class="ui six doubling cards">
                         <c:forEach items="${artists}" var="artist">
+                            <c:set var="artistNumberOfReviews" value="${dataAgent.getArtistNumberOfReviews(artist)}"/>
+                            <c:set var="artistAverageRating" value="${dataAgent.getArtistAverageRating(artist)}"/>
                             <div class="card">
                                 <a class="image" href="${context}/artist?id=${artist.id}">
                                     <img src="${artist.bigPicture}" alt="picture">
@@ -54,17 +56,17 @@
                                 <div class="extra content">
                                     <div class="center aligned meta">
                                         <c:choose>
-                                            <c:when test="${artist.numberOfReviews eq 0}">
+                                            <c:when test="${artistNumberOfReviews eq 0}">
                                                 <span class="ui blue circular medium label">N/A</span>
                                             </c:when>
                                             <c:otherwise>
                                                 <span class="ui blue circular medium label">
                                                     <fmt:formatNumber type="number" maxFractionDigits="1"
-                                                                      value="${artist.averageRating}"/>
+                                                                      value="${artistAverageRating}"/>
                                                 </span>
                                                 <span>
                                                     (<fmt:message key="label.numberOfReviews">
-                                                        <fmt:param value="${artist.numberOfReviews}"/>
+                                                        <fmt:param value="${artistNumberOfReviews}"/>
                                                     </fmt:message>)
                                                 </span>
                                             </c:otherwise>
@@ -91,6 +93,8 @@
                 <c:otherwise>
                     <div class="ui six doubling cards">
                         <c:forEach items="${albums}" var="album">
+                            <c:set var="albumNumberOfReviews" value="${dataAgent.getAlbumNumberOfReviews(album)}"/>
+                            <c:set var="albumAverageRating" value="${dataAgent.getAlbumAverageRating(album)}"/>
                             <div class="card">
                                 <a class="image" href="${context}/album?id=${album.id}">
                                     <img src="${album.bigCover}" alt="artwork">
@@ -108,17 +112,17 @@
                                 <div class="extra content">
                                     <div class="center aligned meta">
                                         <c:choose>
-                                            <c:when test="${album.numberOfReviews eq 0}">
+                                            <c:when test="${albumNumberOfReviews eq 0}">
                                                 <span class="ui blue circular medium label">N/A</span>
                                             </c:when>
                                             <c:otherwise>
                                                 <span class="ui blue circular medium label">
                                                     <fmt:formatNumber type="number" maxFractionDigits="1"
-                                                                      value="${album.averageRating}"/>
+                                                                      value="${albumAverageRating}"/>
                                                 </span>
                                                 <span>
                                                     (<fmt:message key="label.numberOfReviews">
-                                                        <fmt:param value="${album.numberOfReviews}"/>
+                                                        <fmt:param value="${albumNumberOfReviews}"/>
                                                     </fmt:message>)
                                                 </span>
                                             </c:otherwise>

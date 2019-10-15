@@ -52,8 +52,8 @@ module.exports = function (gulp) {
     gulp.task('update components').description = 'Commits component updates from create to GitHub';
 
     /* Tasks */
-    gulp.task('album.jsp', release);
-    gulp.task('album.jsp').description = 'Stages changes in GitHub repos for all distributions';
+    gulp.task('release', release);
+    gulp.task('release').description = 'Stages changes in GitHub repos for all distributions';
 
     gulp.task('publish', publish);
     gulp.task('publish').description = 'Publishes all releases (components, package)';
