@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
-<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="user" value="${requestScope.user}"/>
 <c:set var="backlog" value="${requestScope.backlog}"/>
 <!DOCTYPE html>
@@ -38,12 +37,15 @@
                 </div>
             </c:when>
             <c:otherwise>
+                <c:set var="albumGenreMap" value="${requestScope.albumGenreMap}"/>
+                <c:set var="albumNumberOfReviewsMap" value="${requestScope.albumNumberOfReviewsMap}"/>
+                <c:set var="albumAverageRatingMap" value="${requestScope.albumAverageRatingMap}"/>
                 <div class="ui fluid segment">
                     <div class="ui four doubling cards">
                         <c:forEach items="${backlog}" var="album">
-                            <c:set var="albumGenre" value="${dataAgent.getAlbumGenre(album)}"/>
-                            <c:set var="albumNumberOfReviews" value="${dataAgent.getAlbumNumberOfReviews(album)}"/>
-                            <c:set var="albumAverageRating" value="${dataAgent.getAlbumAverageRating(album)}"/>
+                            <c:set var="albumGenre" value="${albumGenreMap[album]}"/>
+                            <c:set var="albumNumberOfReviews" value="${albumNumberOfReviewsMap[album]}"/>
+                            <c:set var="albumAverageRating" value="${albumAverageRatingMap[album]}"/>
                             <div class="ui card" data-type="album"
                                  data-enabled="${empty sessionScope.username ? false : true}" data-album="${album.id}">
                                 <a class="image" href="${context}/album?id=${album.id}">

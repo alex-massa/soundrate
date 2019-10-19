@@ -28,15 +28,13 @@ public class User implements Serializable {
     private String picture;
     @Column(name = "bio", length = 2500)
     private String biography;
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "backlogEntry", joinColumns = @JoinColumn(name = "username"))
-    @Column(name = "albumId")
-    private List<Long> backlog;
 
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Review> reviews;
     @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Vote> votes;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<BacklogEntry> backlog;
 
     public String getUsername() {
         return this.username;
@@ -98,15 +96,6 @@ public class User implements Serializable {
         return this;
     }
 
-    public List<Long> getBacklog() {
-        return this.backlog;
-    }
-
-    public User setBacklog(List<Long> backlog) {
-        this.backlog = backlog;
-        return this;
-    }
-
     public List<Review> getReviews() {
         return this.reviews;
     }
@@ -125,6 +114,15 @@ public class User implements Serializable {
         return this;
     }
 
+    public List<BacklogEntry> getBacklog() {
+        return this.backlog;
+    }
+
+    public User setBacklog(List<BacklogEntry> backlog) {
+        this.backlog = backlog;
+        return this;
+    }
+
     @Override
     public String toString() {
         return new StringJoiner(", ", User.class.getSimpleName() + "{", "}")
@@ -134,7 +132,6 @@ public class User implements Serializable {
                 .add("signUpDate=" + this.signUpDate)
                 .add("picture=" + this.picture)
                 .add("biography='" + (this.biography == null ? null : "'" + this.biography + "'"))
-                .add("backlog=" + this.backlog)
                 .toString();
     }
 
@@ -150,14 +147,12 @@ public class User implements Serializable {
                 Objects.equals(this.password, user.password) &&
                 Objects.equals(this.signUpDate, user.signUpDate) &&
                 Objects.equals(this.picture, user.picture) &&
-                Objects.equals(this.biography, user.biography) &&
-                Objects.equals(this.backlog, user.backlog);
+                Objects.equals(this.biography, user.biography);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.username, this.email, this.password, this.signUpDate, this.picture, this.biography,
-                            this.backlog);
+        return Objects.hash(this.username, this.email, this.password, this.signUpDate, this.picture, this.biography);
     }
 
 }

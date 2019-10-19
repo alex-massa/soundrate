@@ -1,5 +1,6 @@
 package storage;
 
+import application.model.BacklogEntry;
 import application.model.Review;
 import application.model.User;
 import application.model.Vote;
@@ -14,13 +15,11 @@ import java.util.stream.Collectors;
 
 final class UsersDataGenerator {
 
-    private static final int TOP_ALBUMS = 100;
+    private static final int NUMBER_OF_TOP_ALBUMS = 100;
 
     // Users limits
-    private static final int MIN_USERS = 32;
-    private static final int MAX_USERS = 58;
-    private static final int MIN_BACKLOG_SIZE = 1;
-    private static final int MAX_BACKLOG_SIZE = 30;
+    private static final int MIN_USERS = 100;
+    private static final int MAX_USERS = 200;
     private static final int MIN_BIO_PARAGRAPHS = 1;
     private static final int MAX_BIO_PARAGRAPHS = 3;
 
@@ -46,6 +45,10 @@ final class UsersDataGenerator {
     private static final int MIN_VOTES_TOP = 0;
     private static final int MAX_VOTES_TOP = 30;
 
+    // Backlog entries limits
+    private static final int MIN_BACKLOG_SIZE = 1;
+    private static final int MAX_BACKLOG_SIZE = 30;
+
     private static ThreadLocalRandom random = ThreadLocalRandom.current();
     private static Faker faker =  Faker.instance();
     private static Date currentDate;
@@ -56,8 +59,10 @@ final class UsersDataGenerator {
 
     static {
         DeezerClient client = new DeezerClient();
-        List<Album> topAlbums = client.getTopAlbums(0, TOP_ALBUMS).getData();
+
+        List<Album> topAlbums = client.getTopAlbums(0, NUMBER_OF_TOP_ALBUMS).getData();
         topAlbumsIds = topAlbums.stream().map(Album::getId).collect(Collectors.toList());
+        albumsIds = topAlbumsIds;
         /*
         List<Long> artistsIds = topAlbums.stream()
                 .map(album -> album.getArtist().getId()).distinct().collect(Collectors.toList());
@@ -66,7 +71,8 @@ final class UsersDataGenerator {
             albumsIds.addAll(client.getArtistAlbums(artistId).getData().stream()
                     .map(Album::getId).collect(Collectors.toList()));
         }
-        */  albumsIds = topAlbumsIds;
+        */
+
         Calendar calendar = Calendar.getInstance();
         currentDate = calendar.getTime();
         calendar.add(Calendar.YEAR, -1);
@@ -119,7 +125,6 @@ final class UsersDataGenerator {
                     .setUsername(username)
                     .setEmail(email)
                     .setPassword(password)
-                    .setBacklog(backlog)
                     .setSignUpDate(signUpDate)
                     .setPicture(AvatarGenerator.randomAvatar(username, 600, AvatarGenerator.Format.SVG))
                     .setBiography(bio);
@@ -198,11 +203,27 @@ final class UsersDataGenerator {
                 votes.add(new Vote()
                         .setVoter(voter)
                         .setReview(review)
-                        .setVote(random.nextBoolean() ? +1 : -1)
+                        .setValue(random.nextBoolean() ? +1 : -1)
                 );
             }
         }
         return votes;
+    }
+
+    static List<BacklogEntry> generateBacklogEntries(final List<User> users) {
+        List<BacklogEntry> backlogEntries = new LinkedList<>();
+        for (User user : users) {
+            // Generating the listening backlog
+            if (random.nextBoolean()) {
+                Collections.shuffle(albumsIds);
+                for (int j = 0; j < random.nextInt(MIN_BACKLOG_SIZE, MAX_BACKLOG_SIZE + 1); j++)
+                    backlogEntries.add(new BacklogEntry()
+                            .setUser(user)
+                            .setAlbumId(albumsIds.get(j))
+                            .setInsertionTime(faker.date().between(pastDate, currentDate)));
+            }
+        }
+        return backlogEntries;
     }
 
 }

@@ -21,8 +21,8 @@ public class Vote implements Serializable {
             @JoinColumn(name = "reviewedAlbumId", referencedColumnName = "reviewedAlbumId")
     })
     private Review review;
-    @Column(name = "vote", nullable = false)
-    private Integer vote;
+    @Column(name = "value", nullable = false)
+    private Integer value;
 
     public User getVoter() {
         return this.voter;
@@ -42,21 +42,49 @@ public class Vote implements Serializable {
         return this;
     }
 
-    public Integer getVote() {
-        return this.vote;
+    public Integer getValue() {
+        return this.value;
     }
 
-    public Vote setVote(Integer vote) {
-        this.vote = vote;
+    public Vote setValue(Integer value) {
+        this.value = value;
+        return this;
+    }
+
+    public String getVoterUsername() {
+        return this.voter.getUsername();
+    }
+
+    public Vote setVoterUsername(String voterUsername) {
+        this.voter.setUsername(voterUsername);
+        return this;
+    }
+
+    public String getReviewerUsername() {
+        return this.review.getReviewerUsername();
+    }
+
+    public Vote setReviewerUsername(String reviewerUsername) {
+        this.review.setReviewerUsername(reviewerUsername);
+        return this;
+    }
+
+    public Long getReviewedAlbumId() {
+        return this.review.getReviewedAlbumId();
+    }
+
+    public Vote setReviewedAlbumId(Long reviewedAlbumId) {
+        this.review.setReviewedAlbumId(reviewedAlbumId);
         return this;
     }
 
     @Override
     public String toString() {
         return new StringJoiner(", ", Vote.class.getSimpleName() + "{", "}")
-                .add("voter=" + this.voter)
-                .add("review=" + this.review)
-                .add("vote=" + this.vote)
+                .add("voterUsername=" + (this.voter.getUsername() == null ? null : "'" + this.voter.getUsername() + "'"))
+                .add("reviewerUsername=" + (this.review.getReviewer().getUsername() == null ? null : "'" + this.review.getReviewer().getUsername() + "'"))
+                .add("reviewedAlbumId=" + this.review.getReviewedAlbumId())
+                .add("value=" + this.value)
                 .toString();
     }
 
@@ -69,12 +97,12 @@ public class Vote implements Serializable {
         Vote vote = (Vote) other;
         return  Objects.equals(this.voter, vote.voter) &&
                 Objects.equals(this.review, vote.review) &&
-                Objects.equals(this.vote, vote.vote);
+                Objects.equals(this.value, vote.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.voter, this.review, this.vote);
+        return Objects.hash(this.voter, this.review, this.value);
     }
 
     public static class VoteId implements Serializable {
@@ -88,8 +116,8 @@ public class Vote implements Serializable {
             return this.voter;
         }
 
-        public VoteId setVoterUsername(String voter) {
-            this.voter = voter;
+        public VoteId setVoterUsername(String voterUsername) {
+            this.voter = voterUsername;
             return this;
         }
 
@@ -97,8 +125,8 @@ public class Vote implements Serializable {
             return this.review;
         }
 
-        public VoteId setReviewId(Review.ReviewId review) {
-            this.review = review;
+        public VoteId setReviewId(Review.ReviewId reviewId) {
+            this.review = reviewId;
             return this;
         }
 
@@ -106,7 +134,8 @@ public class Vote implements Serializable {
         public String toString() {
             return new StringJoiner(", ", VoteId.class.getSimpleName() + "{", "}")
                     .add("voterUsername=" + (this.voter == null ? null : "'" + this.voter + "'"))
-                    .add("reviewId=" + this.review)
+                    .add("reviewerUsername=" + (this.review.getReviewerUsername() == null ? null : "'" + this.review.getReviewerUsername() + "'"))
+                    .add("reviewedAlbumId=" + this.review.getReviewedAlbumId())
                     .toString();
         }
 

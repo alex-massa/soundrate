@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
-<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="user" value="${requestScope.user}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,10 +37,10 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <c:set var="userReviews" value="${dataAgent.getUserReviews(user)}"/>
-                <c:set var="userNumberOfReviews" value="${dataAgent.getUserNumberOfReviews(user)}"/>
-                <c:set var="userAverageAssignedRating" value="${dataAgent.getUserAverageAssignedRating(user)}"/>
-                <c:set var="userReputation" value="${dataAgent.getUserReputation(user)}"/>
+                <c:set var="userReviews" value="${requestScope.userReviews}"/>
+                <c:set var="userNumberOfReviews" value="${requestScope.userNumberOfReviews}"/>
+                <c:set var="userAverageAssignedRating" value="${requestScope.userAverageAssignedRating}"/>
+                <c:set var="userReputation" value="${requestScope.userReputation}"/>
                 <div class="ui two columns stackable grid">
                     <div class="five wide column">
                         <div class="ui sticky fluid card">
@@ -109,10 +108,13 @@
                             <div class="ui large blue header">
                                 <fmt:message key="label.reviews"/>
                             </div>
+                            <!-- @todo display placeholder or message if no reviews are available -->
+                            <c:set var="reviewedAlbumMap" value="${requestScope.reviewedAlbumMap}"/>
+                            <c:set var="reviewScoreMap" value="${requestScope.reviewScoreMap}"/>
                             <c:forEach items="${userReviews}" var="review">
-                                <c:set var="reviewedAlbum" value="${dataAgent.getAlbum(review.reviewedAlbumId)}"/>
+                                <c:set var="reviewedAlbum" value="${reviewedAlbumMap[review]}"/>
                                 <c:set var="reviewedAlbumArtist" value="${reviewedAlbum.artist}"/>
-                                <c:set var="reviewScore" value="${dataAgent.getReviewScore(review)}"/>
+                                <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
                                 <div class="ui fluid card" data-type="review" data-published="true"
                                      data-vote-enabled="${not empty sessionScope.username}"
                                      data-reviewer="${review.reviewer.username}" data-album="${review.reviewedAlbumId}">

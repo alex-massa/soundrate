@@ -84,10 +84,19 @@ public class Review implements Serializable {
         return this;
     }
 
+    public String getReviewerUsername() {
+        return this.reviewer.getUsername();
+    }
+
+    public Review setReviewerUsername(String reviewerUsername) {
+        this.reviewer.setUsername(reviewerUsername);
+        return this;
+    }
+
     @Override
     public String toString() {
         return new StringJoiner(", ", Review.class.getSimpleName() + "{", "}")
-                .add("reviewer=" + this.reviewer)
+                .add("reviewerUsername=" + (this.reviewer.getUsername() == null ? null : "'" + this.reviewer.getUsername() + "'"))
                 .add("reviewedAlbumId=" + this.reviewedAlbumId)
                 .add("content=" + (this.content == null ? null : "'" + this.content + "'"))
                 .add("rating=" + this.rating)
@@ -126,8 +135,8 @@ public class Review implements Serializable {
             return this.reviewer;
         }
 
-        public ReviewId setReviewerUsername(String reviewer) {
-            this.reviewer = reviewer;
+        public ReviewId setReviewerUsername(String reviewerUsername) {
+            this.reviewer = reviewerUsername;
             return this;
         }
 

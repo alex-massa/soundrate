@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
-<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="album" value="${requestScope.album}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,10 +44,10 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <c:set var="albumGenre" value="${dataAgent.getAlbumGenre(album)}"/>
-                <c:set var="albumReviews" value="${dataAgent.getAlbumReviews(album)}"/>
-                <c:set var="albumNumberOfReviews" value="${dataAgent.getAlbumNumberOfReviews(album)}"/>
-                <c:set var="albumAverageRating" value="${dataAgent.getAlbumAverageRating(album)}"/>
+                <c:set var="albumGenre" value="${requestScope.albumGenre}"/>
+                <c:set var="albumReviews" value="${requestScope.albumReviews}"/>
+                <c:set var="albumNumberOfReviews" value="${requestScope.albumNumberOfReviews}"/>
+                <c:set var="albumAverageRating" value="${requestScope.albumAverageRating}"/>
                 <div class="ui two columns stackable grid">
                     <div class="five wide column">
                         <div class="ui sticky fluid card" data-type="album"
@@ -142,10 +141,13 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- @todo display placeholder or message if no reviews are available and user is not authenticated -->
+                                <c:set var="reviewScoreMap" value="${requestScope.reviewScoreMap}"/>
+                                <c:set var="reviewerMap" value="${requestScope.reviewerMap}"/>
                                 <c:forEach items="${albumReviews}" var="review">
                                     <c:if test="${review.reviewer.username eq sessionScope.username}">
                                         <c:set var="userReview" value="${review}"/>
-                                        <c:set var="userReviewScore" value="${dataAgent.getReviewScore(review)}"/>
+                                        <c:set var="userReviewScore" value="${reviewScoreMap[review]}"/>
                                     </c:if>
                                 </c:forEach>
                                 <form class="ui form ${not empty userReview ? 'invisible' : ''}" id="review-form">
@@ -218,8 +220,8 @@
                                 </div>
                             </c:if>
                             <c:forEach items="${albumReviews}" var="review">
-                                <c:set var="reviewer" value="${dataAgent.getUser(review.reviewer.username)}"/>
-                                <c:set var="reviewScore" value="${dataAgent.getReviewScore(review)}"/>
+                                <c:set var="reviewer" value="${reviewerMap[review]}"/>
+                                <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
                                 <c:if test="${empty sessionScope.username or sessionScope.username ne reviewer.username}">
                                     <div class="ui fluid card" data-type="review" data-published="true"
                                          data-vote-enabled="${not empty sessionScope.username}"

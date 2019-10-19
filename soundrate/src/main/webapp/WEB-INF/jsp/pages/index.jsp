@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
-<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="albums" value="${requestScope.albums}"/>
 <c:set var="reviews" value="${requestScope.reviews}"/>
 <!DOCTYPE html>
@@ -30,65 +29,74 @@
     <div class="ui container">
         <div class="ui two column stackable grid">
             <div class="ten wide column">
-                <div class="ui segment">
-                    <div class="ui large blue header">
-                        <fmt:message key="label.topAlbums"/>
-                    </div>
-                    <div class="ui four doubling cards">
-                        <c:forEach items="${albums}" var="album">
-                            <c:set var="albumNumberOfReviews" value="${dataAgent.getAlbumNumberOfReviews(album)}"/>
-                            <c:set var="albumAverageRating" value="${dataAgent.getAlbumAverageRating(album)}"/>
-                            <div class="card">
-                                <a class="image" href="${context}/album?id=${album.id}">
-                                    <img src="${album.bigCover}" alt="artwork">
-                                </a>
-                                <div class="content">
-                                    <div class="center aligned meta">
-                                        <a class="ui small header"
-                                           href="${context}/album?id=${album.id}">${album.title}</a>
+                <!-- @todo display placeholder or message if empty -->
+                <c:if test="${not empty albums}">
+                    <c:set var="albumNumberOfReviewsMap" value="${requestScope.albumNumberOfReviewsMap}"/>
+                    <c:set var="albumAverageRatingMap" value="${requestScope.albumAverageRatingMap}"/>
+                    <div class="ui segment">
+                        <div class="ui large blue header">
+                            <fmt:message key="label.topAlbums"/>
+                        </div>
+                        <div class="ui four doubling cards">
+                            <c:forEach items="${albums}" var="album">
+                                <c:set var="albumNumberOfReviews" value="${albumNumberOfReviewsMap[album]}"/>
+                                <c:set var="albumAverageRating" value="${albumAverageRatingMap[album]}"/>
+                                <div class="card">
+                                    <a class="image" href="${context}/album?id=${album.id}">
+                                        <img src="${album.bigCover}" alt="artwork">
+                                    </a>
+                                    <div class="content">
+                                        <div class="center aligned meta">
+                                            <a class="ui small header"
+                                               href="${context}/album?id=${album.id}">${album.title}</a>
+                                        </div>
+                                        <div class="center aligned meta">
+                                            <a class="ui small disabled header"
+                                               href="${context}/artist?id=${album.artist.id}">${album.artist.name}</a>
+                                        </div>
                                     </div>
-                                    <div class="center aligned meta">
-                                        <a class="ui small disabled header"
-                                           href="${context}/artist?id=${album.artist.id}">${album.artist.name}</a>
+                                    <div class="extra content">
+                                        <div class="center aligned meta">
+                                            <c:choose>
+                                                <c:when test="${albumNumberOfReviews eq 0}">
+                                                    <span class="ui blue circular medium label">N/A</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="ui blue circular medium label">
+                                                        <fmt:formatNumber type="number" maxFractionDigits="1"
+                                                                          value="${albumAverageRating}"/>
+                                                    </span>
+                                                    <span>
+                                                        (<fmt:message key="label.numberOfReviews">
+                                                            <fmt:param value="${albumNumberOfReviews}"/>
+                                                        </fmt:message>)
+                                                    </span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="extra content">
-                                    <div class="center aligned meta">
-                                        <c:choose>
-                                            <c:when test="${albumNumberOfReviews eq 0}">
-                                                <span class="ui blue circular medium label">N/A</span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="ui blue circular medium label">
-                                                    <fmt:formatNumber type="number" maxFractionDigits="1"
-                                                                      value="${albumAverageRating}"/>
-                                                </span>
-                                                <span>
-                                                    (<fmt:message key="label.numberOfReviews">
-                                                        <fmt:param value="${albumNumberOfReviews}"/>
-                                                    </fmt:message>)
-                                                </span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                </div>
-                            </div>
-                        </c:forEach>
+                            </c:forEach>
+                        </div>
                     </div>
-                </div>
+                </c:if>
             </div>
             <div class="six wide column">
-                <!-- @fixme -->
+                <!-- @todo display placeholder or message if empty -->
                 <c:if test="${not empty reviews}">
+                    <c:set var="reviewerMap" value="${requestScope.reviewerMap}"/>
+                    <c:set var="reviewedAlbumMap" value="${requestScope.reviewedAlbumMap}"/>
+                    <c:set var="reviewedAlbumArtistMap" value="${requestScope.reviewedAlbumArtistMap}"/>
+                    <c:set var="reviewScoreMap" value="${requestScope.reviewScoreMap}"/>
                     <div class="ui fluid segment">
                         <div class="ui large blue header">
                             <fmt:message key="label.topReviews"/>
                         </div>
                         <c:forEach items="${reviews}" var="review">
-                            <c:set var="reviewer" value="${dataAgent.getUser(review.reviewer.username)}"/>
-                            <c:set var="reviewedAlbum" value="${dataAgent.getAlbum(review.reviewedAlbumId)}"/>
-                            <c:set var="reviewedAlbumArtist" value="${reviewedAlbum.artist}"/>
-                            <c:set var="reviewScore" value="${dataAgent.getReviewScore(review)}"/>
+                            <c:set var="reviewer" value="${reviewerMap[review]}"/>
+                            <c:set var="reviewedAlbum" value="${reviewedAlbumMap[review]}"/>
+                            <c:set var="reviewedAlbumArtist" value="${reviewedAlbumArtistMap[review]}"/>
+                            <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
                             <div class="ui fluid card" data-type="review" data-published="true"
                                  data-vote-enabled="${not empty sessionScope.username}"
                                  data-reviewer="${review.reviewer.username}" data-album="${review.reviewedAlbumId}">

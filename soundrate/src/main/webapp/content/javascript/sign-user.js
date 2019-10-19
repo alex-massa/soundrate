@@ -31,16 +31,18 @@ window.addEventListener('load', () => {
             method: 'POST',
             url: 'sign-user',
             data: {action: 'login', username: username, password: password},
-            beforeSend: () => {
+            beforeSend: xhr => {
                 $(logInForm).form('validate form');
                 if (!$(logInForm).form('is valid'))
-                    return false;
+                    xhr.abort();
             }
         })
         .done(() => location.reload())
         .fail(xhr => {
+            if (xhr.statusText === 'canceled')
+                return;
             let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
-            $(signUpForm).form('add errors', [errorMessage]);
+            $(logInForm).form('add errors', [errorMessage]);
         });
     }
 
@@ -52,14 +54,16 @@ window.addEventListener('load', () => {
             method: 'POST',
             url: 'sign-user',
             data: {action: 'signup', username: username, email: email, password: password},
-            beforeSend: () => {
+            beforeSend: xhr => {
                 $(signUpForm).form('validate form');
                 if (!$(signUpForm).form('is valid'))
-                    return false;
+                    xhr.abort();
             }
         })
         .done(() => location.reload())
         .fail(xhr => {
+            if (xhr.statusText === 'canceled')
+                return;
             let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
             $(signUpForm).form('add errors', [errorMessage]);
         });

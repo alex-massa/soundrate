@@ -15,9 +15,12 @@ import deezer.model.search.ArtistsSearch;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.util.LinkedList;
+import java.util.Date;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
@@ -34,11 +37,7 @@ public class DataAgent {
     /* Users data methods */
 
     public User getUser(final String username) {
-        try {
-            return this.entityManager.find(User.class, username);
-        } catch (EntityNotFoundException e) {
-            return null;
-        }
+        return this.entityManager.find(User.class, username);
     }
 
     public User getUserByEmail(final String email) {
@@ -63,54 +62,63 @@ public class DataAgent {
         Review.ReviewId reviewId = new Review.ReviewId()
                 .setReviewerUsername(reviewerUsername)
                 .setReviewedAlbumId(reviewedAlbumId);
-        try {
-            return this.entityManager.find(Review.class, reviewId);
-        } catch (NoResultException e) {
-            return null;
-        }
+        return this.entityManager.find(Review.class, reviewId);
     }
 
     public Vote getVote(final String voterUsername, final String reviewerUsername, final long reviewedAlbumId) {
         Review.ReviewId reviewId = new Review.ReviewId()
-                .setReviewedAlbumId(reviewedAlbumId)
-                .setReviewerUsername(reviewerUsername);
+                .setReviewerUsername(reviewerUsername)
+                .setReviewedAlbumId(reviewedAlbumId);
         Vote.VoteId voteId = new Vote.VoteId()
                 .setVoterUsername(voterUsername)
                 .setReviewId(reviewId);
-        try {
-            return this.entityManager.find(Vote.class, voteId);
-        } catch (NoResultException e) {
-            return null;
-        }
+        return this.entityManager.find(Vote.class, voteId);
+    }
+
+    public BacklogEntry getBacklogEntry(final String username, final long albumId) {
+        BacklogEntry.BacklogEntryId backlogEntryId = new BacklogEntry.BacklogEntryId()
+                .setUsername(username)
+                .setAlbumId(albumId);
+        return this.entityManager.find(BacklogEntry.class, backlogEntryId);
     }
 
     public List<Review> getUserReviews(final User user) {
+        return this.getUserReviews(user, null, null);
+    }
+
+    public List<Review> getUserReviews(final User user, final Integer index, final Integer limit) {
+        if ((index != null && index < 0) || (limit != null && limit < 0))
+            throw new IllegalArgumentException();
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Review> query = builder.createQuery(Review.class);
         Root<Review> review = query.from(Review.class);
-        ParameterExpression<String> reviewerUsernameParameter = builder.parameter(String.class);
+        ParameterExpression<String> usernameParameter = builder.parameter(String.class);
         query
                 .select(review)
-                .where(builder.equal(review.get(Review_.reviewer).get(User_.username), reviewerUsernameParameter))
+                .where(builder.equal(review.get(Review_.reviewer).get(User_.username), usernameParameter))
                 .orderBy(builder.desc(review.get(Review_.publicationDate)));
 
         TypedQuery<Review> getUserReviewsQuery = this.entityManager.createQuery(query)
-                .setParameter(reviewerUsernameParameter, user.getUsername());
+                .setParameter(usernameParameter, user.getUsername());
+        if (index != null)
+            getUserReviewsQuery.setFirstResult(index);
+        if (limit != null)
+            getUserReviewsQuery.setMaxResults(limit);
         List<Review> userReviews = getUserReviewsQuery.getResultList();
-        return userReviews != null && userReviews.isEmpty() ? null : userReviews;
+        return userReviews == null || userReviews.isEmpty() ? null : userReviews;
     }
 
     public int getUserNumberOfReviews(final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Review> review = query.from(Review.class);
-        ParameterExpression<String> reviewerUsernameParameter = builder.parameter(String.class);
+        ParameterExpression<String> usernameParameter = builder.parameter(String.class);
         query
                 .select(builder.count(review))
-                .where(builder.equal(review.get(Review_.reviewer).get(User_.username), reviewerUsernameParameter));
+                .where(builder.equal(review.get(Review_.reviewer).get(User_.username), usernameParameter));
 
         TypedQuery<Long> getUserNumberOfReviewsQuery = this.entityManager.createQuery(query)
-                .setParameter(reviewerUsernameParameter, user.getUsername());
+                .setParameter(usernameParameter, user.getUsername());
         try {
             Long userNumberOfReviews = getUserNumberOfReviewsQuery.getSingleResult();
             return userNumberOfReviews == null ? 0 : Math.toIntExact(userNumberOfReviews);
@@ -123,13 +131,13 @@ public class DataAgent {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Double> query = builder.createQuery(Double.class);
         Root<Review> review = query.from(Review.class);
-        ParameterExpression<String> reviewerUsernameParameter = builder.parameter(String.class);
+        ParameterExpression<String> usernameParameter = builder.parameter(String.class);
         query
                 .select(builder.avg(review.get(Review_.rating)))
-                .where(builder.equal(review.get(Review_.reviewer).get(User_.username), reviewerUsernameParameter));
+                .where(builder.equal(review.get(Review_.reviewer).get(User_.username), usernameParameter));
 
         TypedQuery<Double> getUserAverageAssignedRatingQuery = this.entityManager.createQuery(query)
-                .setParameter(reviewerUsernameParameter, user.getUsername());
+                .setParameter(usernameParameter, user.getUsername());
         try {
             return getUserAverageAssignedRatingQuery.getSingleResult();
         } catch (NoResultException e) {
@@ -137,34 +145,50 @@ public class DataAgent {
         }
     }
 
-    public List<Album> getAlbumsInUserBacklog(User user) {
-        if (!this.entityManager.contains(user))
-            user = this.entityManager.merge(user);
-        List<Album> userBacklog = user.getBacklog() == null
-                ? null
-                : user.getBacklog().parallelStream()
-                .map(this::getAlbum)
-                .collect(Collectors.toList());
-        return userBacklog != null && userBacklog.isEmpty() ? null : userBacklog;
-    }
-
     public int getUserReputation(final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Integer> query = builder.createQuery(Integer.class);
         Root<Vote> vote = query.from(Vote.class);
-        ParameterExpression<String> reviewerUsernameParameter = builder.parameter(String.class);
+        ParameterExpression<String> usernameParameter = builder.parameter(String.class);
         query
-                .select(builder.sum(vote.get(Vote_.vote)))
-                .where(builder.equal(vote.get(Vote_.review).get(Review_.reviewer).get(User_.username), reviewerUsernameParameter));
+                .select(builder.sum(vote.get(Vote_.value)))
+                .where(builder.equal(vote.get(Vote_.review).get(Review_.reviewer).get(User_.username), usernameParameter));
 
         TypedQuery<Integer> getUserReputationQuery = this.entityManager.createQuery(query)
-                .setParameter(reviewerUsernameParameter, user.getUsername());
+                .setParameter(usernameParameter, user.getUsername());
         try {
             Integer userReputation = getUserReputationQuery.getSingleResult();
             return userReputation == null ? 0 : userReputation;
         } catch (NoResultException e) {
             return 0;
         }
+    }
+
+    public List<Album> getAlbumsInUserBacklog(final User user) {
+        return this.getAlbumsInUserBacklog(user, null, null);
+    }
+
+    public List<Album> getAlbumsInUserBacklog(final User user, final Integer index, final Integer limit) {
+        CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
+        CriteriaQuery<BacklogEntry> query = builder.createQuery(BacklogEntry.class);
+        Root<BacklogEntry> backlogEntry = query.from(BacklogEntry.class);
+        ParameterExpression<String> usernameParameter = builder.parameter(String.class);
+        query
+                .select(backlogEntry)
+                .where(builder.equal(backlogEntry.get(BacklogEntry_.user).get(User_.username), usernameParameter))
+                .orderBy(builder.desc(backlogEntry.get(BacklogEntry_.insertionTime)));
+
+        TypedQuery<BacklogEntry> getAlbumsInUserBacklogQuery = this.entityManager.createQuery(query)
+                .setParameter(usernameParameter, user.getUsername());
+        if (index != null)
+            getAlbumsInUserBacklogQuery.setFirstResult(index);
+        if (limit != null)
+            getAlbumsInUserBacklogQuery.setMaxResults(limit);
+        List<BacklogEntry> backlogEntries = getAlbumsInUserBacklogQuery.getResultList();
+        return backlogEntries == null || backlogEntries.isEmpty()
+                ? null
+                : backlogEntries.stream().map
+                (entry-> this.getAlbum(entry.getAlbumId())).collect(Collectors.toList());
     }
 
     public List<Vote> getReviewVotes(final Review review) {
@@ -180,12 +204,11 @@ public class DataAgent {
                         builder.equal(vote.get(Vote_.review).get(Review_.reviewedAlbumId), reviewedAlbumIdParameter)
                 ));
 
-        TypedQuery<Vote> getReviewVotesQuery = this.entityManager.createQuery(query);
-        getReviewVotesQuery
+        TypedQuery<Vote> getReviewVotesQuery = this.entityManager.createQuery(query)
                 .setParameter(reviewerUsernameParameter, review.getReviewer().getUsername())
                 .setParameter(reviewedAlbumIdParameter, review.getReviewedAlbumId());
         List<Vote> reviewVotes = getReviewVotesQuery.getResultList();
-        return reviewVotes != null && reviewVotes.isEmpty() ? null : reviewVotes;
+        return reviewVotes == null || reviewVotes.isEmpty() ? null : reviewVotes;
     }
 
     public List<Vote> getReviewUpvotes(final Review review) {
@@ -197,17 +220,16 @@ public class DataAgent {
         query
                 .select(vote)
                 .where(builder.and(
-                        builder.equal(vote.get(Vote_.vote), +1),
                         builder.equal(vote.get(Vote_.review).get(Review_.reviewer).get(User_.username), reviewerUsernameParameter),
-                        builder.equal(vote.get(Vote_.review).get(Review_.reviewedAlbumId), reviewedAlbumIdParameter)
+                        builder.equal(vote.get(Vote_.review).get(Review_.reviewedAlbumId), reviewedAlbumIdParameter),
+                        builder.equal(vote.get(Vote_.value), +1)
                 ));
 
-        TypedQuery<Vote> getReviewUpvotesQuery = this.entityManager.createQuery(query);
-        getReviewUpvotesQuery
+        TypedQuery<Vote> getReviewUpvotesQuery = this.entityManager.createQuery(query)
                 .setParameter(reviewerUsernameParameter, review.getReviewer().getUsername())
                 .setParameter(reviewedAlbumIdParameter, review.getReviewedAlbumId());
         List<Vote> reviewUpvotes = getReviewUpvotesQuery.getResultList();
-        return reviewUpvotes != null && reviewUpvotes.isEmpty() ? null : reviewUpvotes;
+        return reviewUpvotes == null || reviewUpvotes.isEmpty() ? null : reviewUpvotes;
     }
 
     public List<Vote> getReviewDownvotes(final Review review) {
@@ -219,17 +241,16 @@ public class DataAgent {
         query
                 .select(vote)
                 .where(builder.and(
-                        builder.equal(vote.get(Vote_.vote), -1),
                         builder.equal(vote.get(Vote_.review).get(Review_.reviewer).get(User_.username), reviewerUsernameParameter),
-                        builder.equal(vote.get(Vote_.review).get(Review_.reviewedAlbumId), reviewedAlbumIdParameter)
+                        builder.equal(vote.get(Vote_.review).get(Review_.reviewedAlbumId), reviewedAlbumIdParameter),
+                        builder.equal(vote.get(Vote_.value), -1)
                 ));
 
-        TypedQuery<Vote> getReviewDownvotesQuery = this.entityManager.createQuery(query);
-        getReviewDownvotesQuery
+        TypedQuery<Vote> getReviewDownvotesQuery = this.entityManager.createQuery(query)
                 .setParameter(reviewerUsernameParameter, review.getReviewer().getUsername())
                 .setParameter(reviewedAlbumIdParameter, review.getReviewedAlbumId());
         List<Vote> reviewDownvotes = getReviewDownvotesQuery.getResultList();
-        return reviewDownvotes != null && reviewDownvotes.isEmpty() ? null : reviewDownvotes;
+        return reviewDownvotes == null || reviewDownvotes.isEmpty() ? null : reviewDownvotes;
     }
 
     public int getReviewScore(final Review review) {
@@ -239,7 +260,7 @@ public class DataAgent {
         ParameterExpression<String> reviewerUsernameParameter = builder.parameter(String.class);
         ParameterExpression<Long> reviewedAlbumIdParameter = builder.parameter(Long.class);
         query
-                .select(builder.sum(vote.get(Vote_.vote)))
+                .select(builder.sum(vote.get(Vote_.value)))
                 .where(builder.and(
                         builder.equal(vote.get(Vote_.review).get(Review_.reviewer).get(User_.username), reviewerUsernameParameter),
                         builder.equal(vote.get(Vote_.review).get(Review_.reviewedAlbumId), reviewedAlbumIdParameter)
@@ -257,11 +278,11 @@ public class DataAgent {
     }
 
     public List<Review> getTopReviews() {
-        return this.getTopReviews(0, 10);
+        return this.getTopReviews(null, null);
     }
 
-    public List<Review> getTopReviews(final int index, final int limit) {
-        if (index < 0 || limit < 0)
+    public List<Review> getTopReviews(final Integer index, final Integer limit) {
+        if ((index != null && index < 0) || (limit != null && limit < 0))
             throw new IllegalArgumentException();
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Review> query = builder.createQuery(Review.class);
@@ -270,40 +291,15 @@ public class DataAgent {
         query
                 .select(review)
                 .groupBy(review)
-                .orderBy(builder.desc(builder.coalesce(builder.sum(vote.get(Vote_.vote)), 0)));
+                .orderBy(builder.desc(builder.coalesce(builder.sum(vote.get(Vote_.value)), 0)));
 
-        TypedQuery<Review> getTopReviewsQuery = this.entityManager.createQuery(query)
-                .setFirstResult(index)
-                .setMaxResults(limit);
+        TypedQuery<Review> getTopReviewsQuery = this.entityManager.createQuery(query);
+        if (index != null)
+            getTopReviewsQuery.setFirstResult(index);
+        if (limit != null)
+                getTopReviewsQuery.setMaxResults(limit);
         List<Review> topReviews = getTopReviewsQuery.getResultList();
-        return topReviews != null && topReviews.isEmpty() ? null : topReviews;
-    }
-
-    public Vote getUserReviewVote(final User voter, final Review review) {
-        CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
-        CriteriaQuery<Vote> query = builder.createQuery(Vote.class);
-        Root<Vote> vote = query.from(Vote.class);
-        ParameterExpression<User> voterParameter = builder.parameter(User.class);
-        ParameterExpression<String> reviewerUsernameParameter = builder.parameter(String.class);
-        ParameterExpression<Long> reviewedAlbumIdParameter = builder.parameter(Long.class);
-        query
-                .select(vote)
-                .where(builder.and(
-                        builder.equal(vote.get(Vote_.voter), voterParameter),
-                        builder.equal(vote.get(Vote_.review).get(Review_.reviewer).get(User_.username), reviewerUsernameParameter),
-                        builder.equal(vote.get(Vote_.review).get(Review_.reviewedAlbumId), reviewedAlbumIdParameter)
-                ));
-
-        TypedQuery<Vote> getUserReviewVote = this.entityManager.createQuery(query);
-        getUserReviewVote
-                .setParameter(voterParameter, voter)
-                .setParameter(reviewerUsernameParameter, review.getReviewer().getUsername())
-                .setParameter(reviewedAlbumIdParameter, review.getReviewedAlbumId());
-        try {
-            return getUserReviewVote.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        return topReviews == null || topReviews.isEmpty() ? null : topReviews;
     }
 
     public Boolean areUserCredentialsValid(final String username, final String password) {
@@ -320,57 +316,49 @@ public class DataAgent {
     }
 
     public void voteReview(final User voter, final Review review, final Boolean value) {
-        Vote userVote = this.getUserReviewVote(voter, review);
-        if (userVote == null) {
-            if (value != null) {
+        Vote userVote = this.getVote(voter.getUsername(), review.getReviewer().getUsername(), review.getReviewedAlbumId());
+        if (userVote == null) {     // if the vote does not already exist and the vote value is true or false
+            if (value != null) {    // register the new vote
                 userVote = new Vote()
                         .setVoter(voter)
                         .setReview(review)
-                        .setVote(value ? +1 : -1);
+                        .setValue(value ? +1 : -1);
                 this.entityManager.persist(userVote);
             }
         } else {
-            if (value != null) {
-                userVote.setVote(value ? +1 : -1);
+            if (value != null) {                    // if the vote exists already and the value is true or false
+                userVote.setValue(value ? +1 : -1); // update the vote
                 this.entityManager.merge(userVote);
             }
             else {
-                if (!this.entityManager.contains(userVote))
-                    userVote = this.entityManager.merge(userVote);
+                if (!this.entityManager.contains(userVote))         // if the vote already exists and the value is null
+                    userVote = this.entityManager.merge(userVote);  // delete the vote
                 this.entityManager.remove(userVote);
             }
         }
     }
 
-    public boolean isAlbumInUserBacklog(User user, final Album album) {
-        if (!this.entityManager.contains(user))
-            user = this.entityManager.merge(user);
-        List<Long> backlog = user.getBacklog();
-        return backlog != null && backlog.contains(album.getId());
+    public boolean isAlbumInUserBacklog(final User user, final Album album) {
+        return this.getBacklogEntry(user.getUsername(), album.getId()) != null;
     }
 
-    public void insertAlbumInUserBacklog(User user, final Album album) {
-        if (!this.entityManager.contains(user))
-            user = this.entityManager.merge(user);
-        List<Long> backlog = user.getBacklog();
-        if (backlog == null) {
-            backlog = new LinkedList<>();
-            user.setBacklog(backlog);
-        }
-        backlog.add(album.getId());
-        this.entityManager.merge(user);
+    public void insertAlbumInUserBacklog(final User user, final Album album) {
+        if (this.isAlbumInUserBacklog(user, album))
+            return; // @todo throw an exception
+        BacklogEntry backlogEntry = new BacklogEntry()
+                .setUser(user)
+                .setAlbumId(album.getId())
+                .setInsertionTime(new Date());
+        this.entityManager.persist(backlogEntry);
     }
 
-    public void removeAlbumFromUserBacklog(User user, final Album album) {
-        if (!this.entityManager.contains(user))
-            user = this.entityManager.merge(user);
-        List<Long> backlog = user.getBacklog();
-        if (backlog == null || !backlog.contains(album.getId()))
-            return;
-        backlog.remove(album.getId());
-        if (backlog.isEmpty())
-            user.setBacklog(null);
-        this.entityManager.merge(user);
+    public void removeAlbumFromUserBacklog(final User user, final Album album) {
+        BacklogEntry backlogEntry = this.getBacklogEntry(user.getUsername(), album.getId());
+        if (backlogEntry == null)
+            return; // @todo throw an exception
+        if (this.entityManager.contains(backlogEntry))
+            backlogEntry = this.entityManager.merge(backlogEntry);
+        this.entityManager.remove(backlogEntry);
     }
 
     public void publishReview(final Review toPublish) {
@@ -414,6 +402,12 @@ public class DataAgent {
     }
 
     public List<Review> getAlbumReviews(final Album album) {
+        return this.getAlbumReviews(album, null, null);
+    }
+
+    public List<Review> getAlbumReviews(final Album album, final Integer index, final Integer limit) {
+        if ((index != null && index < 0) || (limit != null && limit < 0))
+            throw new IllegalArgumentException();
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Review> query = builder.createQuery(Review.class);
         Root<Review> review = query.from(Review.class);
@@ -423,12 +417,16 @@ public class DataAgent {
                 .select(review)
                 .where(builder.equal(review.get(Review_.reviewedAlbumId), reviewedAlbumIdParameter))
                 .groupBy(review)
-                .orderBy(builder.desc(builder.coalesce(builder.sum(vote.get(Vote_.vote)), 0)));
+                .orderBy(builder.desc(builder.coalesce(builder.sum(vote.get(Vote_.value)), 0)));
 
         TypedQuery<Review> getTopReviewsQuery = this.entityManager.createQuery(query)
                 .setParameter(reviewedAlbumIdParameter, album.getId());
+        if (index != null)
+            getTopReviewsQuery.setFirstResult(index);
+        if (limit != null)
+            getTopReviewsQuery.setMaxResults(limit);
         List<Review> topReviews = getTopReviewsQuery.getResultList();
-        return topReviews != null && topReviews.isEmpty() ? null : topReviews;
+        return topReviews == null || topReviews.isEmpty() ? null : topReviews;
     }
 
     public int getAlbumNumberOfReviews(final Album album) {
@@ -475,11 +473,18 @@ public class DataAgent {
         return artistAlbums.getData();
     }
 
+    public List<Album> getArtistAlbums(final Artist artist, final int index, final int limit) {
+        Albums artistAlbums = this.client.getArtistAlbums(artist.getId(), index, limit).getAsNullIfNoData();
+        if (artistAlbums == null)
+            return null;
+        return artistAlbums.getData();
+    }
+
     public int getArtistNumberOfReviews(final Artist artist) {
         List<Album> artistAlbums = this.getArtistAlbums(artist);
         return artistAlbums == null
                 ? 0
-                : artistAlbums.parallelStream()
+                : artistAlbums.stream()
                 .mapToInt(this::getAlbumNumberOfReviews)
                 .sum();
     }
@@ -488,7 +493,7 @@ public class DataAgent {
         List<Album> artistAlbums = this.getArtistAlbums(artist);
         OptionalDouble averageRating = artistAlbums == null
                 ? OptionalDouble.empty()
-                : artistAlbums.parallelStream()
+                : artistAlbums.stream()
                 .filter(album -> this.getAlbumNumberOfReviews(album) != 0)
                 .mapToDouble(this::getAlbumAverageRating)
                 .average();
@@ -496,7 +501,10 @@ public class DataAgent {
     }
 
     public List<Album> getTopAlbums() {
-        return this.getTopAlbums(0, 100);
+        Albums topAlbums = this.client.getTopAlbums().getAsNullIfNoData();
+        if (topAlbums == null)
+            return null;
+        return topAlbums.getData();
     }
 
     public List<Album> getTopAlbums(final int index, final int limit) {

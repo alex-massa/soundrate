@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
-<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="artist" value="${requestScope.artist}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,9 +35,9 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <c:set var="artistAlbums" value="${dataAgent.getArtistAlbums(artist)}"/>
-                <c:set var="artistNumberOfReviews" value="${dataAgent.getArtistNumberOfReviews(artist)}"/>
-                <c:set var="artistAverageRating" value="${dataAgent.getArtistAverageRating(artist)}"/>
+                <c:set var="artistAlbums" value="${requestScope.artistAlbums}"/>
+                <c:set var="artistNumberOfReviews" value="${requestScope.artistNumberOfReviews}"/>
+                <c:set var="artistAverageRating" value="${requestScope.artistAverageRating}"/>
                 <div class="ui items">
                     <div class="item">
                         <div class="ui small circular image">
@@ -75,9 +74,12 @@
                     <fmt:message key="label.albums"/>
                 </div>
                 <div class="ui six doubling cards">
+                    <!-- @todo display placeholder or message if the artist has no albums -->
+                    <c:set var="albumNumberOfReviewsMap" value="${requestScope.albumNumberOfReviewsMap}"/>
+                    <c:set var="albumAverageRatingMap" value="${requestScope.albumAverageRatingMap}"/>
                     <c:forEach items="${artistAlbums}" var="album">
-                        <c:set var="albumNumberOfReviews" value="${dataAgent.getAlbumNumberOfReviews(album)}"/>
-                        <c:set var="albumAverageRating" value="${dataAgent.getAlbumAverageRating(album)}"/>
+                        <c:set var="albumNumberOfReviews" value="${albumNumberOfReviewsMap[album]}"/>
+                        <c:set var="albumAverageRating" value="${albumAverageRatingMap[album]}"/>
                         <div class="card">
                             <a class="image" href="${context}/album?id=${album.id}">
                                 <img src="${album.bigCover}" alt="artwork">

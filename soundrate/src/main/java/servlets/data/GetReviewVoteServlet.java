@@ -54,13 +54,14 @@ public class GetReviewVoteServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        Vote reviewUserVote = this.dataAgent.getUserReviewVote(voter, review);
-        if (reviewUserVote == null)
+        Vote reviewVote = this.dataAgent
+                .getVote(voter.getUsername(), review.getReviewer().getUsername(), review.getReviewedAlbumId());
+        if (reviewVote == null)
             return;
         Boolean voteValue = null;
-        if (reviewUserVote.getVote() == +1)
+        if (reviewVote.getValue() == +1)
             voteValue = true;
-        else if (reviewUserVote.getVote() == -1)
+        else if (reviewVote.getValue() == -1)
             voteValue = false;
         if (voteValue != null)
             response.getWriter().write(String.valueOf(voteValue));

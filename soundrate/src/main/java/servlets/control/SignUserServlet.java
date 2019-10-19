@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 @WebServlet({"/sign-user"})
@@ -46,6 +47,7 @@ public class SignUserServlet extends HttpServlet {
                             .setUsername(username)
                             .setEmail(email)
                             .setPassword(password)
+                            .setSignUpDate(new Date())
                             .setPicture(AvatarGenerator.randomAvatar(username, DEFAULT_AVATAR_SIZE, DEFAULT_AVATAR_FORMAT)));
                     synchronized (session) {
                         session.setAttribute("username", username);

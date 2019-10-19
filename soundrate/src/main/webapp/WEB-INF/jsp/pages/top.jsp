@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
-<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="albums" value="${requestScope.albums}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -31,9 +30,12 @@
                 <fmt:message key="label.topAlbums"/>
             </div>
             <div class="ui divided list">
+                <!-- @todo add placeholder or message if no albums are available -->
+                <c:set var="albumNumberOfReviewsMap" value="${requestScope.albumNumberOfReviewsMap}"/>
+                <c:set var="albumAverageRatingMap" value="${requestScope.albumAverageRatingMap}"/>
                 <c:forEach items="${albums}" var="album">
-                    <c:set var="albumNumberOfReviews" value="${dataAgent.getAlbumNumberOfReviews(album)}"/>
-                    <c:set var="albumAverageRating" value="${dataAgent.getAlbumAverageRating(album)}"/>
+                    <c:set var="albumNumberOfReviews" value="${albumNumberOfReviewsMap[album]}"/>
+                    <c:set var="albumAverageRating" value="${albumAverageRatingMap[album]}"/>
                     <div class="item">
                         <img class="ui tiny image" src="${album.bigCover}" alt="artwork">
                         <div class="content">

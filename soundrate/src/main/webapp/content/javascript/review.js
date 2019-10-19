@@ -35,7 +35,12 @@ function attachEventsToReviewForm() {
         $.ajax({
             method: 'POST',
             url: 'update-review',
-            data: {action: 'publish', album: albumId, rating: rating, content: content}
+            data: {action: 'publish', album: albumId, rating: rating, content: content},
+            beforeSend: xhr => {
+                $(reviewForm).form('validate form');
+                if (!$(reviewForm).form('is valid'))
+                    xhr.abort();
+            }
         })
         .done(() => {
             userReview.dataset.published = JSON.stringify(true);
@@ -50,6 +55,8 @@ function attachEventsToReviewForm() {
             });
         })
         .fail(xhr => {
+            if (xhr.statusText === 'canceled')
+                return;
             let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
             $('body').toast({
                 message: toastMessage,

@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
-<c:set var="dataAgent" value="${applicationScope.dataAgent}"/>
 <c:set var="artists" value="${requestScope.artists}"/>
 <c:set var="albums" value="${requestScope.albums}"/>
 <!DOCTYPE html>
@@ -39,10 +38,12 @@
                     </div>
                 </c:when>
                 <c:otherwise>
+                    <c:set var="artistNumberOfReviewsMap" value="${requestScope.artistNumberOfReviewsMap}"/>
+                    <c:set var="artistAverageRatingMap" value="${requestScope.artistAverageRatingMap}"/>
                     <div class="ui six doubling cards">
                         <c:forEach items="${artists}" var="artist">
-                            <c:set var="artistNumberOfReviews" value="${dataAgent.getArtistNumberOfReviews(artist)}"/>
-                            <c:set var="artistAverageRating" value="${dataAgent.getArtistAverageRating(artist)}"/>
+                            <c:set var="artistNumberOfReviews" value="${artistNumberOfReviewsMap[artist]}"/>
+                            <c:set var="artistAverageRating" value="${artistAverageRatingMap[artist]}"/>
                             <div class="card">
                                 <a class="image" href="${context}/artist?id=${artist.id}">
                                     <img src="${artist.bigPicture}" alt="picture">
@@ -91,10 +92,12 @@
                     </div>
                 </c:when>
                 <c:otherwise>
+                    <c:set var="albumNumberOfReviewsMap" value="${requestScope.albumNumberOfReviewsMap}"/>
+                    <c:set var="albumAverageRatingMap" value="${requestScope.albumAverageRatingMap}"/>
                     <div class="ui six doubling cards">
                         <c:forEach items="${albums}" var="album">
-                            <c:set var="albumNumberOfReviews" value="${dataAgent.getAlbumNumberOfReviews(album)}"/>
-                            <c:set var="albumAverageRating" value="${dataAgent.getAlbumAverageRating(album)}"/>
+                            <c:set var="albumNumberOfReviews" value="${albumNumberOfReviewsMap[album]}"/>
+                            <c:set var="albumAverageRating" value="${albumAverageRatingMap[album]}"/>
                             <div class="card">
                                 <a class="image" href="${context}/album?id=${album.id}">
                                     <img src="${album.bigCover}" alt="artwork">

@@ -94,19 +94,19 @@ function applyReviewButtonsVisualChanges(review, newVoteValue) {
 
 function applyReviewUpvotesVisualChanges(review, newVoteValue) {
     newVoteValue = JSON.parse(newVoteValue);
-    let currentVote = JSON.parse(review.dataset.vote || null);
+    let currentVoteValue = JSON.parse(review.dataset.vote || null);
     let reviewScore = JSON.parse(review.querySelector('[data-text]').dataset.text);
-    if (currentVote && newVote == null)
+    if (currentVoteValue && newVoteValue == null)
         reviewScore -= 1;
-    else if (currentVote === true && newVoteValue === false)
+    else if (currentVoteValue === true && newVoteValue === false)
         reviewScore -= 2;
-    else if (currentVote === false && newVoteValue == null)
+    else if (currentVoteValue === false && newVoteValue == null)
         reviewScore += 1;
-    else if (currentVote === false && newVoteValue === true)
+    else if (currentVoteValue === false && newVoteValue === true)
         reviewScore += 2;
-    else if (currentVote == null && newVoteValue === true)
+    else if (currentVoteValue == null && newVoteValue === true)
         reviewScore += 1;
-    else if (currentVote == null && newVoteValue === false)
+    else if (currentVoteValue == null && newVoteValue === false)
         reviewScore -= 1;
     review.querySelector('[data-text]').dataset.text = reviewScore;
 }

@@ -86,7 +86,6 @@
                     </systemVariables>
                 </configuration>
             </plugin>
-            <!-- @fixme -->
             <plugin>
                 <groupId>org.bsc.maven</groupId>
                 <artifactId>maven-processor-plugin</artifactId>
