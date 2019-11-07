@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
-                                 http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
-             version="2.0">
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+                                 http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
     <persistence-unit name="soundratePersistenceUnit" transaction-type="JTA">
+        <!-- Change to jdbc/soundrateDataSource in a production environment and configure the datasource in WEB-INF/resources.xml -->
         <jta-data-source>jdbc/soundrateTestDataSource</jta-data-source>
         <properties>
-            <property name="openjpa.jdbc.SynchronizeMappings"
-                      value="buildSchema(ForeignKeys=true, SchemaAction='dropDB,add')"/>
+            <!-- Change the following property value to "create" or remove it completely in a production environment -->
+            <property name="javax.persistence.schema-generation.database.action"
+                      value="drop-and-create"/>
         </properties>
     </persistence-unit>
 </persistence>

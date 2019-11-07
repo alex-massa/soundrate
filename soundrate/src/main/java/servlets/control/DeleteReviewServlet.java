@@ -1,8 +1,7 @@
 package servlets.control;
 
 import application.business.DataAgent;
-import application.model.User;
-import deezer.model.Album;
+import application.model.Review;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
@@ -14,8 +13,8 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
-@WebServlet({"/update-user-backlog"})
-public class UpdateUserBacklogServlet extends HttpServlet {
+@WebServlet({"/delete-review"})
+public class DeleteReviewServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
@@ -23,11 +22,13 @@ public class UpdateUserBacklogServlet extends HttpServlet {
     private DataAgent dataAgent;
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String sessionUsername;
         HttpSession session = request.getSession();
         synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null ? null : session.getAttribute("username").toString();
+            sessionUsername = session.getAttribute("username") == null
+                    ? null
+                    : session.getAttribute("username").toString();
         }
         if (sessionUsername == null || sessionUsername.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -38,26 +39,15 @@ public class UpdateUserBacklogServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        User user = this.dataAgent.getUser(sessionUsername);
-        if (user == null) {
+        Review review = this.dataAgent.getReview(sessionUsername, albumId);
+        if (review == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
-                            .getString("error.userNotFound"));
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            .getString("error.reviewNotFound"));
+            response.setStatus(HttpServletResponse.SC_CONFLICT);
             return;
         }
-        Album album = this.dataAgent.getAlbum(albumId);
-        if (album == null) {
-            response.getWriter().write
-                    (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
-                            .getString("error.albumNotFound"));
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        if (!this.dataAgent.isAlbumInUserBacklog(user, album))
-            this.dataAgent.insertAlbumInUserBacklog(user, album);
-        else
-            this.dataAgent.removeAlbumFromUserBacklog(user, album);
+        this.dataAgent.deleteReview(review);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

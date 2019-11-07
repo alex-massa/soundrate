@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<fmt:setBundle basename="i18n/strings"/>
+<fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
 <c:set var="album" value="${requestScope.album}"/>
 <!DOCTYPE html>
@@ -133,7 +133,7 @@
                                     <div class="actions">
                                         <div class="ui green basic ok inverted button">
                                             <i class="checkmark icon"></i>
-                                            <fmt:message key="tooltip.cancel"/>
+                                            <fmt:message key="tooltip.keep"/>
                                         </div>
                                         <div class="ui red basic cancel inverted button" data-delete-review>
                                             <i class="remove icon"></i>

@@ -10,7 +10,7 @@ import java.io.IOException;
 @WebServlet({"/header"})
 public class HeaderFragmentServlet extends HttpServlet {
 
-    private static final long serialVersionUID = -8973548216641109056L;
+    private static final long serialVersionUID = 1L;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

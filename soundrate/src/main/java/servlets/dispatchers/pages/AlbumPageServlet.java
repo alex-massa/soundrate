@@ -21,7 +21,7 @@ import java.util.Map;
 @WebServlet({"/album"})
 public class AlbumPageServlet extends HttpServlet {
 
-    private static final long serialVersionUID = -8005646432043137746L;
+    private static final long serialVersionUID = 1L;
 
     @Inject
     private DataAgent dataAgent;
@@ -29,8 +29,8 @@ public class AlbumPageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Album album;
-        long albumId = NumberUtils.toLong(request.getParameter("id"), -1);
-        if (albumId == -1)
+        long albumId = NumberUtils.toLong(request.getParameter("id"), Long.MIN_VALUE);
+        if (albumId == Long.MIN_VALUE)
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         else if ((album = this.dataAgent.getAlbum(albumId)) == null)
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -65,7 +65,6 @@ public class AlbumPageServlet extends HttpServlet {
                 request.setAttribute("reviewerMap", reviewerMap);
             }
         }
-
         request.getRequestDispatcher("/WEB-INF/jsp/pages/album.jsp").forward(request, response);
     }
 

@@ -19,7 +19,7 @@ import java.util.Map;
 @WebServlet({"/user"})
 public class UserPageServlet extends HttpServlet {
 
-    private static final long serialVersionUID = 9095734302968795213L;
+    private static final long serialVersionUID = 1L;
 
     @Inject
     private DataAgent dataAgent;
@@ -63,7 +63,6 @@ public class UserPageServlet extends HttpServlet {
                 request.setAttribute("reviewScoreMap", reviewScoreMap);
             }
         }
-
         request.getRequestDispatcher("/WEB-INF/jsp/pages/user.jsp").forward(request, response);
     }
 

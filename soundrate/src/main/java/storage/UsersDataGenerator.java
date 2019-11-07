@@ -4,10 +4,11 @@ import application.model.BacklogEntry;
 import application.model.Review;
 import application.model.User;
 import application.model.Vote;
+import application.util.AvatarGenerator;
 import com.github.javafaker.Faker;
 import deezer.client.DeezerClient;
 import deezer.model.Album;
-import util.AvatarGenerator;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -117,17 +118,26 @@ final class UsersDataGenerator {
                         continue uniqueUsernameLoop;
                 break;
             }
-            String email = faker.internet().emailAddress();
+            String email;
+            uniqueEmailLoop:
+            while (true) {
+                email = faker.internet().emailAddress();
+                for (User user : users)
+                    if (user.getEmail().equals(email))
+                        continue uniqueEmailLoop;
+                break;
+            }
             String password = faker.internet().password
                     (12, 30, true, false, true);
             Date signUpDate = faker.date().between(pastDate, currentDate);
             User user = new User()
                     .setUsername(username)
                     .setEmail(email)
-                    .setPassword(password)
+                    .setPassword(BCrypt.hashpw(password, BCrypt.gensalt()))
                     .setSignUpDate(signUpDate)
                     .setPicture(AvatarGenerator.randomAvatar(username, 600, AvatarGenerator.Format.SVG))
-                    .setBiography(bio);
+                    .setBiography(bio)
+                    .setRole(User.Role.USER);
             users.add(user);
         }
         return users;
@@ -203,7 +213,7 @@ final class UsersDataGenerator {
                 votes.add(new Vote()
                         .setVoter(voter)
                         .setReview(review)
-                        .setValue(random.nextBoolean() ? +1 : -1)
+                        .setValue(random.nextBoolean())
                 );
             }
         }

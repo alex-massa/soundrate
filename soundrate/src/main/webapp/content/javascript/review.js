@@ -34,8 +34,8 @@ function attachEventsToReviewForm() {
         let content = $(reviewForm).form('get value', 'content');
         $.ajax({
             method: 'POST',
-            url: 'update-review',
-            data: {action: 'publish', album: albumId, rating: rating, content: content},
+            url: 'publish-review',
+            data: {album: albumId, rating: rating, content: content},
             beforeSend: xhr => {
                 $(reviewForm).form('validate form');
                 if (!$(reviewForm).form('is valid'))
@@ -97,8 +97,8 @@ function attachClickEventToConfirmReviewDeletionButton() {
        let albumId = userReview.dataset.album;
        $.ajax({
           method: 'POST',
-          url: 'update-review',
-          data: {action: 'delete', album: albumId}
+          url: 'delete-review',
+          data: {album: albumId}
        })
        .done(() => {
            let reviewRating = document.getElementById('review-rating');

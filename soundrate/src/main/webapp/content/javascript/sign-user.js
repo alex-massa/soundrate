@@ -1,4 +1,5 @@
 window.addEventListener('load', () => {
+
     $('#sign-in-tabs-menu .item').tab();
 
     let logInForm = document.getElementById('log-in-form');
@@ -29,8 +30,8 @@ window.addEventListener('load', () => {
         let password = $(logInForm).form('get value', 'password');
         $.ajax({
             method: 'POST',
-            url: 'sign-user',
-            data: {action: 'login', username: username, password: password},
+            url: 'log-in',
+            data: {username: username, password: password},
             beforeSend: xhr => {
                 $(logInForm).form('validate form');
                 if (!$(logInForm).form('is valid'))
@@ -52,8 +53,8 @@ window.addEventListener('load', () => {
         let password = $(signUpForm).form('get value', 'password');
         $.ajax({
             method: 'POST',
-            url: 'sign-user',
-            data: {action: 'signup', username: username, email: email, password: password},
+            url: 'sign-up',
+            data: {username: username, email: email, password: password},
             beforeSend: xhr => {
                 $(signUpForm).form('validate form');
                 if (!$(signUpForm).form('is valid'))
@@ -72,8 +73,7 @@ window.addEventListener('load', () => {
     function logOut() {
         $.ajax({
             method: 'POST',
-            url: 'sign-user',
-            data: {action: 'logout'}
+            url: 'log-out'
         })
         .done(() => location.reload())
         .fail(() => {

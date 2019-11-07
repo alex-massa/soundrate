@@ -1,30 +1,48 @@
 package application.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-@Entity @Table(name = "review") @IdClass(Review.ReviewId.class)
+@Entity
+@Table(name = "review")
+@IdClass(Review.ReviewId.class)
 public class Review implements Serializable {
 
     private static final long serialVersionUID = 1;
 
+    public static final int MIN_CONTENT_LENGTH = 1;
+    public static final int MAX_CONTENT_LENGTH = 2500;
+
+    public static final int MIN_ALLOWED_RATING = 1;
+    public static final int MAX_ALLOWED_RATING = 10;
+
     @Id
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "reviewerUsername", referencedColumnName = "username")
+    @NotNull(message = "{review.reviewer.NotNull}")
     private User reviewer;
     @Id
     @Column(name = "reviewedAlbumId")
+    @NotNull(message = "{review.reviewedAlbumId.NotNull}")
     private Long reviewedAlbumId;
-    @Column(name = "content", nullable = false, length = 2500)
+    @Column(name = "content", nullable = false, length = Review.MAX_CONTENT_LENGTH)
+    @NotNull(message = "{review.content.NotNull}")
+    @Size(min = Review.MIN_CONTENT_LENGTH, max = Review.MAX_CONTENT_LENGTH, message = "{review.content.Size}")
     private String content;
     @Column(name = "rating", nullable = false)
+    @NotNull(message = "{review.rating.NotNull}")
+    @Min(value = Review.MIN_ALLOWED_RATING, message = "{review.rating.Min}")
+    @Max(value = Review.MAX_ALLOWED_RATING, message = "{review.rating.Max}")
     private Integer rating;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "publicationDate", nullable = false)
+    @NotNull(message = "{review.publicationDate.NotNull}")
+    @PastOrPresent(message = "{review.publicationDate.PastOrPresent}")
     private Date publicationDate;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

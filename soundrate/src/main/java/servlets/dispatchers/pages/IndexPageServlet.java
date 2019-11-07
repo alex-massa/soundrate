@@ -4,6 +4,7 @@ import application.business.DataAgent;
 import application.model.Review;
 import application.model.User;
 import deezer.model.Album;
+import deezer.model.data.Albums;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -19,7 +20,7 @@ import java.util.Map;
 @WebServlet({"/index", ""})
 public class IndexPageServlet extends HttpServlet {
 
-    private static final long serialVersionUID = -9153882973855716121L;
+    private static final long serialVersionUID = 1L;
 
     private static final int NUMBER_OF_ALBUMS = 8;
     private static final int NUMBER_OF_REVIEWS = 2;
@@ -29,17 +30,17 @@ public class IndexPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Album> albums = this.dataAgent.getTopAlbums(0, IndexPageServlet.NUMBER_OF_ALBUMS);
-        request.setAttribute("albums", albums);
+        Albums albums = this.dataAgent.getTopAlbums(0, NUMBER_OF_ALBUMS);
+        request.setAttribute("albums", albums == null ? null : albums.getData());
         if (albums != null) {
-            Map<Album, Integer> albumNumberOfReviewsMap = albums.stream().collect(
+            Map<Album, Integer> albumNumberOfReviewsMap = albums.getData().stream().collect(
                     HashMap::new,
                     (map, album) -> map.put(album, this.dataAgent.getAlbumNumberOfReviews(album)),
                     HashMap::putAll
             );
             request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
 
-            Map<Album, Double> albumAverageRatingMap = albums.stream().collect(
+            Map<Album, Double> albumAverageRatingMap = albums.getData().stream().collect(
                     HashMap::new,
                     (map, album) -> map.put(album, this.dataAgent.getAlbumAverageRating(album)),
                     HashMap::putAll

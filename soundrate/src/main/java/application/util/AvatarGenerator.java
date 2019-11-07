@@ -1,4 +1,4 @@
-package util;
+package application.util;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class AvatarGenerator {
 
-    private final static String PATTERN = "http://tinygraphs.com/%s/%s?theme=%s&numcolors=%s&size=%d&fmt=%s";
+    private static final String PATTERN = "http://tinygraphs.com/%s/%s?theme=%s&numcolors=%s&size=%d&fmt=%s";
 
     public enum Shape {
         SQUARES {

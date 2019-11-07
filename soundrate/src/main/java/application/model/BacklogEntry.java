@@ -1,21 +1,33 @@
 package application.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-@Entity @Table(name = "backlogEntry") @IdClass(BacklogEntry.BacklogEntryId.class)
+@Entity
+@Table(name = "backlogEntry")
+@IdClass(BacklogEntry.BacklogEntryId.class)
 public class BacklogEntry implements Serializable {
+
+    private static final long serialVersionUID = 1;
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "username", referencedColumnName = "username")
+    @NotNull(message = "{backlogEntry.user.NotNull}")
     private User user;
     @Id
+    @Column(name = "albumId")
+    @NotNull(message = "{backlogEntry.albumId.NotNull}")
     private Long albumId;
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "insertionName", nullable = false)
+    @NotNull(message = "{backlogEntry.insertionTime.NotNull}")
+    @PastOrPresent(message = "{backlogEntry.insertionTime.PastOrPresent}")
     private Date insertionTime;
 
     public User getUser() {

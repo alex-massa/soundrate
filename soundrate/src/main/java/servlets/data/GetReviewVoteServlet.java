@@ -18,39 +18,43 @@ import java.util.ResourceBundle;
 @WebServlet({"/get-review-vote-value"})
 public class GetReviewVoteServlet extends HttpServlet {
 
-    private static final long serialVersionUID = -5683567265876787274L;
+    private static final long serialVersionUID = 1L;
 
     @Inject
     private DataAgent dataAgent;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
         String sessionUsername;
+        HttpSession session = request.getSession();
         synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null ? null : session.getAttribute("username").toString();
+            sessionUsername = session.getAttribute("username") == null
+                    ? null
+                    : session.getAttribute("username").toString();
         }
         if (sessionUsername == null || sessionUsername.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        long albumId = NumberUtils.toLong(request.getParameter("album"), -1);
+        long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
         String reviewerUsername = request.getParameter("reviewer");
-        if (albumId == -1 || reviewerUsername == null) {
+        if (albumId == Long.MIN_VALUE || reviewerUsername == null || reviewerUsername.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
         User voter = this.dataAgent.getUser(sessionUsername);
         if (voter == null) {
-            response.getWriter().write(ResourceBundle.getBundle("i18n/strings",
-                    request.getLocale()).getString("error.userNotFound"));
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write
+                    (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                            .getString("error.userNotFound"));
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         Review review = this.dataAgent.getReview(reviewerUsername, albumId);
         if (review == null) {
-            response.getWriter().write(ResourceBundle.getBundle("i18n/strings",
-                    request.getLocale()).getString("error.reviewNotFound"));
+            response.getWriter().write
+                    (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                            .getString("error.reviewNotFound"));
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
@@ -58,11 +62,7 @@ public class GetReviewVoteServlet extends HttpServlet {
                 .getVote(voter.getUsername(), review.getReviewer().getUsername(), review.getReviewedAlbumId());
         if (reviewVote == null)
             return;
-        Boolean voteValue = null;
-        if (reviewVote.getValue() == +1)
-            voteValue = true;
-        else if (reviewVote.getValue() == -1)
-            voteValue = false;
+        Boolean voteValue = reviewVote.getValue();
         if (voteValue != null)
             response.getWriter().write(String.valueOf(voteValue));
     }

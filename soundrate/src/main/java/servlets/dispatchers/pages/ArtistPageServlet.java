@@ -3,6 +3,7 @@ package servlets.dispatchers.pages;
 import application.business.DataAgent;
 import deezer.model.Album;
 import deezer.model.Artist;
+import deezer.model.data.Albums;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
@@ -13,13 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @WebServlet({"/artist"})
 public class ArtistPageServlet extends HttpServlet {
 
-    private static final long serialVersionUID = -9200072939264770426L;
+    private static final long serialVersionUID = 1L;
 
     @Inject
     private DataAgent dataAgent;
@@ -27,16 +27,16 @@ public class ArtistPageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Artist artist;
-        long artistId = NumberUtils.toLong(request.getParameter("id"), -1);
-        if (artistId == -1)
+        long artistId = NumberUtils.toLong(request.getParameter("id"), Long.MIN_VALUE);
+        if (artistId == Long.MIN_VALUE)
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         else if ((artist = this.dataAgent.getArtist(artistId)) == null)
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         else {
             request.setAttribute("artist", artist);
 
-            List<Album> artistAlbums = this.dataAgent.getArtistAlbums(artist);
-            request.setAttribute("artistAlbums", artistAlbums);
+            Albums artistAlbums = this.dataAgent.getArtistAlbums(artist);
+            request.setAttribute("artistAlbums", artistAlbums == null ? null : artistAlbums.getData());
 
             int artistNumberOfReviews = this.dataAgent.getArtistNumberOfReviews(artist);
             request.setAttribute("artistNumberOfReviews", artistNumberOfReviews);
@@ -45,14 +45,14 @@ public class ArtistPageServlet extends HttpServlet {
             request.setAttribute("artistAverageRating", artistAverageRating);
 
             if (artistAlbums != null) {
-                Map<Album, Integer> albumNumberOfReviewsMap = artistAlbums.stream().collect(
+                Map<Album, Integer> albumNumberOfReviewsMap = artistAlbums.getData().stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumNumberOfReviews(album)),
                         HashMap::putAll
                 );
                 request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
 
-                Map<Album, Double> albumAverageRatingMap = artistAlbums.stream().collect(
+                Map<Album, Double> albumAverageRatingMap = artistAlbums.getData().stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumAverageRating(album)),
                         HashMap::putAll
@@ -60,7 +60,6 @@ public class ArtistPageServlet extends HttpServlet {
                 request.setAttribute("albumAverageRatingMap", albumAverageRatingMap);
             }
         }
-
         request.getRequestDispatcher("/WEB-INF/jsp/pages/artist.jsp").forward(request, response);
     }
 

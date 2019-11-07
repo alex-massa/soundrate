@@ -17,48 +17,49 @@ import java.util.ResourceBundle;
 @WebServlet({"/vote-review"})
 public class VoteReviewServlet extends HttpServlet {
 
-    private static final long serialVersionUID = -8970522315211670184L;
+    private static final long serialVersionUID = 1L;
 
     @Inject
-    private DataAgent usersAgent;
+    private DataAgent dataAgent;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
         String sessionUsername;
+        HttpSession session = request.getSession();
         synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null ? null : session.getAttribute("username").toString();
+            sessionUsername = session.getAttribute("username") == null
+                    ? null
+                    : session.getAttribute("username").toString();
         }
         if (sessionUsername == null || sessionUsername.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         String voteValueParameter = request.getParameter("vote");
-        Boolean voteValue =
-                voteValueParameter == null || voteValueParameter.isEmpty()
+        Boolean voteValue = voteValueParameter == null || voteValueParameter.isEmpty()
                 ? null
                 : Boolean.valueOf(voteValueParameter);
-        long albumId = NumberUtils.toLong(request.getParameter("album"), -1);
+        long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
         String reviewerUsername = request.getParameter("reviewer");
-        if (albumId == -1 || reviewerUsername == null) {
+        if (albumId == Long.MIN_VALUE || reviewerUsername == null || reviewerUsername.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        User voter = this.usersAgent.getUser(sessionUsername);
+        User voter = this.dataAgent.getUser(sessionUsername);
         if (voter == null) {
-            response.getWriter().write(ResourceBundle.getBundle("i18n/strings",
+            response.getWriter().write(ResourceBundle.getBundle("i18n/strings/strings",
                     request.getLocale()).getString("error.userNotFound"));
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        Review review = this.usersAgent.getReview(reviewerUsername, albumId);
+        Review review = this.dataAgent.getReview(reviewerUsername, albumId);
         if (review == null) {
-            response.getWriter().write(ResourceBundle.getBundle("i18n/strings",
+            response.getWriter().write(ResourceBundle.getBundle("i18n/strings/strings",
                     request.getLocale()).getString("error.reviewNotFound"));
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        this.usersAgent.voteReview(voter, review, voteValue);
+        this.dataAgent.voteReview(voter, review, voteValue);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

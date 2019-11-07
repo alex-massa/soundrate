@@ -1,11 +1,14 @@
 package application.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-@Entity @Table(name = "vote") @IdClass(Vote.VoteId.class)
+@Entity
+@Table(name = "vote")
+@IdClass(Vote.VoteId.class)
 public class Vote implements Serializable {
 
     private static final long serialVersionUID = 1;
@@ -13,6 +16,7 @@ public class Vote implements Serializable {
     @Id
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "voterUsername", referencedColumnName = "username")
+    @NotNull(message = "{vote.voter.NotNull}")
     private User voter;
     @Id
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -20,8 +24,10 @@ public class Vote implements Serializable {
             @JoinColumn(name = "reviewerUsername", referencedColumnName = "reviewerUsername"),
             @JoinColumn(name = "reviewedAlbumId", referencedColumnName = "reviewedAlbumId")
     })
+    @NotNull(message = "{vote.review.NotNull}")
     private Review review;
     @Column(name = "value", nullable = false)
+    @NotNull(message = "{vote.value.NotNull}")
     private Integer value;
 
     public User getVoter() {
@@ -42,12 +48,19 @@ public class Vote implements Serializable {
         return this;
     }
 
-    public Integer getValue() {
-        return this.value;
+    public Boolean getValue() {
+        if (this.value == +1)
+            return true;
+        else if (this.value == -1)
+            return false;
+        return null;
     }
 
-    public Vote setValue(Integer value) {
-        this.value = value;
+    public Vote setValue(Boolean value) {
+        if (value == null)
+            this.value = null;
+        else
+            this.value = value ? +1 : -1;
         return this;
     }
 

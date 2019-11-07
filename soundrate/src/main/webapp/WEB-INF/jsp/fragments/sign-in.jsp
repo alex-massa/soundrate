@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<fmt:setBundle basename="i18n/strings"/>
+<fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
 <div class="ui tiny basic modal" id="sign-in-modal">
     <i class="close icon"></i>
@@ -11,7 +11,7 @@
             <a class="item" data-tab="sign-up-form"><fmt:message key="label.signUp"/></a>
         </div>
         <div class="ui bottom attached active tab segment" data-tab="log-in-form">
-            <form class="ui form" id="log-in-form">
+            <form class="ui form" id="log-in-form" onsubmit="return false">
                 <div class="required field">
                     <label><fmt:message key="label.usernameField"/></label>
                     <div class="ui left icon input">
@@ -35,7 +35,7 @@
             </form>
         </div>
         <div class="ui bottom attached tab segment" data-tab="sign-up-form">
-            <form class="ui form" id="sign-up-form">
+            <form class="ui form" id="sign-up-form" onsubmit="return false">
                 <div class="required field">
                     <label><fmt:message key="label.usernameField"/></label>
                     <div class="ui left icon input">

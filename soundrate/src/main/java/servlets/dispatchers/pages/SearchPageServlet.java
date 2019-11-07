@@ -3,6 +3,8 @@ package servlets.dispatchers.pages;
 import application.business.DataAgent;
 import deezer.model.Album;
 import deezer.model.Artist;
+import deezer.model.data.Albums;
+import deezer.model.data.Artists;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -12,13 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @WebServlet({"/search"})
 public class SearchPageServlet extends HttpServlet {
 
-    private static final long serialVersionUID = 7466750352140381400L;
+    private static final long serialVersionUID = 1L;
 
     @Inject
     private DataAgent dataAgent;
@@ -29,17 +30,17 @@ public class SearchPageServlet extends HttpServlet {
         if (query == null || query.isEmpty())
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         else {
-            List<Artist> artists = this.dataAgent.searchArtists(query);
-            request.setAttribute("artists", artists);
+            Artists artists = this.dataAgent.searchArtists(query);
+            request.setAttribute("artists", artists == null ? null : artists.getData());
             if (artists != null) {
-                Map<Artist, Integer> artistNumberOfReviewsMap = artists.stream().collect(
+                Map<Artist, Integer> artistNumberOfReviewsMap = artists.getData().stream().collect(
                         HashMap::new,
                         (map, artist) -> map.put(artist, this.dataAgent.getArtistNumberOfReviews(artist)),
                         HashMap::putAll
                 );
                 request.setAttribute("artistNumberOfReviewsMap", artistNumberOfReviewsMap);
 
-                Map<Artist, Double> artistAverageRatingMap = artists.stream().collect(
+                Map<Artist, Double> artistAverageRatingMap = artists.getData().stream().collect(
                         HashMap::new,
                         (map, artist) -> map.put(artist, this.dataAgent.getArtistAverageRating(artist)),
                         HashMap::putAll
@@ -47,17 +48,17 @@ public class SearchPageServlet extends HttpServlet {
                 request.setAttribute("artistAverageRatingMap", artistAverageRatingMap);
             }
 
-            List<Album> albums = this.dataAgent.searchAlbums(query);
-            request.setAttribute("albums", albums);
+            Albums albums = this.dataAgent.searchAlbums(query);
+            request.setAttribute("albums", albums == null ? null : albums.getData());
             if (albums != null) {
-                Map<Album, Integer> albumNumberOfReviewsMap = albums.stream().collect(
+                Map<Album, Integer> albumNumberOfReviewsMap = albums.getData().stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumNumberOfReviews(album)),
                         HashMap::putAll
                 );
                 request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
 
-                Map<Album, Double> albumAverageRatingMap = albums.stream().collect(
+                Map<Album, Double> albumAverageRatingMap = albums.getData().stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumAverageRating(album)),
                         HashMap::putAll
@@ -65,7 +66,6 @@ public class SearchPageServlet extends HttpServlet {
                 request.setAttribute("albumAverageRatingMap", albumAverageRatingMap);
             }
         }
-
         request.getRequestDispatcher("/WEB-INF/jsp/pages/search.jsp").forward(request, response);
     }
 

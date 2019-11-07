@@ -10,7 +10,7 @@ import java.io.IOException;
 @WebServlet({"/sign-in-modal"})
 public class SignInFragmentServlet extends HttpServlet {
 
-    private static final long serialVersionUID = 4729363989307223388L;
+    private static final long serialVersionUID = 1L;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

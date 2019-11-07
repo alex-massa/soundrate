@@ -19,7 +19,7 @@ import java.util.Map;
 @WebServlet({"/backlog"})
 public class BacklogPageServlet extends HttpServlet {
 
-    private static final long serialVersionUID = -1757813666201711059L;
+    private static final long serialVersionUID = 1L;
 
     @Inject
     private DataAgent dataAgent;
@@ -61,7 +61,6 @@ public class BacklogPageServlet extends HttpServlet {
                 request.setAttribute("albumAverageRatingMap", albumAverageRatingMap);
             }
         }
-
         request.getRequestDispatcher("/WEB-INF/jsp/pages/backlog.jsp").forward(request, response);
     }
 

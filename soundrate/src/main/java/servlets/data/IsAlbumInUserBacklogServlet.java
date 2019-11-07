@@ -17,38 +17,42 @@ import java.util.ResourceBundle;
 @WebServlet({"/is-album-in-user-backlog"})
 public class IsAlbumInUserBacklogServlet extends HttpServlet {
 
-    private static final long serialVersionUID = -3830423929619851024L;
+    private static final long serialVersionUID = 1L;
 
     @Inject
     private DataAgent dataAgent;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
         String sessionUsername;
+        HttpSession session = request.getSession();
         synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null ? null : session.getAttribute("username").toString();
+            sessionUsername = session.getAttribute("username") == null
+                    ? null
+                    : session.getAttribute("username").toString();
         }
         if (sessionUsername == null || sessionUsername.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        long albumId = NumberUtils.toLong(request.getParameter("album"), -1);
-        if (albumId == -1) {
+        long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
+        if (albumId == Long.MIN_VALUE) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
         User user = this.dataAgent.getUser(sessionUsername);
         if (user == null) {
-            response.getWriter().write(ResourceBundle.getBundle("i18n/strings",
-                    request.getLocale()).getString("error.userNotFound"));
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write
+                    (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                            .getString("error.userNotFound"));
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         Album album = this.dataAgent.getAlbum(albumId);
         if (album == null) {
-            response.getWriter().write(ResourceBundle.getBundle("i18n/strings",
-                    request.getLocale()).getString("error.albumNotFound"));
+            response.getWriter().write
+                    (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                            .getString("error.albumNotFound"));
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
