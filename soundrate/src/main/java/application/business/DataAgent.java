@@ -461,6 +461,11 @@ public class DataAgent {
         this.entityManager.persist(user);
     }
 
+    public void updateUserPassword(@NotNull final User user, @NotNull final String password) {
+        user.setPassword(password);
+        this.entityManager.merge(user);
+    }
+
     public void voteReview(@NotNull final User voter,
                            @NotNull final Review review,
                            final Boolean value) {

@@ -37,12 +37,14 @@ function attachEventsToReviewForm() {
             url: 'publish-review',
             data: {album: albumId, rating: rating, content: content},
             beforeSend: xhr => {
-                $(reviewForm).form('validate form');
-                if (!$(reviewForm).form('is valid'))
+                if (!$(reviewForm).form('is valid')) {
+                    $(reviewForm).form('validate form');
                     xhr.abort();
+                }
             }
         })
         .done(() => {
+            $(reviewForm).form('validate form');
             userReview.dataset.published = JSON.stringify(true);
             userReview.querySelector('[data-user-review-rating]').textContent = $(reviewRating).rating('get rating');
             userReview.querySelector('[data-user-review-content]').textContent = $(reviewForm).form('get value', 'content');

@@ -28,6 +28,11 @@
                                placeholder="<fmt:message key="label.passwordField"/>" id="log-in-password">
                     </div>
                 </div>
+                <div class="ui center aligned basic segment">
+                    <a href="${context}/recover">
+                        <fmt:message key="message.forgotPassword"/>
+                    </a>
+                </div>
                 <button class="ui primary fluid button" type="button" id="log-in-button">
                     <fmt:message key="label.logIn"/>
                 </button>

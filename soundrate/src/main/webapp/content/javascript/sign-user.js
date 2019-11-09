@@ -33,12 +33,16 @@ window.addEventListener('load', () => {
             url: 'log-in',
             data: {username: username, password: password},
             beforeSend: xhr => {
-                $(logInForm).form('validate form');
-                if (!$(logInForm).form('is valid'))
+                if (!$(logInForm).form('is valid')) {
+                    $(logInForm).form('validate form');
                     xhr.abort();
+                }
             }
         })
-        .done(() => location.reload())
+        .done(() => {
+            $(logInForm).form('validate form');
+            location.reload()
+        })
         .fail(xhr => {
             if (xhr.statusText === 'canceled')
                 return;
@@ -56,12 +60,16 @@ window.addEventListener('load', () => {
             url: 'sign-up',
             data: {username: username, email: email, password: password},
             beforeSend: xhr => {
-                $(signUpForm).form('validate form');
-                if (!$(signUpForm).form('is valid'))
+                if (!$(signUpForm).form('is valid')) {
+                    $(signUpForm).form('validate form');
                     xhr.abort();
+                }
             }
         })
-        .done(() => location.reload())
+        .done(() => {
+            $(signUpForm).form('validate form');
+            location.reload()
+        })
         .fail(xhr => {
             if (xhr.statusText === 'canceled')
                 return;

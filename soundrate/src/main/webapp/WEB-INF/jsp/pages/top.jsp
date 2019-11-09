@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#2962FF">
     <link rel="icon" href="${context}/favicon.ico">
     <link rel="stylesheet" type="text/css" href="${context}/content/semantic/dist/semantic.min.css">
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="${context}/content/semantic/dist/semantic.min.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>

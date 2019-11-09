@@ -10,4 +10,13 @@
         JdbcDriver = org.hsqldb.jdbcDriver
         JdbcUrl = jdbc:hsqldb:file:soundrate
     </Resource>
+    <Resource id="mail/soundrateSession" type="javax.mail.Session">
+        mail.transport.protocol=smtp
+        mail.smtp.host=smtp.gmail.com
+        mail.smtp.port=587
+        mail.smtp.starttls.enable=true
+        mail.smtp.auth=true
+        mail.smtp.user=soundrate.noreply@gmail.com
+        password=8z8RshFCpYeGjw
+    </Resource>
 </resources>
