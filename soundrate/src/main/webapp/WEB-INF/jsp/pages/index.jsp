@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="sessionUser" value="${sessionScope.user}"/>
 <c:set var="albums" value="${requestScope.albums}"/>
 <c:set var="reviews" value="${requestScope.reviews}"/>
 <!DOCTYPE html>
@@ -23,7 +24,7 @@
 </head>
 <body>
     <c:import url="/header"/>
-    <c:if test="${empty sessionScope.username}">
+    <c:if test="${empty sessionUser}">
         <c:import url="/sign-in-modal"/>
     </c:if>
     <div class="ui container">
@@ -86,7 +87,6 @@
                 <c:if test="${not empty reviews}">
                     <c:set var="reviewerMap" value="${requestScope.reviewerMap}"/>
                     <c:set var="reviewedAlbumMap" value="${requestScope.reviewedAlbumMap}"/>
-                    <c:set var="reviewedAlbumArtistMap" value="${requestScope.reviewedAlbumArtistMap}"/>
                     <c:set var="reviewScoreMap" value="${requestScope.reviewScoreMap}"/>
                     <div class="ui fluid segment">
                         <div class="ui large blue header">
@@ -95,10 +95,10 @@
                         <c:forEach items="${reviews}" var="review">
                             <c:set var="reviewer" value="${reviewerMap[review]}"/>
                             <c:set var="reviewedAlbum" value="${reviewedAlbumMap[review]}"/>
-                            <c:set var="reviewedAlbumArtist" value="${reviewedAlbumArtistMap[review]}"/>
+                            <c:set var="reviewedAlbumArtist" value="${reviewedAlbum.artist}"/>
                             <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
                             <div class="ui fluid card" data-type="review" data-published="true"
-                                 data-vote-enabled="${not empty sessionScope.username}"
+                                 data-vote-enabled="${not empty sessionUser}"
                                  data-reviewer="${review.reviewer.username}" data-album="${review.reviewedAlbumId}">
                                 <div class="meta content">
                                     <div class="right floated meta">
@@ -140,7 +140,7 @@
                                     <p>${review.content}</p>
                                 </div>
                                 <c:choose>
-                                    <c:when test="${empty sessionScope.username}">
+                                    <c:when test="${empty sessionUser}">
                                         <div class="bottom attached button"
                                              data-tooltip="<fmt:message key="tooltip.logInToVote"/>">
                                             <div class="ui fluid buttons">

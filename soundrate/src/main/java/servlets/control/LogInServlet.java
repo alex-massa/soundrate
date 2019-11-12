@@ -9,7 +9,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
@@ -38,10 +37,7 @@ public class LogInServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        HttpSession session = request.getSession();
-        synchronized (session) {
-            session.setAttribute("username", username);
-        }
+        request.getSession().setAttribute("user", user);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

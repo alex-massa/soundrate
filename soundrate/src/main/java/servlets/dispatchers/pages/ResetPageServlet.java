@@ -1,6 +1,7 @@
 package servlets.dispatchers.pages;
 
 import application.business.DataAgent;
+import application.model.User;
 import io.jsonwebtoken.*;
 
 import javax.inject.Inject;
@@ -9,7 +10,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebServlet({"/reset"})
@@ -38,14 +38,8 @@ public class ResetPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String sessionUsername;
-        HttpSession session = request.getSession();
-        synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null
-                    ? null
-                    : session.getAttribute("username").toString();
-        }
-        if (sessionUsername != null)
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null)
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         String token = request.getParameter("token");
         if (token == null)

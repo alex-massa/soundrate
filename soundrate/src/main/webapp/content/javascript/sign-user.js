@@ -33,6 +33,7 @@ window.addEventListener('load', () => {
             url: 'log-in',
             data: {username: username, password: password},
             beforeSend: xhr => {
+                logInButton.disabled = true;
                 if (!$(logInForm).form('is valid')) {
                     $(logInForm).form('validate form');
                     xhr.abort();
@@ -44,6 +45,7 @@ window.addEventListener('load', () => {
             location.reload()
         })
         .fail(xhr => {
+            logInButton.disabled = false;
             if (xhr.statusText === 'canceled')
                 return;
             let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
@@ -60,6 +62,7 @@ window.addEventListener('load', () => {
             url: 'sign-up',
             data: {username: username, email: email, password: password},
             beforeSend: xhr => {
+                signInButton.disabled = true;
                 if (!$(signUpForm).form('is valid')) {
                     $(signUpForm).form('validate form');
                     xhr.abort();
@@ -71,6 +74,7 @@ window.addEventListener('load', () => {
             location.reload()
         })
         .fail(xhr => {
+            signInButton.disabled = false;
             if (xhr.statusText === 'canceled')
                 return;
             let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';

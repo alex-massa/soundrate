@@ -17,7 +17,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
@@ -37,14 +36,8 @@ public class RecoverAccountServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String sessionUsername;
-        HttpSession session = request.getSession();
-        synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null
-                    ? null
-                    : session.getAttribute("username").toString();
-        }
-        if (sessionUsername != null) {
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser != null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.cannotRecover"));
@@ -56,6 +49,7 @@ public class RecoverAccountServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
+
         User user = dataAgent.getUserByEmail(email);
         if (user == null) {
             response.getWriter().write
@@ -78,7 +72,7 @@ public class RecoverAccountServlet extends HttpServlet {
                 request.getRequestURI().substring(0, request.getRequestURI().lastIndexOf('/') + 1) + "reset" +
                 "?token=" + token;
         ResourceBundle emailTemplateBundle = ResourceBundle.getBundle("i18n/templates/email", request.getLocale());
-        final MimeMessage message = new MimeMessage(this.smtpSession);
+        MimeMessage message = new MimeMessage(this.smtpSession);
         try {
             message.setSubject(emailTemplateBundle.getString("recover.subject"));
             message.setContent(MessageFormat.format(emailTemplateBundle.getString("recover.body"), passwordRecoveryUrl),

@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="sessionUser" value="${sessionScope.user}"/>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,12 +22,12 @@
 </head>
 <body>
     <c:import url="/header"/>
-    <c:if test="${empty sessionScope.username}">
+    <c:if test="${empty sessionUser}">
         <c:import url="/sign-in-modal"/>
     </c:if>
     <div class="ui container">
         <c:choose>
-            <c:when test="${not empty sessionScope.username}">
+            <c:when test="${not empty sessionUser}">
             <div class="ui placeholder segment">
                 <div class="ui large icon header">
                     <i class="ui circular exclamation red icon"></i>

@@ -1,7 +1,10 @@
 package servlets.control;
 
 import application.business.DataAgent;
+import application.exceptions.ReviewNotFoundException;
 import application.model.Review;
+import application.model.User;
+import deezer.model.Album;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
@@ -9,7 +12,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
@@ -22,15 +24,9 @@ public class DeleteReviewServlet extends HttpServlet {
     private DataAgent dataAgent;
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String sessionUsername;
-        HttpSession session = request.getSession();
-        synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null
-                    ? null
-                    : session.getAttribute("username").toString();
-        }
-        if (sessionUsername == null || sessionUsername.isEmpty()) {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -39,15 +35,36 @@ public class DeleteReviewServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        Review review = this.dataAgent.getReview(sessionUsername, albumId);
-        if (review == null) {
+
+        User reviewer = this.dataAgent.getUser(sessionUser.getUsername());
+        if (reviewer == null) {
+            response.getWriter().write
+                    (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                            .getString("error.userNotFound"));
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        Album reviewedAlbum = this.dataAgent.getAlbum(albumId);
+        if (reviewedAlbum == null) {
+            response.getWriter().write
+                    (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                            .getString("error.albumNotFound"));
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        Review review = this.dataAgent.getReview(sessionUser.getUsername(), albumId);
+        try {
+            if (review == null)
+                throw new ReviewNotFoundException();
+            this.dataAgent.deleteReview(review);
+        } catch (ReviewNotFoundException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.reviewNotFound"));
-            response.setStatus(HttpServletResponse.SC_CONFLICT);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        this.dataAgent.deleteReview(review);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

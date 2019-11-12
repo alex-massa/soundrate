@@ -1,6 +1,9 @@
 package servlets.control;
 
 import application.business.DataAgent;
+import application.exceptions.BacklogEntryNotFoundException;
+import application.exceptions.ConflictingBacklogEntryException;
+import application.model.BacklogEntry;
 import application.model.User;
 import deezer.model.Album;
 import org.apache.commons.lang.math.NumberUtils;
@@ -10,8 +13,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 @WebServlet({"/update-user-backlog"})
@@ -24,12 +27,8 @@ public class UpdateUserBacklogServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String sessionUsername;
-        HttpSession session = request.getSession();
-        synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null ? null : session.getAttribute("username").toString();
-        }
-        if (sessionUsername == null || sessionUsername.isEmpty()) {
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -38,7 +37,8 @@ public class UpdateUserBacklogServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        User user = this.dataAgent.getUser(sessionUsername);
+
+        User user = this.dataAgent.getUser(sessionUser.getUsername());
         if (user == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -54,10 +54,34 @@ public class UpdateUserBacklogServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        if (!this.dataAgent.isAlbumInUserBacklog(user, album))
-            this.dataAgent.insertAlbumInUserBacklog(user, album);
-        else
-            this.dataAgent.removeAlbumFromUserBacklog(user, album);
+
+        BacklogEntry backlogEntry = this.dataAgent.getBacklogEntry(sessionUser.getUsername(), albumId);
+        if (backlogEntry == null) {
+            backlogEntry = new BacklogEntry()
+                    .setUser(user)
+                    .setAlbumId(album.getId())
+                    .setInsertionTime(new Date());
+            try {
+                this.dataAgent.createBacklogEntry(backlogEntry);
+            } catch (ConflictingBacklogEntryException e) {
+                response.getWriter().write
+                        (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                                .getString("error.conflictingBacklogEntry"));
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                return;
+            }
+        }
+        else {
+            try {
+                this.dataAgent.deleteBacklogEntry(backlogEntry);
+            } catch (BacklogEntryNotFoundException e) {
+                response.getWriter().write
+                        (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                                .getString("error.backlogEntryNotFound"));
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+        }
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

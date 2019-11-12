@@ -1,6 +1,7 @@
 package servlets.control;
 
 import application.business.DataAgent;
+import application.exceptions.UserNotFoundException;
 import application.model.User;
 import io.jsonwebtoken.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -10,7 +11,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
@@ -40,14 +40,8 @@ public class ResetPasswordServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String sessionUsername;
-        HttpSession session = request.getSession();
-        synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null
-                    ? null
-                    : session.getAttribute("username").toString();
-        }
-        if (sessionUsername != null)
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null)
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         String token = request.getParameter("token");
         String password = request.getParameter("password");
@@ -57,12 +51,21 @@ public class ResetPasswordServlet extends HttpServlet {
             try {
                 String username = this.jwtParser.parseClaimsJws(token).getBody().getSubject();
                 User user = this.dataAgent.getUser(username);
-                this.dataAgent.updateUserPassword(user, BCrypt.hashpw(password, BCrypt.gensalt()));
+                if (user == null)
+                    throw new UserNotFoundException();
+                user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+                this.dataAgent.updateUser(user);
+                request.getSession().setAttribute("user", user);
             } catch (JwtException e) {
                 response.getWriter().write
                         (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                                 .getString("error.invalidLink"));
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            } catch (UserNotFoundException e) {
+                response.getWriter().write
+                        (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                                .getString("error.userNotFound"));
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }
         }
     }

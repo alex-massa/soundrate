@@ -1,8 +1,11 @@
 package servlets.control;
 
 import application.business.DataAgent;
+import application.exceptions.ConflictingReviewException;
+import application.exceptions.ReviewNotFoundException;
 import application.model.Review;
 import application.model.User;
+import deezer.model.Album;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -11,7 +14,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Date;
 import java.util.ResourceBundle;
@@ -26,14 +28,8 @@ public class PublishReviewServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String sessionUsername;
-        HttpSession session = request.getSession();
-        synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null
-                    ? null
-                    : session.getAttribute("username").toString();
-        }
-        if (sessionUsername == null || sessionUsername.isEmpty()) {
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -53,7 +49,8 @@ public class PublishReviewServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        User reviewer = this.dataAgent.getUser(sessionUsername);
+
+        User reviewer = this.dataAgent.getUser(sessionUser.getUsername());
         if (reviewer == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -61,7 +58,16 @@ public class PublishReviewServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        Review review = this.dataAgent.getReview(sessionUsername, albumId);
+        Album reviewedAlbum = this.dataAgent.getAlbum(albumId);
+        if (reviewedAlbum == null) {
+            response.getWriter().write
+                    (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                            .getString("error.albumNotFound"));
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        Review review = this.dataAgent.getReview(sessionUser.getUsername(), albumId);
         if (review == null) {
             review = new Review()
                     .setReviewer(reviewer)
@@ -69,9 +75,29 @@ public class PublishReviewServlet extends HttpServlet {
                     .setContent(content)
                     .setRating(rating)
                     .setPublicationDate(new Date());
-            this.dataAgent.publishReview(review);
-        } else
-            this.dataAgent.editReview(review, content, rating);
+            try {
+                this.dataAgent.createReview(review);
+            } catch (ConflictingReviewException e) {
+                response.getWriter().write
+                        (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                                .getString("error.conflictingReview"));
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                return;
+            }
+        } else {
+            review
+                    .setContent(content)
+                    .setRating(rating);
+            try {
+                this.dataAgent.updateReview(review);
+            } catch (ReviewNotFoundException e) {
+                response.getWriter().write
+                        (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                                .getString("error.reviewNotFound"));
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+        }
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

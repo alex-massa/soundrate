@@ -24,6 +24,7 @@
             <version>8.0</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Not necessary, included just to avoid IDE's "cannot resolve taglib" errors -->
         <dependency>
             <groupId>jstl</groupId>
             <artifactId>jstl</artifactId>

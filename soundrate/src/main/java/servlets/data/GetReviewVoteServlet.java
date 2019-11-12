@@ -11,7 +11,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
@@ -25,14 +24,8 @@ public class GetReviewVoteServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String sessionUsername;
-        HttpSession session = request.getSession();
-        synchronized (session) {
-            sessionUsername = session.getAttribute("username") == null
-                    ? null
-                    : session.getAttribute("username").toString();
-        }
-        if (sessionUsername == null || sessionUsername.isEmpty()) {
+        User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -42,7 +35,8 @@ public class GetReviewVoteServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        User voter = this.dataAgent.getUser(sessionUsername);
+
+        User voter = this.dataAgent.getUser(sessionUser.getUsername());
         if (voter == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -58,13 +52,11 @@ public class GetReviewVoteServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        Vote reviewVote = this.dataAgent
-                .getVote(voter.getUsername(), review.getReviewer().getUsername(), review.getReviewedAlbumId());
-        if (reviewVote == null)
-            return;
-        Boolean voteValue = reviewVote.getValue();
-        if (voteValue != null)
-            response.getWriter().write(String.valueOf(voteValue));
+
+        Vote reviewVote = this.dataAgent.getVote
+                (voter.getUsername(), review.getReviewer().getUsername(), review.getReviewedAlbumId());
+        if (reviewVote != null && reviewVote.getValue() != null)
+            response.getWriter().write(String.valueOf(reviewVote.getValue()));
     }
 
 }

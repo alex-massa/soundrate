@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="sessionUser" value="${sessionScope.user}"/>
 <div class="ui stackable secondary inverted blue menu">
     <a class="item" href="${context}/index">
         <img class="ui middle aligned mini image" src="${context}/content/images/logo.svg" alt="logo">
@@ -10,7 +11,7 @@
     <a class="item" href="${context}/top"><fmt:message key="label.topAlbums"/></a>
     <div class="right menu">
         <c:choose>
-            <c:when test="${empty sessionScope.username}">
+            <c:when test="${empty sessionUser}">
                 <div class="item">
                     <div class="ui inverted button" id="sign-in-button">
                         <i class="sign out alternate icon"></i> <fmt:message key="label.signIn"/>
@@ -18,10 +19,10 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <a class="item" href="${context}/user?id=${sessionScope.username}">
-                    <i class="user icon"></i> ${sessionScope.username}
+                <a class="item" href="${context}/user?id=${sessionUser.username}">
+                    <img class="ui avatar image" src="${sessionUser.picture}" alt="avatar"> ${sessionUser.username}
                 </a>
-                <a class="item" href="${context}/backlog?id=${sessionScope.username}">
+                <a class="item" href="${context}/backlog?id=${sessionUser.username}">
                     <i class="list icon"></i> <fmt:message key="label.backlog"/>
                 </a>
                 <div class="item">

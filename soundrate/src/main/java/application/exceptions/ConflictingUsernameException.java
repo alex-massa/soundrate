@@ -1,11 +1,6 @@
 package application.exceptions;
 
-import javax.ejb.ApplicationException;
-
-@ApplicationException(rollback = true)
-public class ConflictingUsernameException extends Exception {
-
-    private static final long serialVersionUID = 1L;
+public class ConflictingUsernameException extends RuntimeException {
 
     public ConflictingUsernameException() {
         super();
@@ -13,6 +8,19 @@ public class ConflictingUsernameException extends Exception {
 
     public ConflictingUsernameException(String message) {
         super(message);
+    }
+
+    public ConflictingUsernameException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    protected ConflictingUsernameException
+            (String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public ConflictingUsernameException(Throwable cause) {
+        super(cause);
     }
 
 }

@@ -51,7 +51,9 @@ public class ArtistAlbumsHolder {
                 .skip(index)
                 .limit(Math.min(artistAlbums.getData().size() - index, limit))
                 .collect(Collectors.toList());
-        return new Albums().setData(data).setTotal(artistAlbums.getTotal());
+        return new Albums()
+                .setData(data)
+                .setTotal(artistAlbums.getTotal());
     }
 
 }

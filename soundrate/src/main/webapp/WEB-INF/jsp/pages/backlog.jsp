@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="sessionUser" value="${sessionScope.user}"/>
 <c:set var="user" value="${requestScope.user}"/>
 <c:set var="backlog" value="${requestScope.backlog}"/>
 <!DOCTYPE html>
@@ -23,7 +24,7 @@
 </head>
 <body>
     <c:import url="/header"/>
-    <c:if test="${empty sessionScope.username}">
+    <c:if test="${empty sessionUser}">
         <c:import url="/sign-in-modal"/>
     </c:if>
     <div class="ui container">
@@ -47,7 +48,7 @@
                             <c:set var="albumNumberOfReviews" value="${albumNumberOfReviewsMap[album]}"/>
                             <c:set var="albumAverageRating" value="${albumAverageRatingMap[album]}"/>
                             <div class="ui card" data-type="album"
-                                 data-enabled="${empty sessionScope.username ? false : true}" data-album="${album.id}">
+                                 data-enabled="${empty sessionUser ? false : true}" data-album="${album.id}">
                                 <a class="image" href="${context}/album?id=${album.id}">
                                     <img src="${album.bigCover}" alt="artwork">
                                 </a>
@@ -100,7 +101,7 @@
                                     </c:if>
                                 </div>
                                 <c:choose>
-                                    <c:when test="${empty sessionScope.username}">
+                                    <c:when test="${empty sessionUser}">
                                         <div class="ui bottom attached disabled button">
                                             <i class="sign in icon"></i> <fmt:message key="label.logInForBacklog"/>
                                         </div>

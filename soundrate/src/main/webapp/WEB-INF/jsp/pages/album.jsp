@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="sessionUser" value="${sessionScope.user}"/>
 <c:set var="album" value="${requestScope.album}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +31,7 @@
 </head>
 <body>
     <c:import url="/header"/>
-    <c:if test="${empty sessionScope.username}">
+    <c:if test="${empty sessionUser}">
         <c:import url="/sign-in-modal"/>
     </c:if>
     <div class="ui container">
@@ -51,7 +52,7 @@
                 <div class="ui two columns stackable grid">
                     <div class="five wide column">
                         <div class="ui sticky fluid card" data-type="album"
-                             data-enabled="${empty sessionScope.username ? false : true}" data-album="${album.id}">
+                             data-enabled="${empty sessionUser ? false : true}" data-album="${album.id}">
                             <div class="image">
                                 <img src="${album.bigCover}" alt="artwork">
                             </div>
@@ -108,7 +109,7 @@
                                 </c:if>
                             </div>
                             <c:choose>
-                                <c:when test="${empty sessionScope.username}">
+                                <c:when test="${empty sessionUser}">
                                     <div class="ui bottom attached disabled button">
                                         <i class="sign in icon"></i> <fmt:message key="label.logInForBacklog"/>
                                     </div>
@@ -122,7 +123,7 @@
                     <div class="eleven wide column">
                         <div class="ui fluid segment">
                             <div class="ui large blue header"><fmt:message key="label.reviews"/></div>
-                            <c:if test="${not empty sessionScope.username}">
+                            <c:if test="${not empty sessionUser}">
                                 <div class="ui tiny basic modal" id="delete-review-modal">
                                     <div class="ui icon header">
                                         <i class="remove icon"></i>
@@ -145,7 +146,7 @@
                                 <c:set var="reviewScoreMap" value="${requestScope.reviewScoreMap}"/>
                                 <c:set var="reviewerMap" value="${requestScope.reviewerMap}"/>
                                 <c:forEach items="${albumReviews}" var="review">
-                                    <c:if test="${review.reviewer.username eq sessionScope.username}">
+                                    <c:if test="${review.reviewer.username eq sessionUser.username}">
                                         <c:set var="userReview" value="${review}"/>
                                         <c:set var="userReviewScore" value="${reviewScoreMap[review]}"/>
                                     </c:if>
@@ -168,7 +169,7 @@
                                 </form>
                                 <div class="ui fluid blue card ${empty userReview ? 'invisible' : ''}" data-type="review"
                                      data-published="${not empty userReview}" data-vote-enabled="true"
-                                     data-reviewer="${sessionScope.username}" data-album="${param.id}" id="user-review">
+                                     data-reviewer="${sessionUser.username}" data-album="${param.id}" id="user-review">
                                     <div class="meta content">
                                         <div class="right floated meta">
                                             <span class="ui icon label">
@@ -222,9 +223,9 @@
                             <c:forEach items="${albumReviews}" var="review">
                                 <c:set var="reviewer" value="${reviewerMap[review]}"/>
                                 <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
-                                <c:if test="${empty sessionScope.username or sessionScope.username ne reviewer.username}">
+                                <c:if test="${empty sessionUser or sessionUser.username ne reviewer.username}">
                                     <div class="ui fluid card" data-type="review" data-published="true"
-                                         data-vote-enabled="${not empty sessionScope.username}"
+                                         data-vote-enabled="${not empty sessionUser}"
                                          data-reviewer="${reviewer.username}" data-album="${param.id}">
                                         <div class="meta content">
                                             <div class="right floated meta">
@@ -246,7 +247,7 @@
                                             <p>${review.content}</p>
                                         </div>
                                         <c:choose>
-                                            <c:when test="${empty sessionScope.username}">
+                                            <c:when test="${empty sessionUser}">
                                                 <div class="bottom attached button"
                                                      data-tooltip="<fmt:message key="tooltip.logInToVote"/>">
                                                     <div class="ui fluid buttons">

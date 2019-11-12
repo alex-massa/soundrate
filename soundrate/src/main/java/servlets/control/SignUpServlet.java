@@ -12,7 +12,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Date;
 import java.util.ResourceBundle;
@@ -39,24 +38,20 @@ public class SignUpServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
+        User user = new User()
+                .setUsername(username)
+                .setEmail(email)
+                .setPassword(BCrypt.hashpw(password, BCrypt.gensalt()))
+                .setSignUpDate(new Date())
+                .setPicture(AvatarGenerator.randomAvatar(username, SignUpServlet.DEFAULT_AVATAR_SIZE, SignUpServlet.DEFAULT_AVATAR_FORMAT))
+                .setRole(User.Role.USER);
         try {
-            this.dataAgent.registerUser(new User()
-                    .setUsername(username)
-                    .setEmail(email)
-                    .setPassword(BCrypt.hashpw(password, BCrypt.gensalt()))
-                    .setSignUpDate(new Date())
-                    .setPicture(AvatarGenerator.randomAvatar(username, SignUpServlet.DEFAULT_AVATAR_SIZE, SignUpServlet.DEFAULT_AVATAR_FORMAT))
-                    .setRole(User.Role.USER));
-            HttpSession session = request.getSession();
-            synchronized (session) {
-                session.setAttribute("username", username);
-            }
+            this.dataAgent.createUser(user);
         } catch (ConflictingUsernameException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.conflictingUsername"));
             response.setStatus(HttpServletResponse.SC_CONFLICT);
-            return;
         } catch (ConflictingEmailAddressException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -64,6 +59,7 @@ public class SignUpServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_CONFLICT);
             return;
         }
+        request.getSession().setAttribute("user", user);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

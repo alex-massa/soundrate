@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
+<c:set var="sessionUser" value="${sessionScope.user}"/>
 <c:set var="user" value="${requestScope.user}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,7 +24,7 @@
 </head>
 <body>
     <c:import url="/header"/>
-    <c:if test="${empty sessionScope.username}">
+    <c:if test="${empty sessionUser}">
         <c:import url="/sign-in-modal"/>
     </c:if>
     <div class="ui container">
@@ -116,7 +117,7 @@
                                 <c:set var="reviewedAlbumArtist" value="${reviewedAlbum.artist}"/>
                                 <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
                                 <div class="ui fluid card" data-type="review" data-published="true"
-                                     data-vote-enabled="${not empty sessionScope.username}"
+                                     data-vote-enabled="${not empty sessionUser}"
                                      data-reviewer="${review.reviewer.username}" data-album="${review.reviewedAlbumId}">
                                     <div class="meta content">
                                         <div class="right floated meta">
@@ -155,7 +156,7 @@
                                         <p>${review.content}</p>
                                     </div>
                                     <c:choose>
-                                        <c:when test="${empty sessionScope.username}">
+                                        <c:when test="${empty sessionUser}">
                                             <div class="bottom attached button"
                                                  data-tooltip="<fmt:message key="tooltip.logInToVote"/>">
                                                 <div class="ui fluid buttons">

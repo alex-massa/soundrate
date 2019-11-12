@@ -1,11 +1,6 @@
 package application.exceptions;
 
-import javax.ejb.ApplicationException;
-
-@ApplicationException(rollback = true)
-public class ConflictingEmailAddressException extends Exception {
-
-    private static final long serialVersionUID = 1L;
+public class ConflictingEmailAddressException extends RuntimeException {
 
     public ConflictingEmailAddressException() {
         super();
@@ -13,6 +8,19 @@ public class ConflictingEmailAddressException extends Exception {
 
     public ConflictingEmailAddressException(String message) {
         super(message);
+    }
+
+    public ConflictingEmailAddressException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    protected ConflictingEmailAddressException
+            (String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public ConflictingEmailAddressException(Throwable cause) {
+        super(cause);
     }
 
 }
