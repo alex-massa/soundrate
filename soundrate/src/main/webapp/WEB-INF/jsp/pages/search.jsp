@@ -52,7 +52,9 @@
                                 <div class="content">
                                     <div class="center aligned meta">
                                         <a class="ui small header"
-                                           href="${context}/artist?id=${artist.id}">${artist.name}</a>
+                                           href="${context}/artist?id=${artist.id}">
+                                                ${artist.name}
+                                        </a>
                                     </div>
                                 </div>
                                 <div class="extra content">
@@ -106,11 +108,15 @@
                                 <div class="content">
                                     <div class="center aligned meta">
                                         <a class="ui small header"
-                                           href="${context}/album?id=${album.id}">${album.title}</a>
+                                           href="${context}/album?id=${album.id}">
+                                                ${album.title}
+                                        </a>
                                     </div>
                                     <div class="center aligned meta">
                                         <a class="ui small disabled header"
-                                           href="${context}/artist?id=${album.artist.id}">${album.artist.name}</a>
+                                           href="${context}/artist?id=${album.artist.id}">
+                                                ${album.artist.name}
+                                        </a>
                                     </div>
                                 </div>
                                 <div class="extra content">

@@ -63,7 +63,8 @@
                         <div class="ui left icon input">
                             <i class="envelope icon"></i>
                             <input type="email" name="email-match"
-                                   placeholder="<fmt:message key="label.matchEmailAddressField"/>" id="sign-up-email-match">
+                                   placeholder="<fmt:message key="label.matchEmailAddressField"/>"
+                                   id="sign-up-email-match">
                         </div>
                     </div>
                 </div>
@@ -81,7 +82,8 @@
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
                             <input type="password" name="password-match"
-                                   placeholder="<fmt:message key="label.matchPasswordField"/>" id="sign-up-password-match">
+                                   placeholder="<fmt:message key="label.matchPasswordField"/>"
+                                   id="sign-up-password-match">
                         </div>
                     </div>
                 </div>

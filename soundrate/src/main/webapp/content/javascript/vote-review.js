@@ -4,66 +4,74 @@ const voteButtonsState = {
 };
 
 window.addEventListener('load', () => {
+    let user = document.querySelector('[data-user]');
     let reviews = document.querySelectorAll('[data-type="review"]');
     reviews.forEach(review => {
-        if (JSON.parse(review.dataset.voteEnabled)) {
-            attachVoteButtonsClickEvent(review);
+        if (user) {
+            attachVoteButtonsClickEvent(user, review);
             if (JSON.parse(review.dataset.published))
-                getReviewVoteValue(review);
+                getReviewVoteValue(user, review);
         }
     });
 });
 
-function getReviewVoteValue(review) {
+function getReviewVoteValue(voter, review) {
+    let voterUsername = voter.dataset.user;
     let reviewerUsername = review.dataset.reviewer;
-    let albumId = review.dataset.album;
+    let reviewedAlbumId = review.dataset.album;
     $.ajax({
         method: 'get',
         url: 'get-review-vote-value',
-        data: {'reviewer': reviewerUsername, 'album': albumId}
+        data: {voter: voterUsername, reviewer: reviewerUsername, reviewedAlbum: reviewedAlbumId}
     })
-    .done(data => {
-        let voteValue = !data ? null : JSON.parse(data);
-        applyReviewButtonsVisualChanges(review, voteValue);
-        setReviewVoteValue(review, voteValue);
-    })
-    .fail(xhr => {
-        let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-        $('body').toast({
-            message: toastMessage,
-            position: 'bottom right',
-            class: 'error',
-            className: {toast: 'ui message'}
+        .done(data => {
+            let voteValue = !data ? null : JSON.parse(data);
+            applyReviewButtonsVisualChanges(review, voteValue);
+            setReviewVoteValue(review, voteValue);
+        })
+        .fail(xhr => {
+            let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
+            $('body').toast({
+                message: toastMessage,
+                position: 'bottom right',
+                class: 'error',
+                className: {toast: 'ui message'}
+            });
         });
-    });
 }
 
-function attachVoteButtonsClickEvent(review) {
+function attachVoteButtonsClickEvent(voter, review) {
     review.querySelectorAll('button[data-value]').forEach(button => {
         button.addEventListener('click', () => {
-            let voteValue = getVoteValueToSet(review.dataset.vote, button.dataset.value);
-            let albumId = review.dataset.album;
+            let voterUsername = voter.dataset.user;
             let reviewerUsername = review.dataset.reviewer;
+            let reviewedAlbumId = review.dataset.album;
+            let voteValue = getVoteValueToSet(review.dataset.vote, button.dataset.value);
             $.ajax({
-                method: 'POST',
+                method: 'post',
                 url: 'vote-review',
-                data: {vote: voteValue, album: albumId, reviewer: reviewerUsername}
+                data: {
+                    voter: voterUsername,
+                    reviewer: reviewerUsername,
+                    reviewedAlbum: reviewedAlbumId,
+                    vote: voteValue
+                }
             })
-            .done(() => {
-                let voteValue = getVoteValueToSet(review.dataset.vote, button.dataset.value);
-                applyReviewButtonsVisualChanges(review, voteValue);
-                applyReviewUpvotesVisualChanges(review, voteValue);
-                setReviewVoteValue(review, voteValue);
-            })
-            .fail(xhr => {
-                let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-                $('body').toast({
-                    message: toastMessage,
-                    position: 'bottom right',
-                    class: 'error',
-                    className: {toast: 'ui message'}
+                .done(() => {
+                    let voteValue = getVoteValueToSet(review.dataset.vote, button.dataset.value);
+                    applyReviewButtonsVisualChanges(review, voteValue);
+                    applyReviewUpvotesVisualChanges(review, voteValue);
+                    setReviewVoteValue(review, voteValue);
+                })
+                .fail(xhr => {
+                    let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
+                    $('body').toast({
+                        message: toastMessage,
+                        position: 'bottom right',
+                        class: 'error',
+                        className: {toast: 'ui message'}
+                    });
                 });
-            });
         });
     });
 }

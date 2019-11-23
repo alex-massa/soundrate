@@ -41,10 +41,14 @@
                         <img class="ui tiny image" src="${album.bigCover}" alt="artwork">
                         <div class="content">
                             <div class="header">
-                                <a class="ui header" href="${context}/album?id=${album.id}">${album.title}</a>
+                                <a class="ui header" href="${context}/album?id=${album.id}">
+                                    ${album.title}
+                                </a>
                             </div>
                             <div class="meta">
-                                <a href="${context}/artist?id=${album.artist.id}">${album.artist.name}</a>
+                                <a href="${context}/artist?id=${album.artist.id}">
+                                    ${album.artist.name}
+                                </a>
                             </div>
                             <div class="extra">
                                 <c:choose>

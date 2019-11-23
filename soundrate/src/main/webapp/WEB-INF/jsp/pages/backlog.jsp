@@ -47,19 +47,22 @@
                             <c:set var="albumGenre" value="${albumGenreMap[album]}"/>
                             <c:set var="albumNumberOfReviews" value="${albumNumberOfReviewsMap[album]}"/>
                             <c:set var="albumAverageRating" value="${albumAverageRatingMap[album]}"/>
-                            <div class="ui card" data-type="album"
-                                 data-enabled="${empty sessionUser ? false : true}" data-album="${album.id}">
+                            <div class="ui card" data-type="album" data-album="${album.id}">
                                 <a class="image" href="${context}/album?id=${album.id}">
                                     <img src="${album.bigCover}" alt="artwork">
                                 </a>
                                 <div class="content">
                                     <div class="center aligned meta">
                                         <a class="ui small header"
-                                           href="${context}/album?id=${album.id}">${album.title}</a>
+                                           href="${context}/album?id=${album.id}">
+                                                ${album.title}
+                                        </a>
                                     </div>
                                     <div class="center aligned meta">
                                         <a class="ui small disabled header"
-                                           href="${context}/artist?id=${album.artist.id}">${album.artist.name}</a>
+                                           href="${context}/artist?id=${album.artist.id}">
+                                                ${album.artist.name}
+                                        </a>
                                     </div>
                                 </div>
                                 <div class="extra content">
@@ -103,7 +106,8 @@
                                 <c:choose>
                                     <c:when test="${empty sessionUser}">
                                         <div class="ui bottom attached disabled button">
-                                            <i class="sign in icon"></i> <fmt:message key="label.logInForBacklog"/>
+                                            <i class="sign in icon"></i>
+                                            <fmt:message key="label.logInForBacklog"/>
                                         </div>
                                     </c:when>
                                     <c:otherwise>

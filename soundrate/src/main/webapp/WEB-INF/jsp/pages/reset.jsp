@@ -66,7 +66,8 @@
                                     <div class="ui left icon input">
                                         <i class="lock icon"></i>
                                         <input type="password" name="password-match"
-                                               placeholder="<fmt:message key="label.matchPasswordField"/>" id="reset-password-match">
+                                               placeholder="<fmt:message key="label.matchPasswordField"/>"
+                                               id="reset-password-match">
                                     </div>
                                 </div>
                             </div>

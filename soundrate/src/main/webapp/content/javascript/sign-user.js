@@ -29,7 +29,7 @@ window.addEventListener('load', () => {
         let username = $(logInForm).form('get value', 'username');
         let password = $(logInForm).form('get value', 'password');
         $.ajax({
-            method: 'POST',
+            method: 'post',
             url: 'log-in',
             data: {username: username, password: password},
             beforeSend: xhr => {
@@ -58,7 +58,7 @@ window.addEventListener('load', () => {
         let email = $(signUpForm).form('get value', 'email');
         let password = $(signUpForm).form('get value', 'password');
         $.ajax({
-            method: 'POST',
+            method: 'post',
             url: 'sign-up',
             data: {username: username, email: email, password: password},
             beforeSend: xhr => {
@@ -84,7 +84,7 @@ window.addEventListener('load', () => {
 
     function logOut() {
         $.ajax({
-            method: 'POST',
+            method: 'post',
             url: 'log-out'
         })
         .done(() => location.reload())

@@ -15,11 +15,11 @@ window.addEventListener('load', () => {
 
 function updateReviewAndFormVisibility() {
     if (JSON.parse(userReview.dataset.published)) {
-        userReview.classList.remove('invisible');
-        reviewForm.classList.add('invisible');
+        userReview.classList.remove('hidden');
+        reviewForm.classList.add('hidden');
     } else {
-        userReview.classList.add('invisible');
-        reviewForm.classList.remove('invisible');
+        userReview.classList.add('hidden');
+        reviewForm.classList.remove('hidden');
     }
 }
 
@@ -29,13 +29,14 @@ function attachEventsToReviewForm() {
 
     let publishReviewButton = document.getElementById('publish-review-button');
     publishReviewButton.addEventListener('click', () => {
+        let reviewerUsername = userReview.dataset.reviewer;
         let albumId = userReview.dataset.album;
-        let rating = $(reviewRating).rating('get rating');
         let content = $(reviewForm).form('get value', 'content');
+        let rating = $(reviewRating).rating('get rating');
         $.ajax({
-            method: 'POST',
+            method: 'post',
             url: 'publish-review',
-            data: {album: albumId, rating: rating, content: content},
+            data: {reviewer: reviewerUsername, album: albumId, rating: rating, content: content},
             beforeSend: xhr => {
                 if (!$(reviewForm).form('is valid')) {
                     $(reviewForm).form('validate form');
@@ -96,37 +97,38 @@ function attachClickEventsToUserReviewButtons() {
 function attachClickEventToConfirmReviewDeletionButton() {
     let deleteReviewConfirmButton = deleteReviewModal.querySelector('[data-delete-review]');
     deleteReviewConfirmButton.addEventListener('click', () => {
-       let albumId = userReview.dataset.album;
-       $.ajax({
-          method: 'POST',
-          url: 'delete-review',
-          data: {album: albumId}
-       })
-       .done(() => {
-           let reviewRating = document.getElementById('review-rating');
-           applyReviewButtonsVisualChanges(userReview, null);
-           userReview.querySelector('[data-text]').dataset.text = JSON.stringify(0);
-           userReview.querySelector('[data-user-review-rating]').textContent = '';
-           userReview.querySelector('[data-user-review-content]').textContent = '';
-           reviewForm.querySelector('textarea[name="content"]').value = '';
-           userReview.dataset.published = JSON.stringify(false);
-           $(reviewRating).rating('set rating', 5);
-           updateReviewAndFormVisibility();
-           $('body').toast({
-               message: 'Review successfully deleted',
-               position: 'bottom right',
-               class: 'success',
-               className: {toast: 'ui message'}
-           });
-       })
-       .fail(xhr => {
-           let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-           $('body').toast({
-               message: toastMessage,
-               position: 'bottom right',
-               class: 'error',
-               className: {toast: 'ui message'}
-           });
-       });
+        let reviewer = userReview.dataset.reviewer;
+        let albumId = userReview.dataset.album;
+        $.ajax({
+            method: 'post',
+            url: 'delete-review',
+            data: {reviewer: reviewer, album: albumId}
+        })
+        .done(() => {
+            let reviewRating = document.getElementById('review-rating');
+            applyReviewButtonsVisualChanges(userReview, null);
+            userReview.querySelector('[data-text]').dataset.text = JSON.stringify(0);
+            userReview.querySelector('[data-user-review-rating]').textContent = '';
+            userReview.querySelector('[data-user-review-content]').textContent = '';
+            reviewForm.querySelector('textarea[name="content"]').value = '';
+            userReview.dataset.published = JSON.stringify(false);
+            $(reviewRating).rating('set rating', 5);
+            updateReviewAndFormVisibility();
+            $('body').toast({
+                message: 'Review successfully deleted',
+                position: 'bottom right',
+                class: 'success',
+                className: {toast: 'ui message'}
+            });
+        })
+        .fail(xhr => {
+            let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
+            $('body').toast({
+                message: toastMessage,
+                position: 'bottom right',
+                class: 'error',
+                className: {toast: 'ui message'}
+            });
+        });
     });
 }

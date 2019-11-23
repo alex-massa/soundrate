@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.ResourceBundle;
 
-@WebServlet({"/publish-review"})
+@WebServlet(urlPatterns = {"/publish-review"})
 public class PublishReviewServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -28,29 +28,25 @@ public class PublishReviewServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        User sessionUser = (User) request.getSession().getAttribute("user");
-        if (sessionUser == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
-        if (albumId == Long.MIN_VALUE) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-        String content = request.getParameter("content");
-        content = StringEscapeUtils.escapeHtml(content);
-        if (content == null || content.length() < Review.MIN_CONTENT_LENGTH || content.length() > Review.MAX_CONTENT_LENGTH) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-        int rating = NumberUtils.toInt(request.getParameter("rating"), Integer.MIN_VALUE);
-        if (rating < Review.MIN_ALLOWED_RATING || rating > Review.MAX_ALLOWED_RATING) {
+        final String reviewerUsername = request.getParameter("reviewer");
+        final long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
+        final String content = StringEscapeUtils.escapeHtml(request.getParameter("content"));
+        final int rating = NumberUtils.toInt(request.getParameter("rating"), Integer.MIN_VALUE);
+        if (reviewerUsername == null || reviewerUsername.isEmpty() ||
+            albumId == Long.MIN_VALUE ||
+            content == null || content.length() < Review.MIN_CONTENT_LENGTH || content.length() > Review.MAX_CONTENT_LENGTH ||
+            rating < Review.MIN_ALLOWED_RATING || rating > Review.MAX_ALLOWED_RATING) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        User reviewer = this.dataAgent.getUser(sessionUser.getUsername());
+        final User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null || !sessionUser.getUsername().equals(reviewerUsername)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        final User reviewer = this.dataAgent.getUser(reviewerUsername);
         if (reviewer == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -58,7 +54,7 @@ public class PublishReviewServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        Album reviewedAlbum = this.dataAgent.getAlbum(albumId);
+        final Album reviewedAlbum = this.dataAgent.getAlbum(albumId);
         if (reviewedAlbum == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -67,7 +63,7 @@ public class PublishReviewServlet extends HttpServlet {
             return;
         }
 
-        Review review = this.dataAgent.getReview(sessionUser.getUsername(), albumId);
+        Review review = this.dataAgent.getReview(reviewerUsername, albumId);
         if (review == null) {
             review = new Review()
                     .setReviewer(reviewer)

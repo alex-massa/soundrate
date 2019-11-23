@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
-@WebServlet({"/get-review-vote-value"})
+@WebServlet(urlPatterns = {"/get-review-vote-value"})
 public class GetReviewVoteServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -24,27 +24,25 @@ public class GetReviewVoteServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        User sessionUser = (User) request.getSession().getAttribute("user");
-        if (sessionUser == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
-        String reviewerUsername = request.getParameter("reviewer");
-        if (albumId == Long.MIN_VALUE || reviewerUsername == null || reviewerUsername.isEmpty()) {
+        final String voterUsername = request.getParameter("voter");
+        final String reviewerUsername = request.getParameter("reviewer");
+        final long reviewedAlbumId = NumberUtils.toLong(request.getParameter("reviewedAlbum"), Long.MIN_VALUE);
+        if (voterUsername == null || voterUsername.isEmpty() ||
+            reviewerUsername == null || reviewerUsername.isEmpty() ||
+            reviewedAlbumId == Long.MIN_VALUE) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        User voter = this.dataAgent.getUser(sessionUser.getUsername());
+        final User voter = this.dataAgent.getUser(voterUsername);
         if (voter == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.userNotFound"));
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        Review review = this.dataAgent.getReview(reviewerUsername, albumId);
+        final Review review = this.dataAgent.getReview(reviewerUsername, reviewedAlbumId);
         if (review == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -53,8 +51,7 @@ public class GetReviewVoteServlet extends HttpServlet {
             return;
         }
 
-        Vote reviewVote = this.dataAgent.getVote
-                (voter.getUsername(), review.getReviewer().getUsername(), review.getReviewedAlbumId());
+        Vote reviewVote = this.dataAgent.getVote(voterUsername, reviewerUsername, reviewedAlbumId);
         if (reviewVote != null && reviewVote.getValue() != null)
             response.getWriter().write(String.valueOf(reviewVote.getValue()));
     }

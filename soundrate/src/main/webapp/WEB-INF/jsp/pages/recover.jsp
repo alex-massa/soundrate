@@ -28,12 +28,12 @@
     <div class="ui container">
         <c:choose>
             <c:when test="${not empty sessionUser}">
-            <div class="ui placeholder segment">
-                <div class="ui large icon header">
-                    <i class="ui circular exclamation red icon"></i>
-                    <fmt:message key="error.cannotRecover"/>
+                <div class="ui placeholder segment">
+                    <div class="ui large icon header">
+                        <i class="ui circular exclamation red icon"></i>
+                        <fmt:message key="error.cannotRecover"/>
+                    </div>
                 </div>
-            </div>
             </c:when>
             <c:otherwise>
                 <div class="ui one column stackable center aligned page grid">

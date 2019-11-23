@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
-@WebServlet({"/delete-review"})
+@WebServlet(urlPatterns = {"/delete-review"})
 public class DeleteReviewServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -25,26 +25,29 @@ public class DeleteReviewServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        User sessionUser = (User) request.getSession().getAttribute("user");
-        if (sessionUser == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
-        if (albumId == Long.MIN_VALUE) {
+        final String reviewerUsername = request.getParameter("reviewer");
+        final long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
+        if (reviewerUsername == null || reviewerUsername.isEmpty() ||
+            albumId == Long.MIN_VALUE) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        User reviewer = this.dataAgent.getUser(sessionUser.getUsername());
+        final User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null || !sessionUser.getUsername().equals(reviewerUsername)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        final User reviewer = this.dataAgent.getUser(reviewerUsername);
         if (reviewer == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.userNotFound"));
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        Album reviewedAlbum = this.dataAgent.getAlbum(albumId);
+        final Album reviewedAlbum = this.dataAgent.getAlbum(albumId);
         if (reviewedAlbum == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -53,19 +56,18 @@ public class DeleteReviewServlet extends HttpServlet {
             return;
         }
 
-        Review review = this.dataAgent.getReview(sessionUser.getUsername(), albumId);
+        Review review = this.dataAgent.getReview(reviewerUsername, albumId);
         try {
             if (review == null)
                 throw new ReviewNotFoundException();
             this.dataAgent.deleteReview(review);
+            response.setStatus(HttpServletResponse.SC_OK);
         } catch (ReviewNotFoundException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.reviewNotFound"));
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
         }
-        response.setStatus(HttpServletResponse.SC_OK);
     }
 
 }

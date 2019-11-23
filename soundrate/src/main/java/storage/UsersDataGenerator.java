@@ -51,7 +51,7 @@ final class UsersDataGenerator {
     private static final int MAX_BACKLOG_SIZE = 30;
 
     private static ThreadLocalRandom random = ThreadLocalRandom.current();
-    private static Faker faker =  Faker.instance();
+    private static Faker faker = Faker.instance();
     private static Date currentDate;
     private static Date pastDate;
 
@@ -136,7 +136,6 @@ final class UsersDataGenerator {
                     .setPassword(BCrypt.hashpw(password, BCrypt.gensalt()))
                     .setSignUpDate(signUpDate)
                     .setPicture(AvatarGenerator.randomAvatar(username, 600, AvatarGenerator.Format.SVG))
-                    .setBiography(bio)
                     .setRole(User.Role.USER);
             users.add(user);
         }

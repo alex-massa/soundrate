@@ -8,7 +8,7 @@ window.addEventListener('load', () => {
     function recoverAccount() {
         let email = $(recoverAccountForm).form('get value', 'email');
         $.ajax({
-            method: 'POST',
+            method: 'post',
             url: 'recover-account',
             data: {email: email},
             beforeSend: xhr => {

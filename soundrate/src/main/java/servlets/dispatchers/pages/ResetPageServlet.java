@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet({"/reset"})
+@WebServlet(urlPatterns = {"/reset"})
 public class ResetPageServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -38,11 +38,11 @@ public class ResetPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User sessionUser = (User) request.getSession().getAttribute("user");
+        final User sessionUser = (User) request.getSession().getAttribute("user");
+        final String token = request.getParameter("token");
         if (sessionUser == null)
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        String token = request.getParameter("token");
-        if (token == null)
+        else if (token == null || token.isEmpty())
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         else {
             try {

@@ -2,6 +2,7 @@ package application.business;
 
 import application.exceptions.*;
 import application.interceptors.bindings.Cacheable;
+import application.interceptors.bindings.UserUpdate;
 import application.model.*;
 import deezer.client.DeezerClient;
 import deezer.client.DeezerClientException;
@@ -37,7 +38,32 @@ public class DataAgent {
     @Inject
     private DeezerClient client;
 
-    /* Users data methods */
+    public void createUser(@NotNull final User user) {
+        if (this.getUser(user.getUsername()) != null)
+            throw new ConflictingUsernameException();
+        if (this.getUserByEmail(user.getEmail()) != null)
+            throw new ConflictingEmailAddressException();
+        this.entityManager.persist(user);
+    }
+
+    @UserUpdate(type = "update")
+    public void updateUser(@NotNull final User user) {
+        if (this.getUser(user.getUsername()) == null)
+            throw new UserNotFoundException();
+        User other = this.getUserByEmail(user.getEmail());
+        if (other != null && !user.getUsername().equals(other.getUsername()))
+            throw new ConflictingEmailAddressException();
+        this.entityManager.merge(user);
+    }
+
+    @UserUpdate(type = "delete")
+    public void deleteUser(@NotNull User user) {
+        if (this.getUser(user.getUsername()) == null)
+            throw new UserNotFoundException();
+        if (!this.entityManager.contains(user))
+            user = this.entityManager.merge(user);
+        this.entityManager.remove(user);
+    }
 
     public List<User> getUsers() {
         return this.getUsers(null, null);
@@ -82,6 +108,26 @@ public class DataAgent {
         }
     }
 
+    public void createBacklogEntry(@NotNull BacklogEntry backlogEntry) {
+        if (this.getBacklogEntry(backlogEntry.getUsername(), backlogEntry.getAlbumId()) != null)
+            throw new ConflictingBacklogEntryException();
+        this.entityManager.persist(backlogEntry);
+    }
+
+    public void updateBacklogEntry(@NotNull BacklogEntry backlogEntry) {
+        if (this.getBacklogEntry(backlogEntry.getUsername(), backlogEntry.getAlbumId()) == null)
+            throw new BacklogEntryNotFoundException();
+        this.entityManager.merge(backlogEntry);
+    }
+
+    public void deleteBacklogEntry(@NotNull BacklogEntry backlogEntry) {
+        if (this.getBacklogEntry(backlogEntry.getUsername(), backlogEntry.getAlbumId()) == null)
+            throw new BacklogEntryNotFoundException();
+        if (!this.entityManager.contains(backlogEntry))
+            backlogEntry = this.entityManager.merge(backlogEntry);
+        this.entityManager.remove(backlogEntry);
+    }
+
     public List<BacklogEntry> getBacklogEntries() {
         return this.getBacklogEntries(null, null);
     }
@@ -108,6 +154,26 @@ public class DataAgent {
         return this.entityManager.find(BacklogEntry.class, backlogEntryId);
     }
 
+    public void createReview(@NotNull final Review review) {
+        if (this.getReview(review.getReviewerUsername(), review.getReviewedAlbumId()) != null)
+            throw new ConflictingReviewException();
+        this.entityManager.persist(review);
+    }
+
+    public void updateReview(@NotNull final Review review) {
+        if (this.getReview(review.getReviewerUsername(), review.getReviewedAlbumId()) == null)
+            throw new ReviewNotFoundException();
+        this.entityManager.merge(review);
+    }
+
+    public void deleteReview(@NotNull Review review) {
+        if (this.getReview(review.getReviewerUsername(), review.getReviewedAlbumId()) == null)
+            throw new ReviewNotFoundException();
+        if (!this.entityManager.contains(review))
+            review = this.entityManager.merge(review);
+        this.entityManager.remove(review);
+    }
+
     public List<Review> getReviews() {
         return this.getReviews(null, null);
     }
@@ -132,6 +198,26 @@ public class DataAgent {
                 .setReviewerUsername(reviewerUsername)
                 .setReviewedAlbumId(reviewedAlbumId);
         return this.entityManager.find(Review.class, reviewId);
+    }
+
+    public void createVote(@NotNull final Vote vote) {
+        if (this.getVote(vote.getVoterUsername(), vote.getReviewerUsername(), vote.getReviewedAlbumId()) != null)
+            throw new ConflictingVoteException();
+        this.entityManager.persist(vote);
+    }
+
+    public void updateVote(@NotNull final Vote vote) {
+        if (this.getVote(vote.getVoterUsername(), vote.getReviewerUsername(), vote.getReviewedAlbumId()) == null)
+            throw new VoteNotFoundException();
+        this.entityManager.merge(vote);
+    }
+
+    public void deleteVote(@NotNull Vote vote) {
+        if (this.getVote(vote.getVoterUsername(), vote.getReviewerUsername(), vote.getReviewedAlbumId()) == null)
+            throw new VoteNotFoundException();
+        if (!this.entityManager.contains(vote))
+            vote = this.entityManager.merge(vote);
+        this.entityManager.remove(vote);
     }
 
     public List<Vote> getVotes() {
@@ -452,93 +538,6 @@ public class DataAgent {
         List<Review> topReviews = getTopReviewsQuery.getResultList();
         return topReviews == null || topReviews.isEmpty() ? null : topReviews;
     }
-
-    public void createUser(@NotNull final User user) {
-        if (this.getUser(user.getUsername()) != null)
-            throw new ConflictingUsernameException();
-        if (this.getUserByEmail(user.getEmail()) != null)
-            throw new ConflictingEmailAddressException();
-        this.entityManager.persist(user);
-    }
-
-    public void updateUser(@NotNull final User user) {
-        if (this.getUser(user.getUsername()) == null)
-            throw new UserNotFoundException();
-        User other = this.getUserByEmail(user.getEmail());
-        if (other != null && !user.getUsername().equals(other.getUsername()))
-            throw new ConflictingEmailAddressException();
-        this.entityManager.merge(user);
-    }
-
-    public void deleteUser(@NotNull User user) {
-        if (this.getUser(user.getUsername()) == null)
-            throw new UserNotFoundException();
-        if (!this.entityManager.contains(user))
-            user = this.entityManager.merge(user);
-        this.entityManager.remove(user);
-    }
-
-    public void createBacklogEntry(@NotNull BacklogEntry backlogEntry) {
-        if (this.getBacklogEntry(backlogEntry.getUsername(), backlogEntry.getAlbumId()) != null)
-            throw new ConflictingBacklogEntryException();
-        this.entityManager.persist(backlogEntry);
-    }
-
-    public void updateBacklogEntry(@NotNull BacklogEntry backlogEntry) {
-        if (this.getBacklogEntry(backlogEntry.getUsername(), backlogEntry.getAlbumId()) == null)
-            throw new BacklogEntryNotFoundException();
-        this.entityManager.merge(backlogEntry);
-    }
-
-    public void deleteBacklogEntry(@NotNull BacklogEntry backlogEntry) {
-        if (this.getBacklogEntry(backlogEntry.getUsername(), backlogEntry.getAlbumId()) == null)
-            throw new BacklogEntryNotFoundException();
-        if (!this.entityManager.contains(backlogEntry))
-            backlogEntry = this.entityManager.merge(backlogEntry);
-        this.entityManager.remove(backlogEntry);
-    }
-
-    public void createReview(@NotNull final Review review) {
-        if (this.getReview(review.getReviewerUsername(), review.getReviewedAlbumId()) != null)
-            throw new ConflictingReviewException();
-        this.entityManager.persist(review);
-    }
-
-    public void updateReview(@NotNull final Review review) {
-        if (this.getReview(review.getReviewerUsername(), review.getReviewedAlbumId()) == null)
-            throw new ReviewNotFoundException();
-        this.entityManager.merge(review);
-    }
-
-    public void deleteReview(@NotNull Review review) {
-        if (this.getReview(review.getReviewerUsername(), review.getReviewedAlbumId()) == null)
-            throw new ReviewNotFoundException();
-        if (!this.entityManager.contains(review))
-            review = this.entityManager.merge(review);
-        this.entityManager.remove(review);
-    }
-
-    public void createVote(@NotNull final Vote vote) {
-        if (this.getVote(vote.getVoterUsername(), vote.getReviewerUsername(), vote.getReviewedAlbumId()) != null)
-            throw new ConflictingVoteException();
-        this.entityManager.persist(vote);
-    }
-
-    public void updateVote(@NotNull final Vote vote) {
-        if (this.getVote(vote.getVoterUsername(), vote.getReviewerUsername(), vote.getReviewedAlbumId()) == null)
-            throw new VoteNotFoundException();
-        this.entityManager.merge(vote);
-    }
-
-    public void deleteVote(@NotNull Vote vote) {
-        if (this.getVote(vote.getVoterUsername(), vote.getReviewerUsername(), vote.getReviewedAlbumId()) == null)
-            throw new VoteNotFoundException();
-        if (!this.entityManager.contains(vote))
-            vote = this.entityManager.merge(vote);
-        this.entityManager.remove(vote);
-    }
-
-    /* Library data methods */
 
     @Cacheable(type = "album")
     public Album getAlbum(@NotNull final Long albumId) {

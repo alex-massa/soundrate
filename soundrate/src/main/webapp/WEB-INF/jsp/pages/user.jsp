@@ -51,16 +51,11 @@
                             <div class="content">
                                 <div class="center aligned meta">
                                     <a class="ui small header"
-                                       href="${context}/user?id=${user.username}">${user.username}</a>
+                                       href="${context}/user?id=${user.username}">
+                                            ${user.username}
+                                    </a>
                                 </div>
                             </div>
-                            <c:if test="${not empty user.biography}">
-                                <div class="extra content">
-                                    <div class="center aligned meta">
-                                        ${user.biography}
-                                    </div>
-                                </div>
-                            </c:if>
                             <div class="extra content">
                                 <div class="center aligned meta">
                                     <span class="ui icon medium label">
@@ -100,7 +95,8 @@
                                 </div>
                             </div>
                             <a class="ui bottom attached button" href="${context}/backlog?id=${user.username}">
-                                <i class="list icon"></i> <fmt:message key="label.backlog"/>
+                                <i class="list icon"></i>
+                                <fmt:message key="label.backlog"/>
                             </a>
                         </div>
                     </div>
@@ -117,14 +113,13 @@
                                 <c:set var="reviewedAlbumArtist" value="${reviewedAlbum.artist}"/>
                                 <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
                                 <div class="ui fluid card" data-type="review" data-published="true"
-                                     data-vote-enabled="${not empty sessionUser}"
                                      data-reviewer="${review.reviewer.username}" data-album="${review.reviewedAlbumId}">
                                     <div class="meta content">
                                         <div class="right floated meta">
                                             <span class="ui icon label">
                                                 <i class="blue calendar outline icon"></i>
-                                                <fmt:formatDate dateStyle="short"
-                                                                type="date" value="${review.publicationDate}"/>
+                                                <fmt:formatDate dateStyle="short" type="date"
+                                                                value="${review.publicationDate}"/>
                                             </span>
                                             <span class="ui blue circular medium label">${review.rating}</span>
                                         </div>
@@ -132,7 +127,8 @@
                                     <div class="meta content">
                                         <div class="ui items">
                                             <div class="ui item">
-                                                <a class="ui tiny image" href="${context}/album?id=${review.reviewedAlbumId}">
+                                                <a class="ui tiny image"
+                                                   href="${context}/album?id=${review.reviewedAlbumId}">
                                                     <img src="${reviewedAlbum.bigCover}" alt="artwork">
                                                 </a>
                                                 <div class="middle aligned content">

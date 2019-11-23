@@ -8,26 +8,31 @@
     <a class="item" href="${context}/index">
         <img class="ui middle aligned mini image" src="${context}/content/images/logo.svg" alt="logo">
     </a>
-    <a class="item" href="${context}/top"><fmt:message key="label.topAlbums"/></a>
+    <a class="item" href="${context}/top">
+        <fmt:message key="label.topAlbums"/>
+    </a>
     <div class="right menu">
         <c:choose>
             <c:when test="${empty sessionUser}">
                 <div class="item">
                     <div class="ui inverted button" id="sign-in-button">
-                        <i class="sign out alternate icon"></i> <fmt:message key="label.signIn"/>
+                        <i class="sign out alternate icon"></i>
+                        <fmt:message key="label.signIn"/>
                     </div>
                 </div>
             </c:when>
             <c:otherwise>
-                <a class="item" href="${context}/user?id=${sessionUser.username}">
-                    <img class="ui avatar image" src="${sessionUser.picture}" alt="avatar"> ${sessionUser.username}
+                <a class="item" href="${context}/user?id=${sessionUser.username}" data-user="${sessionUser.username}">
+                    <img class="ui avatar image" src="${sessionUser.picture}" alt="avatar">
+                    ${sessionUser.username}
                 </a>
                 <a class="item" href="${context}/backlog?id=${sessionUser.username}">
                     <i class="list icon"></i> <fmt:message key="label.backlog"/>
                 </a>
                 <div class="item">
                     <div class="ui inverted button" id="log-out-button">
-                        <i class="sign out alternate icon"></i> <fmt:message key="label.logOut"/>
+                        <i class="sign out alternate icon"></i>
+                        <fmt:message key="label.logOut"/>
                     </div>
                 </div>
             </c:otherwise>
@@ -37,7 +42,9 @@
                 <div class="field">
                     <div class="ui action input">
                         <input type="text" name="query" placeholder="<fmt:message key="label.search"/>">
-                        <button class="ui icon button" type="submit"><i class="blue search link icon"></i></button>
+                        <button class="ui icon button" type="submit">
+                            <i class="blue search link icon"></i>
+                        </button>
                     </div>
                 </div>
             </form>

@@ -9,7 +9,7 @@ window.addEventListener('load', () => {
         let token = resetPasswordForm.dataset.token;
         let password = $(resetPasswordForm).form('get value', 'password');
         $.ajax({
-            method: 'POST',
+            method: 'post',
             url: 'reset-password',
             data: {token: token, password: password},
             beforeSend: xhr => {

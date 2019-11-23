@@ -22,7 +22,7 @@ public class GetArtistAlbumsInterceptor {
             if (ArtistAlbumsHolder.class.getName().equals(stackTraceElement.getClassName()))
                 return invocationContext.proceed();
         Object[] parameters = invocationContext.getParameters();
-        final Artist artist  = (Artist) parameters[0];
+        final Artist artist = (Artist) parameters[0];
         if (parameters.length == 1)
             return this.artistAlbumsHolder.getArtistAlbums(artist);
         final Integer index = (Integer) parameters[1];

@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
-@WebServlet({"/is-album-in-user-backlog"})
+@WebServlet(urlPatterns = {"/is-album-in-user-backlog"})
 public class IsAlbumInUserBacklogServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -24,26 +24,23 @@ public class IsAlbumInUserBacklogServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        User sessionUser = (User) request.getSession().getAttribute("user");
-        if (sessionUser == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
-        if (albumId == Long.MIN_VALUE) {
+        final String username = request.getParameter("user");
+        final long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
+        if (username == null || username.isEmpty() ||
+            albumId == Long.MIN_VALUE) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        User user = this.dataAgent.getUser(sessionUser.getUsername());
+        final User user = this.dataAgent.getUser(username);
         if (user == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.userNotFound"));
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        Album album = this.dataAgent.getAlbum(albumId);
+        final Album album = this.dataAgent.getAlbum(albumId);
         if (album == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -52,7 +49,7 @@ public class IsAlbumInUserBacklogServlet extends HttpServlet {
             return;
         }
 
-        BacklogEntry backlogEntry = this.dataAgent.getBacklogEntry(user.getUsername(), album.getId());
+        BacklogEntry backlogEntry = this.dataAgent.getBacklogEntry(username, albumId);
         response.getWriter().write(String.valueOf(backlogEntry != null));
     }
 

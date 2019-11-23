@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet({"/sign-in-modal"})
+@WebServlet(urlPatterns = {"/sign-in-modal"})
 public class SignInFragmentServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;

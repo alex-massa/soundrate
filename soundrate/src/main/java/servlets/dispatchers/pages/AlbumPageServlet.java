@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet({"/album"})
+@WebServlet(urlPatterns = {"/album"})
 public class AlbumPageServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -28,8 +28,8 @@ public class AlbumPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Album album;
-        long albumId = NumberUtils.toLong(request.getParameter("id"), Long.MIN_VALUE);
+        final Album album;
+        final long albumId = NumberUtils.toLong(request.getParameter("id"), Long.MIN_VALUE);
         if (albumId == Long.MIN_VALUE)
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         else if ((album = this.dataAgent.getAlbum(albumId)) == null)
@@ -37,27 +37,27 @@ public class AlbumPageServlet extends HttpServlet {
         else {
             request.setAttribute("album", album);
 
-            Genre albumGenre = this.dataAgent.getAlbumGenre(album);
+            final Genre albumGenre = this.dataAgent.getAlbumGenre(album);
             request.setAttribute("albumGenre", albumGenre);
 
-            List<Review> albumReviews = this.dataAgent.getAlbumReviews(album);
+            final List<Review> albumReviews = this.dataAgent.getAlbumReviews(album);
             request.setAttribute("albumReviews", albumReviews);
 
-            int albumNumberOfReviews = this.dataAgent.getAlbumNumberOfReviews(album);
+            final int albumNumberOfReviews = this.dataAgent.getAlbumNumberOfReviews(album);
             request.setAttribute("albumNumberOfReviews", albumNumberOfReviews);
 
-            Double albumAverageRating = this.dataAgent.getAlbumAverageRating(album);
+            final Double albumAverageRating = this.dataAgent.getAlbumAverageRating(album);
             request.setAttribute("albumAverageRating", albumAverageRating);
 
             if (albumReviews != null) {
-                Map<Review, Integer> reviewScoreMap = albumReviews.stream().collect(
+                final Map<Review, Integer> reviewScoreMap = albumReviews.stream().collect(
                         HashMap::new,
                         (map, review) -> map.put(review, this.dataAgent.getReviewScore(review)),
                         HashMap::putAll
                 );
                 request.setAttribute("reviewScoreMap", reviewScoreMap);
 
-                Map<Review, User> reviewerMap = albumReviews.stream().collect(
+                final Map<Review, User> reviewerMap = albumReviews.stream().collect(
                         HashMap::new,
                         (map, review) -> map.put(review, this.dataAgent.getUser(review.getReviewerUsername())),
                         HashMap::putAll

@@ -4,19 +4,23 @@ const toggleInBacklogButtonStates = {
 };
 
 window.addEventListener('load', () => {
-    let albums = document.querySelectorAll('[data-type="album"][data-enabled="true"]');
+    let user = document.querySelector('[data-user]');
+    if (!user)
+        return;
+    let albums = document.querySelectorAll('[data-type="album"]');
     albums.forEach(album => {
-        isAlbumInBacklog(album);
-        attachClickEventToToggleInBacklogButton(album);
+        isAlbumInBacklog(user, album);
+        attachClickEventToToggleInBacklogButton(user, album);
     });
 });
 
-function isAlbumInBacklog(album) {
+function isAlbumInBacklog(user, album) {
+    let username = user.dataset.user;
     let albumId = album.dataset.album;
     $.ajax({
         url: 'is-album-in-user-backlog',
-        method: 'GET',
-        data: {'album': albumId}
+        method: 'get',
+        data: {user: username, album: albumId}
     })
     .done(data => {
         let button = album.querySelector('[data-backlog]');
@@ -34,14 +38,15 @@ function isAlbumInBacklog(album) {
     });
 }
 
-function attachClickEventToToggleInBacklogButton(album) {
+function attachClickEventToToggleInBacklogButton(user, album) {
     let button = album.querySelector('[data-backlog]');
     button.addEventListener('click', () => {
+        let username = user.dataset.user;
         let albumId = album.dataset.album;
         $.ajax({
-            method: 'POST',
+            method: 'post',
             url: 'update-user-backlog',
-            data: {album: albumId}
+            data: {user: username, album: albumId}
         })
         .done(() => {
             button.dataset.backlog = JSON.stringify(!JSON.parse(button.dataset.backlog));

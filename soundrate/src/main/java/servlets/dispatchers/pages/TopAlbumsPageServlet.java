@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet({"/top"})
+@WebServlet(urlPatterns = {"/top"})
 public class TopAlbumsPageServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -26,17 +26,17 @@ public class TopAlbumsPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Albums topAlbums = (Albums) this.dataAgent.getTopAlbums(0, TopAlbumsPageServlet.NUMBER_OF_ALBUMS);
+        final Albums topAlbums = this.dataAgent.getTopAlbums(0, TopAlbumsPageServlet.NUMBER_OF_ALBUMS);
         request.setAttribute("albums", topAlbums == null ? null : topAlbums.getData());
         if (topAlbums != null) {
-            Map<Album, Integer> albumNumberOfReviewsMap = topAlbums.getData().stream().collect(
+            final Map<Album, Integer> albumNumberOfReviewsMap = topAlbums.getData().stream().collect(
                     HashMap::new,
                     (map, album) -> map.put(album, this.dataAgent.getAlbumNumberOfReviews(album)),
                     HashMap::putAll
             );
             request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
 
-            Map<Album, Double> albumAverageRatingMap = topAlbums.getData().stream().collect(
+            final Map<Album, Double> albumAverageRatingMap = topAlbums.getData().stream().collect(
                     HashMap::new,
                     (map, album) -> map.put(album, this.dataAgent.getAlbumAverageRating(album)),
                     HashMap::putAll

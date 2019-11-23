@@ -10,5 +10,8 @@
         <class>application.interceptors.GetGenreInterceptor</class>
         <class>application.interceptors.GetArtistAlbumsInterceptor</class>
         <class>application.interceptors.GetTopAlbumsInterceptor</class>
+
+        <class>application.interceptors.UpdateUserInterceptor</class>
+        <class>application.interceptors.DeleteUserInterceptor</class>
     </interceptors>
 </beans>

@@ -23,7 +23,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
 
-@WebServlet("/recover-account")
+@WebServlet(urlPatterns = {"/recover-account"})
 public class RecoverAccountServlet extends HttpServlet {
 
     private static final int TOKEN_TIME_TO_LIVE = 3 * 60 * 60 * 1000;    // 3 hours
@@ -36,37 +36,36 @@ public class RecoverAccountServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        User sessionUser = (User) request.getSession().getAttribute("user");
+        final User sessionUser = (User) request.getSession().getAttribute("user");
         if (sessionUser != null) {
-            response.getWriter().write
-                    (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
-                            .getString("error.cannotRecover"));
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        String email = request.getParameter("email");
+
+        final String email = request.getParameter("email");
         if (email == null || email.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        User user = dataAgent.getUserByEmail(email);
+        final User user = dataAgent.getUserByEmail(email);
         if (user == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.emailNotLinked"));
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        String token = Jwts.builder()
+
+        final String token = Jwts.builder()
                 .setSubject(user.getUsername())
                 .setExpiration(new Date(System.currentTimeMillis() + TOKEN_TIME_TO_LIVE))
                 .signWith(SignatureAlgorithm.HS256, user.getPassword().getBytes(StandardCharsets.UTF_8))
                 .compact();
-        String passwordRecoveryUrl = request.getScheme() + "://" +
+        final String passwordRecoveryUrl = request.getScheme() + "://" +
                 request.getServerName() +
                 ("http".equals(request.getScheme()) && request.getServerPort() == 80 ||
-                 "https".equals(request.getScheme()) && request.getServerPort() == 443
+                        "https".equals(request.getScheme()) && request.getServerPort() == 443
                         ? ""
                         : ":" + request.getServerPort()) +
                 request.getRequestURI().substring(0, request.getRequestURI().lastIndexOf('/') + 1) + "reset" +
@@ -79,6 +78,7 @@ public class RecoverAccountServlet extends HttpServlet {
                     "text/plain; charset=utf-8");
             message.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(user.getEmail()));
             Transport.send(message);
+            response.setStatus(HttpServletResponse.SC_OK);
         } catch (MessagingException e) {
             throw new ServletException(e);
         }

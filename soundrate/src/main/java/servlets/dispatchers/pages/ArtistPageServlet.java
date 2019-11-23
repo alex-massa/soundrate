@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet({"/artist"})
+@WebServlet(urlPatterns = {"/artist"})
 public class ArtistPageServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -26,8 +26,8 @@ public class ArtistPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Artist artist;
-        long artistId = NumberUtils.toLong(request.getParameter("id"), Long.MIN_VALUE);
+        final Artist artist;
+        final long artistId = NumberUtils.toLong(request.getParameter("id"), Long.MIN_VALUE);
         if (artistId == Long.MIN_VALUE)
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         else if ((artist = this.dataAgent.getArtist(artistId)) == null)
@@ -35,24 +35,24 @@ public class ArtistPageServlet extends HttpServlet {
         else {
             request.setAttribute("artist", artist);
 
-            Albums artistAlbums = this.dataAgent.getArtistAlbums(artist);
+            final Albums artistAlbums = this.dataAgent.getArtistAlbums(artist);
             request.setAttribute("artistAlbums", artistAlbums == null ? null : artistAlbums.getData());
 
-            int artistNumberOfReviews = this.dataAgent.getArtistNumberOfReviews(artist);
+            final int artistNumberOfReviews = this.dataAgent.getArtistNumberOfReviews(artist);
             request.setAttribute("artistNumberOfReviews", artistNumberOfReviews);
 
-            Double artistAverageRating = this.dataAgent.getArtistAverageRating(artist);
+            final Double artistAverageRating = this.dataAgent.getArtistAverageRating(artist);
             request.setAttribute("artistAverageRating", artistAverageRating);
 
             if (artistAlbums != null) {
-                Map<Album, Integer> albumNumberOfReviewsMap = artistAlbums.getData().stream().collect(
+                final Map<Album, Integer> albumNumberOfReviewsMap = artistAlbums.getData().stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumNumberOfReviews(album)),
                         HashMap::putAll
                 );
                 request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
 
-                Map<Album, Double> albumAverageRatingMap = artistAlbums.getData().stream().collect(
+                final Map<Album, Double> albumAverageRatingMap = artistAlbums.getData().stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumAverageRating(album)),
                         HashMap::putAll

@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet({"/search"})
+@WebServlet(urlPatterns = {"/search"})
 public class SearchPageServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -26,21 +26,21 @@ public class SearchPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String query = request.getParameter("q");
+        final String query = request.getParameter("q");
         if (query == null || query.isEmpty())
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         else {
-            Artists artists = this.dataAgent.searchArtists(query);
+            final Artists artists = this.dataAgent.searchArtists(query);
             request.setAttribute("artists", artists == null ? null : artists.getData());
             if (artists != null) {
-                Map<Artist, Integer> artistNumberOfReviewsMap = artists.getData().stream().collect(
+                final Map<Artist, Integer> artistNumberOfReviewsMap = artists.getData().stream().collect(
                         HashMap::new,
                         (map, artist) -> map.put(artist, this.dataAgent.getArtistNumberOfReviews(artist)),
                         HashMap::putAll
                 );
                 request.setAttribute("artistNumberOfReviewsMap", artistNumberOfReviewsMap);
 
-                Map<Artist, Double> artistAverageRatingMap = artists.getData().stream().collect(
+                final Map<Artist, Double> artistAverageRatingMap = artists.getData().stream().collect(
                         HashMap::new,
                         (map, artist) -> map.put(artist, this.dataAgent.getArtistAverageRating(artist)),
                         HashMap::putAll
@@ -48,17 +48,17 @@ public class SearchPageServlet extends HttpServlet {
                 request.setAttribute("artistAverageRatingMap", artistAverageRatingMap);
             }
 
-            Albums albums = this.dataAgent.searchAlbums(query);
+            final Albums albums = this.dataAgent.searchAlbums(query);
             request.setAttribute("albums", albums == null ? null : albums.getData());
             if (albums != null) {
-                Map<Album, Integer> albumNumberOfReviewsMap = albums.getData().stream().collect(
+                final Map<Album, Integer> albumNumberOfReviewsMap = albums.getData().stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumNumberOfReviews(album)),
                         HashMap::putAll
                 );
                 request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
 
-                Map<Album, Double> albumAverageRatingMap = albums.getData().stream().collect(
+                final Map<Album, Double> albumAverageRatingMap = albums.getData().stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumAverageRating(album)),
                         HashMap::putAll

@@ -12,11 +12,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Date;
 import java.util.ResourceBundle;
 
-@WebServlet({"/sign-up"})
+@WebServlet(urlPatterns = {"/sign-up"})
 public class SignUpServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -29,21 +30,30 @@ public class SignUpServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String username = request.getParameter("username");
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        HttpSession session = request.getSession();
+        final User sessionUser = (User) session.getAttribute("user");
+        if (sessionUser != null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        final String username = request.getParameter("username");
+        final String email = request.getParameter("email");
+        final String password = request.getParameter("password");
         if (username == null || username.isEmpty() ||
-                email == null || email.isEmpty() ||
-                password == null || password.isEmpty()) {
+            email == null || email.isEmpty() ||
+            password == null || password.isEmpty() || !password.matches("^(?=(.*\\d){2})[0-9a-zA-Z]{8,72}$")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
+
         User user = new User()
                 .setUsername(username)
                 .setEmail(email)
                 .setPassword(BCrypt.hashpw(password, BCrypt.gensalt()))
                 .setSignUpDate(new Date())
-                .setPicture(AvatarGenerator.randomAvatar(username, SignUpServlet.DEFAULT_AVATAR_SIZE, SignUpServlet.DEFAULT_AVATAR_FORMAT))
+                .setPicture(AvatarGenerator.randomAvatar
+                        (username, SignUpServlet.DEFAULT_AVATAR_SIZE, SignUpServlet.DEFAULT_AVATAR_FORMAT))
                 .setRole(User.Role.USER);
         try {
             this.dataAgent.createUser(user);
@@ -59,7 +69,7 @@ public class SignUpServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_CONFLICT);
             return;
         }
-        request.getSession().setAttribute("user", user);
+        session.setAttribute("user", user);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

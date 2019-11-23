@@ -124,9 +124,9 @@ public class Review implements Serializable {
 
     @Override
     public boolean equals(Object other) {
-        if (this == other) 
+        if (this == other)
             return true;
-        if (other == null || this.getClass() != other.getClass()) 
+        if (other == null || this.getClass() != other.getClass())
             return false;
         Review review = (Review) other;
         return  Objects.equals(this.reviewer, review.reviewer) &&
@@ -138,8 +138,7 @@ public class Review implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.reviewer, this.reviewedAlbumId, this.content, this.rating,
-                            this.publicationDate);
+        return Objects.hash(this.reviewer, this.reviewedAlbumId, this.content, this.rating, this.publicationDate);
     }
 
     public static class ReviewId implements Serializable {

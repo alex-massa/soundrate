@@ -49,11 +49,15 @@
                                     <div class="content">
                                         <div class="center aligned meta">
                                             <a class="ui small header"
-                                               href="${context}/album?id=${album.id}">${album.title}</a>
+                                               href="${context}/album?id=${album.id}">
+                                                    ${album.title}
+                                            </a>
                                         </div>
                                         <div class="center aligned meta">
                                             <a class="ui small disabled header"
-                                               href="${context}/artist?id=${album.artist.id}">${album.artist.name}</a>
+                                               href="${context}/artist?id=${album.artist.id}">
+                                                    ${album.artist.name}
+                                            </a>
                                         </div>
                                     </div>
                                     <div class="extra content">
@@ -98,13 +102,13 @@
                             <c:set var="reviewedAlbumArtist" value="${reviewedAlbum.artist}"/>
                             <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
                             <div class="ui fluid card" data-type="review" data-published="true"
-                                 data-vote-enabled="${not empty sessionUser}"
                                  data-reviewer="${review.reviewer.username}" data-album="${review.reviewedAlbumId}">
                                 <div class="meta content">
                                     <div class="right floated meta">
                                         <span class="ui icon label">
                                             <i class="blue calendar outline icon"></i>
-                                            <fmt:formatDate dateStyle="short" type="date" value="${review.publicationDate}"/>
+                                            <fmt:formatDate dateStyle="short" type="date"
+                                                            value="${review.publicationDate}"/>
                                         </span>
                                         <span class="ui blue circular medium label">${review.rating}</span>
                                     </div>
