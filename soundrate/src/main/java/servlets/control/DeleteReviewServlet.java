@@ -26,9 +26,9 @@ public class DeleteReviewServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String reviewerUsername = request.getParameter("reviewer");
-        final long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
+        final long reviewedAlbumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
         if (reviewerUsername == null || reviewerUsername.isEmpty() ||
-            albumId == Long.MIN_VALUE) {
+            reviewedAlbumId == Long.MIN_VALUE) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -47,7 +47,7 @@ public class DeleteReviewServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        final Album reviewedAlbum = this.dataAgent.getAlbum(albumId);
+        final Album reviewedAlbum = this.dataAgent.getAlbum(reviewedAlbumId);
         if (reviewedAlbum == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -56,7 +56,7 @@ public class DeleteReviewServlet extends HttpServlet {
             return;
         }
 
-        Review review = this.dataAgent.getReview(reviewerUsername, albumId);
+        Review review = this.dataAgent.getReview(reviewerUsername, reviewedAlbumId);
         try {
             if (review == null)
                 throw new ReviewNotFoundException();

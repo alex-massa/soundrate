@@ -19,14 +19,20 @@
     <script src="${context}/content/semantic/dist/semantic.min.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
+    <script src="${context}/content/javascript/user-settings.js"></script>
     <script src="${context}/content/javascript/backlog.js"></script>
     <title>${not empty user ? user.username.concat("\'s backlog") : ""}</title>
 </head>
 <body>
     <c:import url="/header"/>
-    <c:if test="${empty sessionUser}">
-        <c:import url="/sign-in-modal"/>
-    </c:if>
+    <c:choose>
+        <c:when test="${empty sessionUser}">
+            <c:import url="/sign-in-modal"/>
+        </c:when>
+        <c:otherwise>
+            <c:import url="/user-settings-modal"/>
+        </c:otherwise>
+    </c:choose>
     <div class="ui container">
         <c:choose>
             <c:when test="${empty backlog}">

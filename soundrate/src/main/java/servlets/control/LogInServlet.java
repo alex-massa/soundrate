@@ -33,7 +33,7 @@ public class LogInServlet extends HttpServlet {
         final String username = request.getParameter("username");
         final String password = request.getParameter("password");
         if (username == null || username.isEmpty() ||
-            password == null || password.isEmpty() || !password.matches("^(?=(.*\\d){2})[0-9a-zA-Z]{8,72}$")) {
+            password == null || password.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }

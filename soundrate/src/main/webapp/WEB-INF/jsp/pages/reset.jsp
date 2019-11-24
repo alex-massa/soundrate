@@ -18,14 +18,20 @@
     <script src="${context}/content/semantic/dist/semantic.min.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
+    <script src="${context}/content/javascript/user-settings.js"></script>
     <script src="${context}/content/javascript/reset-password.js"></script>
     <title><fmt:message key="page.reset"/></title>
 </head>
 <body>
     <c:import url="/header"/>
-    <c:if test="${empty sessionUser}">
-        <c:import url="/sign-in-modal"/>
-    </c:if>
+    <c:choose>
+        <c:when test="${empty sessionUser}">
+            <c:import url="/sign-in-modal"/>
+        </c:when>
+        <c:otherwise>
+            <c:import url="/user-settings-modal"/>
+        </c:otherwise>
+    </c:choose>
     <div class="ui container">
         <c:choose>
             <c:when test="${not empty sessionUser}">
@@ -58,7 +64,8 @@
                                     <div class="ui left icon input">
                                         <i class="lock icon"></i>
                                         <input type="password" name="password"
-                                               placeholder="<fmt:message key="label.passwordField"/>" id="reset-password">
+                                               placeholder="<fmt:message key="label.passwordField"/>"
+                                               id="reset-password">
                                     </div>
                                 </div>
                                 <div class="required field">
@@ -71,7 +78,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <button class="ui primary fluid button" type="button" id="reset-button">
+                            <button class="ui primary fluid button" type="button" id="reset-password-button">
                                 <fmt:message key="label.submit"/>
                             </button>
                             <div class="ui success message">

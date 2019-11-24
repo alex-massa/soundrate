@@ -17,7 +17,8 @@
                     <div class="ui left icon input">
                         <i class="user icon"></i>
                         <input type="text" name="username"
-                               placeholder="<fmt:message key="label.usernameField"/>" id="log-in-username">
+                               placeholder="<fmt:message key="label.usernameField"/>"
+                               id="log-in-username">
                     </div>
                 </div>
                 <div class="required field">
@@ -25,7 +26,8 @@
                     <div class="ui left icon input">
                         <i class="lock icon"></i>
                         <input type="password" name="password"
-                               placeholder="<fmt:message key="label.passwordField"/>" id="log-in-password">
+                               placeholder="<fmt:message key="label.passwordField"/>"
+                               id="log-in-password">
                     </div>
                 </div>
                 <div class="ui center aligned basic segment">
@@ -46,7 +48,8 @@
                     <div class="ui left icon input">
                         <i class="user icon"></i>
                         <input type="text" name="username"
-                               placeholder="<fmt:message key="label.usernameField"/>" id="sign-up-username">
+                               placeholder="<fmt:message key="label.usernameField"/>"
+                               id="sign-up-username">
                     </div>
                 </div>
                 <div class="two fields">
@@ -55,7 +58,8 @@
                         <div class="ui left icon input">
                             <i class="envelope icon"></i>
                             <input type="email" name="email"
-                                   placeholder="<fmt:message key="label.emailAddressField"/>" id="sign-up-email">
+                                   placeholder="<fmt:message key="label.emailAddressField"/>"
+                                   id="sign-up-email">
                         </div>
                     </div>
                     <div class="required field">
@@ -74,7 +78,8 @@
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
                             <input type="password" name="password"
-                                   placeholder="<fmt:message key="label.passwordField"/>" id="sign-up-password">
+                                   placeholder="<fmt:message key="label.passwordField"/>"
+                                   id="sign-up-password">
                         </div>
                     </div>
                     <div class="required field">

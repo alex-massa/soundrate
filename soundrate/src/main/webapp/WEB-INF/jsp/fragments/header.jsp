@@ -27,8 +27,15 @@
                     ${sessionUser.username}
                 </a>
                 <a class="item" href="${context}/backlog?id=${sessionUser.username}">
-                    <i class="list icon"></i> <fmt:message key="label.backlog"/>
+                    <i class="list icon"></i>
+                    <fmt:message key="label.backlog"/>
                 </a>
+                <div class ="item">
+                    <div class="ui inverted button" id="user-settings-button">
+                        <i class="cogs icon"></i>
+                        <fmt:message key="label.userSettings"/>
+                    </div>
+                </div>
                 <div class="item">
                     <div class="ui inverted button" id="log-out-button">
                         <i class="sign out alternate icon"></i>

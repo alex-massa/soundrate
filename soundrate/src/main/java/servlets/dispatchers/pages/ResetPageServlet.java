@@ -40,7 +40,7 @@ public class ResetPageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         final User sessionUser = (User) request.getSession().getAttribute("user");
         final String token = request.getParameter("token");
-        if (sessionUser == null)
+        if (sessionUser != null)
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         else if (token == null || token.isEmpty())
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

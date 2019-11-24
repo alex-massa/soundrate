@@ -26,7 +26,7 @@ public class GetReviewVoteServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String voterUsername = request.getParameter("voter");
         final String reviewerUsername = request.getParameter("reviewer");
-        final long reviewedAlbumId = NumberUtils.toLong(request.getParameter("reviewedAlbum"), Long.MIN_VALUE);
+        final long reviewedAlbumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
         if (voterUsername == null || voterUsername.isEmpty() ||
             reviewerUsername == null || reviewerUsername.isEmpty() ||
             reviewedAlbumId == Long.MIN_VALUE) {

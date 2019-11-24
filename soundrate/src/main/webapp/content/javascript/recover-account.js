@@ -1,7 +1,7 @@
 window.addEventListener('load', () => {
 
     let recoverAccountForm = document.getElementById('recover-account-form');
-    let recoverAccountButton = document.getElementById('recover-button');
+    let recoverAccountButton = document.getElementById('recover-account-button');
     if (recoverAccountButton)
         recoverAccountButton.addEventListener('click', () => recoverAccount());
 

@@ -30,13 +30,13 @@ function attachEventsToReviewForm() {
     let publishReviewButton = document.getElementById('publish-review-button');
     publishReviewButton.addEventListener('click', () => {
         let reviewerUsername = userReview.dataset.reviewer;
-        let albumId = userReview.dataset.album;
+        let reviewedAlbumId = userReview.dataset.album;
         let content = $(reviewForm).form('get value', 'content');
         let rating = $(reviewRating).rating('get rating');
         $.ajax({
             method: 'post',
             url: 'publish-review',
-            data: {reviewer: reviewerUsername, album: albumId, rating: rating, content: content},
+            data: {reviewer: reviewerUsername, album: reviewedAlbumId, content: content, rating: rating},
             beforeSend: xhr => {
                 if (!$(reviewForm).form('is valid')) {
                     $(reviewForm).form('validate form');
@@ -47,8 +47,8 @@ function attachEventsToReviewForm() {
         .done(() => {
             $(reviewForm).form('validate form');
             userReview.dataset.published = JSON.stringify(true);
-            userReview.querySelector('[data-user-review-rating]').textContent = $(reviewRating).rating('get rating');
-            userReview.querySelector('[data-user-review-content]').textContent = $(reviewForm).form('get value', 'content');
+            userReview.querySelector('[data-user-review-rating]').textContent = content;
+            userReview.querySelector('[data-user-review-content]').textContent = rating;
             updateReviewAndFormVisibility();
             $('body').toast({
                 message: 'Review successfully published',
@@ -97,12 +97,12 @@ function attachClickEventsToUserReviewButtons() {
 function attachClickEventToConfirmReviewDeletionButton() {
     let deleteReviewConfirmButton = deleteReviewModal.querySelector('[data-delete-review]');
     deleteReviewConfirmButton.addEventListener('click', () => {
-        let reviewer = userReview.dataset.reviewer;
-        let albumId = userReview.dataset.album;
+        let reviewerUsername = userReview.dataset.reviewer;
+        let reviewedAlbumId = userReview.dataset.album;
         $.ajax({
             method: 'post',
             url: 'delete-review',
-            data: {reviewer: reviewer, album: albumId}
+            data: {reviewer: reviewerUsername, album: reviewedAlbumId}
         })
         .done(() => {
             let reviewRating = document.getElementById('review-rating');

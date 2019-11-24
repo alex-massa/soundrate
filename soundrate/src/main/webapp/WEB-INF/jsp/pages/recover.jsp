@@ -17,14 +17,20 @@
     <script src="${context}/content/semantic/dist/semantic.min.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
+    <script src="${context}/content/javascript/user-settings.js"></script>
     <script src="${context}/content/javascript/recover-account.js"></script>
     <title><fmt:message key="page.recover"/></title>
 </head>
 <body>
     <c:import url="/header"/>
-    <c:if test="${empty sessionUser}">
-        <c:import url="/sign-in-modal"/>
-    </c:if>
+    <c:choose>
+        <c:when test="${empty sessionUser}">
+            <c:import url="/sign-in-modal"/>
+        </c:when>
+        <c:otherwise>
+            <c:import url="/user-settings-modal"/>
+        </c:otherwise>
+    </c:choose>
     <div class="ui container">
         <c:choose>
             <c:when test="${not empty sessionUser}">
@@ -52,7 +58,7 @@
                                            placeholder="<fmt:message key="label.emailAddressField"/>" id="recover-email">
                                 </div>
                             </div>
-                            <button class="ui primary fluid button" type="button" id="recover-button">
+                            <button class="ui primary fluid button" type="button" id="recover-account-button">
                                 <fmt:message key="label.submit"/>
                             </button>
                             <div class="ui success message">

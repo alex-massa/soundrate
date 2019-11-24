@@ -18,13 +18,19 @@
     <script src="${context}/content/semantic/dist/semantic.min.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
+    <script src="${context}/content/javascript/user-settings.js"></script>
     <title><fmt:message key="label.topAlbums"/></title>
 </head>
 <body>
     <c:import url="/header"/>
-    <c:if test="${empty sessionUser}">
-        <c:import url="/sign-in-modal"/>
-    </c:if>
+    <c:choose>
+        <c:when test="${empty sessionUser}">
+            <c:import url="/sign-in-modal"/>
+        </c:when>
+        <c:otherwise>
+            <c:import url="/user-settings-modal"/>
+        </c:otherwise>
+    </c:choose>
     <div class="ui container">
         <div class="ui fluid segment">
             <div class="ui large blue header">

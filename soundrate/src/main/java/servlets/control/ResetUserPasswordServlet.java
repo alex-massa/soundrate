@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 
 @WebServlet(urlPatterns = {"/reset-password"})
-public class ResetPasswordServlet extends HttpServlet {
+public class ResetUserPasswordServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
@@ -71,7 +71,7 @@ public class ResetPasswordServlet extends HttpServlet {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.userNotFound"));
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 

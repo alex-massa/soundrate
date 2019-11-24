@@ -51,7 +51,7 @@ public class PublishReviewServlet extends HttpServlet {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.userNotFound"));
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
         final Album reviewedAlbum = this.dataAgent.getAlbum(albumId);
