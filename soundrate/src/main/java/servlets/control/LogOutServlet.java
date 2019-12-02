@@ -1,6 +1,6 @@
 package servlets.control;
 
-import application.model.User;
+import application.entities.User;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;

@@ -1,9 +1,9 @@
 package servlets.control;
 
-import application.business.DataAgent;
-import application.exceptions.ReviewNotFoundException;
-import application.model.Review;
-import application.model.User;
+import application.model.DataAgent;
+import application.model.exceptions.ReviewNotFoundException;
+import application.entities.Review;
+import application.entities.User;
 import deezer.model.Album;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -34,7 +34,10 @@ public class DeleteReviewServlet extends HttpServlet {
         }
 
         final User sessionUser = (User) request.getSession().getAttribute("user");
-        if (sessionUser == null || !sessionUser.getUsername().equals(reviewerUsername)) {
+        if (sessionUser == null
+                || !(sessionUser.getUsername().equals(reviewerUsername)
+                    || sessionUser.getRole() == User.Role.MODERATOR
+                    || sessionUser.getRole() == User.Role.ADMINISTRATOR)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -61,13 +64,14 @@ public class DeleteReviewServlet extends HttpServlet {
             if (review == null)
                 throw new ReviewNotFoundException();
             this.dataAgent.deleteReview(review);
-            response.setStatus(HttpServletResponse.SC_OK);
         } catch (ReviewNotFoundException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.reviewNotFound"));
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
 }

@@ -1,9 +1,6 @@
 package storage;
 
-import application.model.BacklogEntry;
-import application.model.Review;
-import application.model.User;
-import application.model.Vote;
+import application.entities.*;
 import application.util.AvatarGenerator;
 import com.github.javafaker.Faker;
 import deezer.client.DeezerClient;
@@ -50,6 +47,10 @@ final class UsersDataGenerator {
     private static final int MIN_BACKLOG_SIZE = 1;
     private static final int MAX_BACKLOG_SIZE = 30;
 
+    // Review reports limits
+    private static final int MIN_REPORTS = 1;
+    private static final int MAX_REPORTS = 6;
+
     private static ThreadLocalRandom random = ThreadLocalRandom.current();
     private static Faker faker = Faker.instance();
     private static Date currentDate;
@@ -88,14 +89,6 @@ final class UsersDataGenerator {
         List<User> users = new LinkedList<>();
         final int usersToGen = random.nextInt(MIN_USERS, MAX_USERS + 1);
         for (int i = 0; i < usersToGen; i++) {
-            // Generating the listening backlog
-            List<Long> backlog = null;
-            if (random.nextBoolean()) {
-                Collections.shuffle(albumsIds);
-                backlog = new LinkedList<>();
-                for (int j = 0; j < random.nextInt(MIN_BACKLOG_SIZE, MAX_BACKLOG_SIZE + 1); j++)
-                    backlog.add(albumsIds.get(j));
-            }
             // Generating the user bio
             String bio = null;
             if (random.nextBoolean()) {
@@ -142,7 +135,7 @@ final class UsersDataGenerator {
         return users;
     }
 
-    static List<Review> generateReviews(final List<User> users) {
+    static List<Review> generateReviews(final List<User> reviewers) {
         List<Review> reviews = new LinkedList<>();
         for (Long albumId : albumsIds) {
             final int minReviews, maxReviews, minRating, maxRating, minParagraphs, maxParagraphs;
@@ -167,9 +160,9 @@ final class UsersDataGenerator {
             if (!toReview)
                 continue;
             int reviewsNumber = random.nextInt(minReviews, maxReviews + 1);
-            Collections.shuffle(users);
+            Collections.shuffle(reviewers);
             for (int i = 0; i < reviewsNumber; i++) {
-                User reviewer = users.get(i);
+                User reviewer = reviewers.get(i);
                 final List<String> paragraphs = faker.lorem().paragraphs
                         (random.nextInt(minParagraphs, maxParagraphs + 1));
                 StringBuilder contentBuilder = new StringBuilder();
@@ -190,7 +183,7 @@ final class UsersDataGenerator {
         return reviews;
     }
 
-    static List<Vote> generateVotes(final List<User> users, final List<Review> reviews) {
+    static List<Vote> generateVotes(final List<User> voters, final List<Review> reviews) {
         List<Vote> votes = new LinkedList<>();
         for (Review review : reviews) {
             if (!random.nextBoolean())
@@ -204,9 +197,9 @@ final class UsersDataGenerator {
                 maxVotes = MAX_VOTES;
             }
             int votesNumber = random.nextInt(minVotes, maxVotes + 1);
-            Collections.shuffle(users);
-            for (int j = 0; j < votesNumber; j++) {
-                User voter = users.get(j);
+            Collections.shuffle(voters);
+            for (int i = 0; i < votesNumber; i++) {
+                User voter = voters.get(i);
                 if (voter.getUsername().equals(review.getReviewer().getUsername()))
                     continue;
                 votes.add(new Vote()
@@ -220,19 +213,39 @@ final class UsersDataGenerator {
     }
 
     static List<BacklogEntry> generateBacklogEntries(final List<User> users) {
+        final int minBacklogSize = Math.min(albumsIds.size(), MIN_BACKLOG_SIZE);
+        final int maxBacklogSize = Math.min(albumsIds.size(), MAX_BACKLOG_SIZE);
         List<BacklogEntry> backlogEntries = new LinkedList<>();
         for (User user : users) {
             // Generating the listening backlog
             if (random.nextBoolean()) {
                 Collections.shuffle(albumsIds);
-                for (int j = 0; j < random.nextInt(MIN_BACKLOG_SIZE, MAX_BACKLOG_SIZE + 1); j++)
+                for (int i = 0; i < random.nextInt(minBacklogSize, maxBacklogSize + 1); i++)
                     backlogEntries.add(new BacklogEntry()
                             .setUser(user)
-                            .setAlbumId(albumsIds.get(j))
+                            .setAlbumId(albumsIds.get(i))
                             .setInsertionTime(faker.date().between(pastDate, currentDate)));
             }
         }
         return backlogEntries;
+    }
+
+    static List<Report> generateReports(final List<User> reporters, final List<Review> reviews) {
+        List<Report> reports = new LinkedList<>();
+        for (Review review : reviews) {
+            if (random.nextInt(9 + 1) == 0) {
+                Collections.shuffle(reporters);
+                for (int i = 0; i < random.nextInt(MIN_REPORTS, MAX_REPORTS + 1); i++) {
+                    User reporter = reporters.get(i);
+                    if (reporter.getUsername().equals(review.getReviewer().getUsername()))
+                        continue;
+                    reports.add(new Report()
+                            .setReporter(reporter)
+                            .setReview(review));
+                }
+            }
+        }
+        return reports;
     }
 
 }

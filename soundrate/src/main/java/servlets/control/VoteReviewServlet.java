@@ -1,11 +1,11 @@
 package servlets.control;
 
-import application.business.DataAgent;
-import application.exceptions.ConflictingVoteException;
-import application.exceptions.VoteNotFoundException;
-import application.model.Review;
-import application.model.User;
-import application.model.Vote;
+import application.model.DataAgent;
+import application.model.exceptions.ConflictingVoteException;
+import application.model.exceptions.VoteNotFoundException;
+import application.entities.Review;
+import application.entities.User;
+import application.entities.Vote;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
@@ -13,8 +13,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.io.IOException;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 @WebServlet(urlPatterns = {"/vote-review"})
 public class VoteReviewServlet extends HttpServlet {
@@ -24,15 +27,18 @@ public class VoteReviewServlet extends HttpServlet {
     @Inject
     private DataAgent dataAgent;
 
+    @Inject
+    private Validator validator;
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String voterUsername = request.getParameter("voter");
         final String reviewerUsername = request.getParameter("reviewer");
         final long reviewedAlbumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
         final String voteValueParameter = request.getParameter("vote");
-        if (voterUsername == null || voterUsername.isEmpty() ||
-            reviewerUsername == null || reviewerUsername.isEmpty() ||
-            reviewedAlbumId == Long.MIN_VALUE) {
+        if (voterUsername == null || voterUsername.isEmpty()
+                || reviewerUsername == null || reviewerUsername.isEmpty()
+                || reviewedAlbumId == Long.MIN_VALUE) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -70,6 +76,11 @@ public class VoteReviewServlet extends HttpServlet {
                         .setVoter(voter)
                         .setReview(review)
                         .setValue(voteValue);
+                Set<ConstraintViolation<Vote>> constraintViolations = this.validator.validate(vote);
+                if (!constraintViolations.isEmpty()) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    return;
+                }
                 this.dataAgent.createVote(vote);
             } else {
                 if (voteValue == vote.getValue())
@@ -78,6 +89,11 @@ public class VoteReviewServlet extends HttpServlet {
                     this.dataAgent.deleteVote(vote);
                 else {
                     vote.setValue(voteValue);
+                    Set<ConstraintViolation<Vote>> constraintViolations = this.validator.validate(vote);
+                    if (!constraintViolations.isEmpty()) {
+                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        return;
+                    }
                     this.dataAgent.updateVote(vote);
                 }
             }

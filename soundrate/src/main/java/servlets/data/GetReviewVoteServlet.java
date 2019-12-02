@@ -1,9 +1,9 @@
 package servlets.data;
 
-import application.business.DataAgent;
-import application.model.Review;
-import application.model.User;
-import application.model.Vote;
+import application.model.DataAgent;
+import application.entities.Review;
+import application.entities.User;
+import application.entities.Vote;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
@@ -27,9 +27,9 @@ public class GetReviewVoteServlet extends HttpServlet {
         final String voterUsername = request.getParameter("voter");
         final String reviewerUsername = request.getParameter("reviewer");
         final long reviewedAlbumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
-        if (voterUsername == null || voterUsername.isEmpty() ||
-            reviewerUsername == null || reviewerUsername.isEmpty() ||
-            reviewedAlbumId == Long.MIN_VALUE) {
+        if (voterUsername == null || voterUsername.isEmpty()
+                || reviewerUsername == null || reviewerUsername.isEmpty()
+                || reviewedAlbumId == Long.MIN_VALUE) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }

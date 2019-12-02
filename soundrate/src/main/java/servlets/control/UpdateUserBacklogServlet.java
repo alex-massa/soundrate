@@ -1,10 +1,10 @@
 package servlets.control;
 
-import application.business.DataAgent;
-import application.exceptions.BacklogEntryNotFoundException;
-import application.exceptions.ConflictingBacklogEntryException;
-import application.model.BacklogEntry;
-import application.model.User;
+import application.model.DataAgent;
+import application.model.exceptions.BacklogEntryNotFoundException;
+import application.model.exceptions.ConflictingBacklogEntryException;
+import application.entities.BacklogEntry;
+import application.entities.User;
 import deezer.model.Album;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -13,9 +13,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.io.IOException;
 import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 @WebServlet(urlPatterns = {"/update-user-backlog"})
 public class UpdateUserBacklogServlet extends HttpServlet {
@@ -24,6 +27,9 @@ public class UpdateUserBacklogServlet extends HttpServlet {
 
     @Inject
     private DataAgent dataAgent;
+
+    @Inject
+    private Validator validator;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -64,6 +70,11 @@ public class UpdateUserBacklogServlet extends HttpServlet {
                     .setUser(user)
                     .setAlbumId(album.getId())
                     .setInsertionTime(new Date());
+            Set<ConstraintViolation<BacklogEntry>> constraintViolations = this.validator.validate(backlogEntry);
+            if (!constraintViolations.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
             try {
                 this.dataAgent.createBacklogEntry(backlogEntry);
             } catch (ConflictingBacklogEntryException e) {

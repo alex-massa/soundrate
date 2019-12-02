@@ -1,8 +1,9 @@
 package servlets.control;
 
-import application.business.DataAgent;
-import application.exceptions.UserNotFoundException;
-import application.model.User;
+import application.model.DataAgent;
+import application.model.exceptions.ConflictingEmailAddressException;
+import application.model.exceptions.UserNotFoundException;
+import application.entities.User;
 import io.jsonwebtoken.*;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -11,8 +12,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.io.IOException;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 @WebServlet(urlPatterns = {"/reset-password"})
 public class ResetUserPasswordServlet extends HttpServlet {
@@ -23,6 +27,9 @@ public class ResetUserPasswordServlet extends HttpServlet {
 
     @Inject
     private DataAgent dataAgent;
+
+    @Inject
+    private Validator validator;
 
     @Override
     public void init() {
@@ -48,8 +55,8 @@ public class ResetUserPasswordServlet extends HttpServlet {
 
         final String token = request.getParameter("token");
         final String password = request.getParameter("password");
-        if (token == null || token.isEmpty() ||
-            password == null || password.isEmpty() || !password.matches("^(?=(.*\\d){2})[0-9a-zA-Z]{8,72}$")) {
+        if (token == null || token.isEmpty()
+                || password == null || password.isEmpty() || !password.matches("^(?=(.*\\d){2})[0-9a-zA-Z]{8,72}$")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -60,19 +67,26 @@ public class ResetUserPasswordServlet extends HttpServlet {
             if (user == null)
                 throw new UserNotFoundException();
             user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+            Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
+            if (!constraintViolations.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
             this.dataAgent.updateUser(user);
-            response.setStatus(HttpServletResponse.SC_OK);
         } catch (JwtException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.invalidLink"));
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
         } catch (UserNotFoundException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.userNotFound"));
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
 }

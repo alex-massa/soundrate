@@ -1,6 +1,6 @@
 package servlets.dispatchers.pages;
 
-import application.business.DataAgent;
+import application.model.DataAgent;
 import deezer.model.Album;
 import deezer.model.Artist;
 import deezer.model.data.Albums;
@@ -32,6 +32,7 @@ public class SearchPageServlet extends HttpServlet {
         else {
             final Artists artists = this.dataAgent.searchArtists(query);
             request.setAttribute("artists", artists == null ? null : artists.getData());
+            /*  @fixme API quota limit exceeded
             if (artists != null) {
                 final Map<Artist, Integer> artistNumberOfReviewsMap = artists.getData().stream().collect(
                         HashMap::new,
@@ -47,6 +48,7 @@ public class SearchPageServlet extends HttpServlet {
                 );
                 request.setAttribute("artistAverageRatingMap", artistAverageRatingMap);
             }
+            */
 
             final Albums albums = this.dataAgent.searchAlbums(query);
             request.setAttribute("albums", albums == null ? null : albums.getData());

@@ -1,7 +1,8 @@
 package servlets.dispatchers.pages;
 
-import application.business.DataAgent;
-import application.model.User;
+import application.model.DataAgent;
+import application.entities.BacklogEntry;
+import application.entities.User;
 import deezer.model.Album;
 import deezer.model.Genre;
 
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @WebServlet(urlPatterns = {"/backlog"})
 public class BacklogPageServlet extends HttpServlet {
@@ -35,25 +37,29 @@ public class BacklogPageServlet extends HttpServlet {
         else {
             request.setAttribute("user", user);
 
-            final List<Album> userBacklog = this.dataAgent.getAlbumsInUserBacklog(user);
-            request.setAttribute("backlog", userBacklog);
+            final List<BacklogEntry> userBacklog = this.dataAgent.getUserBacklog(user);
 
             if (userBacklog != null) {
-                final Map<Album, Genre> albumGenreMap = userBacklog.stream().collect(
+                final List<Album> userBacklogAlbums = userBacklog.stream().map
+                        (backlogEntry -> this.dataAgent.getAlbum(backlogEntry.getAlbumId()))
+                        .collect(Collectors.toList());
+                request.setAttribute("backlogAlbums", userBacklogAlbums);
+
+                final Map<Album, Genre> albumGenreMap = userBacklogAlbums.stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumGenre(album)),
                         HashMap::putAll
                 );
                 request.setAttribute("albumGenreMap", albumGenreMap);
 
-                final Map<Album, Integer> albumNumberOfReviewsMap = userBacklog.stream().collect(
+                final Map<Album, Integer> albumNumberOfReviewsMap = userBacklogAlbums.stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumNumberOfReviews(album)),
                         HashMap::putAll
                 );
                 request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
 
-                final Map<Album, Double> albumAverageRatingMap = userBacklog.stream().collect(
+                final Map<Album, Double> albumAverageRatingMap = userBacklogAlbums.stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, this.dataAgent.getAlbumAverageRating(album)),
                         HashMap::putAll

@@ -1,9 +1,6 @@
 package storage;
 
-import application.model.BacklogEntry;
-import application.model.Review;
-import application.model.User;
-import application.model.Vote;
+import application.entities.*;
 import application.util.AvatarGenerator;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -52,15 +49,19 @@ public class DatabaseInitializer {
         List<Vote> votes = UsersDataGenerator.generateVotes(users, reviews);
         logger.info("Generating backlog entries...");
         List<BacklogEntry> backlogEntries = UsersDataGenerator.generateBacklogEntries(users);
+        logger.info("Generating reviews reports...");
+        List<Report> reports = UsersDataGenerator.generateReports(users, reviews);
 
         logger.info(String.format("Persisting %d users...", users.size()));
-        users.forEach(user -> this.entityManager.persist(user));
+        users.forEach(this.entityManager::persist);
         logger.info(String.format("Persisting %d reviews...", reviews.size()));
-        reviews.forEach(review -> this.entityManager.persist(review));
+        reviews.forEach(this.entityManager::persist);
         logger.info(String.format("Persisting %d votes...", votes.size()));
-        votes.forEach(vote -> this.entityManager.persist(vote));
-        logger.info(String.format("Persisting %d backlog entries", backlogEntries.size()));
-        backlogEntries.forEach(backlogEntry -> this.entityManager.persist(backlogEntry));
+        votes.forEach(this.entityManager::persist);
+        logger.info(String.format("Persisting %d backlog entries...", backlogEntries.size()));
+        backlogEntries.forEach(this.entityManager::persist);
+        logger.info(String.format("Persisting %d reviews reports...", reports.size()));
+        reports.forEach(this.entityManager::persist);
 
         final long end = System.nanoTime();
         logger.info(String.format("Persisted users data. Time elapsed: %d ms.",

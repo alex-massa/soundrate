@@ -5,13 +5,13 @@ const voteButtonsState = {
 
 window.addEventListener('load', () => {
     let user = document.querySelector('[data-user]');
+    if (!user)
+        return;
     let reviews = document.querySelectorAll('[data-type="review"]');
     reviews.forEach(review => {
-        if (user) {
-            attachVoteButtonsClickEvent(user, review);
-            if (JSON.parse(review.dataset.published))
-                getReviewVoteValue(user, review);
-        }
+        if (JSON.parse(review.dataset.published))
+            getReviewVoteValue(user, review);
+        attachVoteButtonsClickEvent(user, review);
     });
 });
 

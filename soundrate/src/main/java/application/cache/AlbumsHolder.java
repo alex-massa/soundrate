@@ -1,6 +1,6 @@
 package application.cache;
 
-import application.business.DataAgent;
+import application.model.DataAgent;
 import deezer.model.Album;
 
 import javax.ejb.Lock;

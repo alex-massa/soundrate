@@ -1,6 +1,6 @@
 package servlets.dispatchers.pages;
 
-import application.model.User;
+import application.entities.User;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

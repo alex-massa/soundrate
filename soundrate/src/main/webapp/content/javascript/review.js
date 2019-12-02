@@ -47,8 +47,8 @@ function attachEventsToReviewForm() {
         .done(() => {
             $(reviewForm).form('validate form');
             userReview.dataset.published = JSON.stringify(true);
-            userReview.querySelector('[data-user-review-rating]').textContent = content;
-            userReview.querySelector('[data-user-review-content]').textContent = rating;
+            userReview.querySelector('[data-user-review-content]').textContent = content;
+            userReview.querySelector('[data-user-review-rating]').textContent = rating;
             updateReviewAndFormVisibility();
             $('body').toast({
                 message: 'Review successfully published',

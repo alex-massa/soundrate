@@ -1,6 +1,6 @@
 package application.cache;
 
-import application.business.DataAgent;
+import application.model.DataAgent;
 import deezer.model.Album;
 import deezer.model.data.Albums;
 
@@ -36,14 +36,13 @@ public class TopAlbumsHolder {
 
     @Lock(LockType.READ)
     public Albums getTopAlbums(@NotNull @Min(0) final Integer index, @NotNull @Min(1) final Integer limit) {
-        Albums topAlbums = this.topAlbums;
-        if (topAlbums == null)
+        if (this.topAlbums == null)
             return null;
         List<Album> data = this.topAlbums.getData().stream()
                 .skip(index)
                 .limit(Math.min(this.topAlbums.getTotal() - index, limit))
                 .collect(Collectors.toList());
-        return new Albums().setData(data).setTotal(topAlbums.getTotal());
+        return new Albums().setData(data).setTotal(this.topAlbums.getTotal());
     }
 
 }

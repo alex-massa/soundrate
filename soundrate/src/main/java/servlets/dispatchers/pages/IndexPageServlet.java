@@ -1,8 +1,8 @@
 package servlets.dispatchers.pages;
 
-import application.business.DataAgent;
-import application.model.Review;
-import application.model.User;
+import application.model.DataAgent;
+import application.entities.Review;
+import application.entities.User;
 import deezer.model.Album;
 import deezer.model.data.Albums;
 

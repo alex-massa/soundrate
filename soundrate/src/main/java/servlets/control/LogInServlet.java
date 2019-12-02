@@ -1,7 +1,7 @@
 package servlets.control;
 
-import application.business.DataAgent;
-import application.model.User;
+import application.model.DataAgent;
+import application.entities.User;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.inject.Inject;
@@ -32,8 +32,8 @@ public class LogInServlet extends HttpServlet {
 
         final String username = request.getParameter("username");
         final String password = request.getParameter("password");
-        if (username == null || username.isEmpty() ||
-            password == null || password.isEmpty()) {
+        if (username == null || username.isEmpty()
+                || password == null || password.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -46,7 +46,6 @@ public class LogInServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-
         session.setAttribute("user", user);
         response.setStatus(HttpServletResponse.SC_OK);
     }

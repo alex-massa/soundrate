@@ -1,7 +1,7 @@
 package servlets.dispatchers.pages;
 
-import application.business.DataAgent;
-import application.model.User;
+import application.model.DataAgent;
+import application.entities.User;
 import io.jsonwebtoken.*;
 
 import javax.inject.Inject;

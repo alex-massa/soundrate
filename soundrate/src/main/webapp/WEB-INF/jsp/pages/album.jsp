@@ -13,13 +13,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2962FF">
     <link rel="icon" href="${context}/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="${context}/content/semantic/dist/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="${context}/content/semantic/dist/semantic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
     <script src="${context}/content/javascript/user-settings.js"></script>
     <script src="${context}/content/javascript/vote-review.js"></script>
+    <script src="${context}/content/javascript/report-review.js"></script>
     <script src="${context}/content/javascript/backlog.js"></script>
     <script src="${context}/content/javascript/sticky.js"></script>
     <script src="${context}/content/javascript/review.js"></script>
@@ -45,14 +46,14 @@
             <c:when test="${empty album}">
                 <div class="ui placeholder segment">
                     <div class="ui large icon header">
-                        <i class="ui circular exclamation red icon"></i>
+                        <i class="ui circular red exclamation icon"></i>
                         <fmt:message key="error.nothingHere"/>
                     </div>
                 </div>
             </c:when>
             <c:otherwise>
-                <c:set var="albumGenre" value="${requestScope.albumGenre}"/>
                 <c:set var="albumReviews" value="${requestScope.albumReviews}"/>
+                <c:set var="albumGenre" value="${requestScope.albumGenre}"/>
                 <c:set var="albumNumberOfReviews" value="${requestScope.albumNumberOfReviews}"/>
                 <c:set var="albumAverageRating" value="${requestScope.albumAverageRating}"/>
                 <div class="ui two columns stackable grid">
@@ -89,8 +90,8 @@
                                                                   value="${albumAverageRating}"/>
                                             </span>
                                             (<fmt:message key="label.basedOn">
-                                            <fmt:param value="${albumNumberOfReviews}"/>
-                                        </fmt:message>)
+                                                <fmt:param value="${albumNumberOfReviews}"/>
+                                            </fmt:message>)
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
@@ -146,7 +147,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- @todo display placeholder or message if no reviews are available and user is not authenticated -->
                                 <c:set var="reviewScoreMap" value="${requestScope.reviewScoreMap}"/>
                                 <c:set var="reviewerMap" value="${requestScope.reviewerMap}"/>
                                 <c:forEach items="${albumReviews}" var="review">
@@ -158,9 +158,7 @@
                                 <form class="ui form ${not empty userReview ? 'hidden' : ''}" id="review-form">
                                     <div class="required field">
                                         <label><fmt:message key="tooltip.publishReview"/></label>
-                                        <textarea name="content"
-                                                  id="review-content">${not empty userReview ? userReview.content : ""}
-                                        </textarea>
+                                        <textarea name="content" id="review-content">${not empty userReview ? userReview.content : ""}</textarea>
                                     </div>
                                     <div class="required field">
                                         <label><fmt:message key="tooltip.rating"/></label>
@@ -179,6 +177,11 @@
                                      data-reviewer="${sessionUser.username}" data-album="${param.id}" id="user-review">
                                     <div class="meta content">
                                         <div class="right floated meta">
+                                            <button class="ui tiny inverted icon button">
+                                                <a href="${context}/review?reviewer=${sessionUser.username}&album=${album.id}">
+                                                    <i class="external alternate icon"></i>
+                                                </a>
+                                            </button>
                                             <span class="ui icon label">
                                                 <i class="blue calendar outline icon"></i>
                                                 <c:choose>
@@ -228,62 +231,86 @@
                                     </div>
                                 </div>
                             </c:if>
-                            <c:forEach items="${albumReviews}" var="review">
-                                <c:set var="reviewer" value="${reviewerMap[review]}"/>
-                                <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
-                                <c:if test="${empty sessionUser or sessionUser.username ne reviewer.username}">
-                                    <div class="ui fluid card" data-type="review" data-published="true"
-                                         data-reviewer="${reviewer.username}" data-album="${param.id}">
-                                        <div class="meta content">
-                                            <div class="right floated meta">
-                                                <span class="ui icon label">
+                            <c:choose>
+                                <c:when test="${empty albumReviews and empty sessionUser}">
+                                    <div class="ui placeholder segment">
+                                        <div class="ui large icon header">
+                                            <i class="ui circular blue exclamation icon"></i>
+                                            <fmt:message key="label.noReviewsPublished"/>
+                                        </div>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach items="${albumReviews}" var="review">
+                                        <c:set var="reviewer" value="${reviewerMap[review]}"/>
+                                        <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
+                                        <c:if test="${empty sessionUser or sessionUser.username ne reviewer.username}">
+                                            <div class="ui fluid card" data-type="review" data-published="true"
+                                                 data-reviewer="${reviewer.username}" data-album="${param.id}">
+                                                <div class="meta content">
+                                                    <div class="right floated meta">
+                                                        <c:if test="${not empty sessionUser and review.reviewerUsername ne sessionUser.username}">
+                                                            <button class="ui tiny inverted icon button"
+                                                                    data-tooltip="<fmt:message key="tooltip.report"/>"
+                                                                    data-report>
+                                                                <i class="red flag icon"></i>
+                                                            </button>
+                                                        </c:if>
+                                                        <button class="ui tiny inverted icon button">
+                                                            <a href="${context}/review?reviewer=${review.reviewer.username}&album=${album.id}">
+                                                                <i class="external alternate icon"></i>
+                                                            </a>
+                                                        </button>
+                                                        <span class="ui icon label">
                                                     <i class="blue calendar outline icon"></i>
                                                     <fmt:formatDate dateStyle="short" type="date"
                                                                     value="${review.publicationDate}"/>
                                                 </span>
-                                                <span class="ui blue circular medium label">${review.rating}</span>
+                                                        <span class="ui blue circular medium label">${review.rating}</span>
+                                                    </div>
+                                                    <a class="left floated author"
+                                                       href="${context}/user?id=${reviewer.username}">
+                                                        <img class="ui avatar image" src="${reviewer.picture}" alt="avatar">
+                                                        <span class="user">${reviewer.username}</span>
+                                                    </a>
+                                                </div>
+                                                <div class="content">
+                                                    <p>${review.content}</p>
+                                                </div>
+                                                <c:choose>
+                                                    <c:when test="${empty sessionUser}">
+                                                        <div class="bottom attached button"
+                                                             data-tooltip="<fmt:message key="tooltip.logInToVote"/>">
+                                                            <div class="ui fluid buttons">
+                                                                <button class="ui disabled basic icon button">
+                                                                    <i class="thumbs up icon"></i>
+                                                                </button>
+                                                                <div class="or" data-text="${reviewScore}"></div>
+                                                                <button class="ui disabled basic icon button">
+                                                                    <i class="thumbs down icon"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <div class="bottom attached button">
+                                                            <div class="ui fluid buttons">
+                                                                <button class="ui basic icon button" data-value="true">
+                                                                    <i class="thumbs up icon"></i>
+                                                                </button>
+                                                                <div class="or" data-text="${reviewScore}"></div>
+                                                                <button class="ui basic icon button" data-value="false">
+                                                                    <i class="thumbs down icon"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
-                                            <a class="left floated author"
-                                               href="${context}/user?id=${reviewer.username}">
-                                                <img class="ui avatar image" src="${reviewer.picture}" alt="avatar">
-                                                <span class="user">${reviewer.username}</span>
-                                            </a>
-                                        </div>
-                                        <div class="content">
-                                            <p>${review.content}</p>
-                                        </div>
-                                        <c:choose>
-                                            <c:when test="${empty sessionUser}">
-                                                <div class="bottom attached button"
-                                                     data-tooltip="<fmt:message key="tooltip.logInToVote"/>">
-                                                    <div class="ui fluid buttons">
-                                                        <button class="ui disabled basic icon button">
-                                                            <i class="thumbs up icon"></i>
-                                                        </button>
-                                                        <div class="or" data-text="${reviewScore}"></div>
-                                                        <button class="ui disabled basic icon button">
-                                                            <i class="thumbs down icon"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <div class="bottom attached button">
-                                                    <div class="ui fluid buttons">
-                                                        <button class="ui basic icon button" data-value="true">
-                                                            <i class="thumbs up icon"></i>
-                                                        </button>
-                                                        <div class="or" data-text="${reviewScore}"></div>
-                                                        <button class="ui basic icon button" data-value="false">
-                                                            <i class="thumbs down icon"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                </c:if>
-                            </c:forEach>
+                                        </c:if>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </div>
                 </div>

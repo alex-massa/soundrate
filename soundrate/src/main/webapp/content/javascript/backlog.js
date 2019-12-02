@@ -9,12 +9,12 @@ window.addEventListener('load', () => {
         return;
     let albums = document.querySelectorAll('[data-type="album"]');
     albums.forEach(album => {
-        isAlbumInBacklog(user, album);
+        isAlbumInUserBacklog(user, album);
         attachClickEventToToggleInBacklogButton(user, album);
     });
 });
 
-function isAlbumInBacklog(user, album) {
+function isAlbumInUserBacklog(user, album) {
     let username = user.dataset.user;
     let albumId = album.dataset.album;
     $.ajax({

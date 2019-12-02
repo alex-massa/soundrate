@@ -37,7 +37,7 @@
                     <div class="ui left icon input">
                         <i class="lock icon"></i>
                         <input type="password" name="current-password"
-                               placeholder="<fmt:message key="label.currentPasswordField"/>"
+                               placeholder="<fmt:message key="label.passwordField"/>"
                                id="update-email-current-password">
                     </div>
                 </div>
@@ -54,11 +54,11 @@
             <form class="ui form" id="update-password-form" onsubmit="return false">
                 <div class="two fields">
                     <div class="required field">
-                        <label><fmt:message key="label.passwordField"/></label>
+                        <label><fmt:message key="label.newPasswordField"/></label>
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
                             <input type="password" name="new-password"
-                                   placeholder="<fmt:message key="label.passwordField"/>"
+                                   placeholder="<fmt:message key="label.newPasswordField"/>"
                                    id="update-password-new-password">
                         </div>
                     </div>

@@ -1,8 +1,8 @@
 package servlets.dispatchers.pages;
 
-import application.business.DataAgent;
-import application.model.Review;
-import application.model.User;
+import application.model.DataAgent;
+import application.entities.Review;
+import application.entities.User;
 import deezer.model.Album;
 
 import javax.inject.Inject;
@@ -61,6 +61,14 @@ public class UserPageServlet extends HttpServlet {
                         HashMap::putAll
                 );
                 request.setAttribute("reviewScoreMap", reviewScoreMap);
+            }
+
+            User sessionuser = (User) request.getSession().getAttribute("user");
+            if (sessionuser != null
+                    && sessionuser.getRole() == User.Role.ADMINISTRATOR
+                    && !sessionuser.getUsername().equals(user.getUsername())) {
+                final User.Role[] roles = User.Role.values();
+                request.setAttribute("roles", roles);
             }
         }
         request.getRequestDispatcher("/WEB-INF/jsp/pages/user.jsp").forward(request, response);

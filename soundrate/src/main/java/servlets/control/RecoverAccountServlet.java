@@ -1,7 +1,7 @@
 package servlets.control;
 
-import application.business.DataAgent;
-import application.model.User;
+import application.model.DataAgent;
+import application.entities.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -64,8 +64,8 @@ public class RecoverAccountServlet extends HttpServlet {
                 .compact();
         final String passwordRecoveryUrl = request.getScheme() + "://" +
                 request.getServerName() +
-                ("http".equals(request.getScheme()) && request.getServerPort() == 80 ||
-                        "https".equals(request.getScheme()) && request.getServerPort() == 443
+                ("http".equals(request.getScheme()) && request.getServerPort() == 80
+                        || "https".equals(request.getScheme()) && request.getServerPort() == 443
                         ? ""
                         : ":" + request.getServerPort()) +
                 request.getRequestURI().substring(0, request.getRequestURI().lastIndexOf('/') + 1) + "reset" +
@@ -78,10 +78,10 @@ public class RecoverAccountServlet extends HttpServlet {
                     "text/plain; charset=utf-8");
             message.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(user.getEmail()));
             Transport.send(message);
-            response.setStatus(HttpServletResponse.SC_OK);
         } catch (MessagingException e) {
             throw new ServletException(e);
         }
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
 }
