@@ -49,7 +49,7 @@ public class IsReviewReportedByUser extends HttpServlet {
             return;
         }
 
-        Report report = this.dataAgent.getReport(reporterUsername, reviewerUsername, reviewedAlbumId);
+        final Report report = this.dataAgent.getReport(reporterUsername, reviewerUsername, reviewedAlbumId);
         response.getWriter().write(String.valueOf(report != null));
     }
 

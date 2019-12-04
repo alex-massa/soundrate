@@ -1,9 +1,8 @@
 package servlets.control;
 
-import application.model.DataAgent;
-import application.model.exceptions.ConflictingEmailAddressException;
-import application.model.exceptions.UserNotFoundException;
 import application.entities.User;
+import application.model.DataAgent;
+import application.model.exceptions.UserNotFoundException;
 import io.jsonwebtoken.*;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -62,12 +61,12 @@ public class ResetUserPasswordServlet extends HttpServlet {
         }
 
         try {
-            String username = this.jwtParser.parseClaimsJws(token).getBody().getSubject();
-            User user = this.dataAgent.getUser(username);
+            final String username = this.jwtParser.parseClaimsJws(token).getBody().getSubject();
+            final User user = this.dataAgent.getUser(username);
             if (user == null)
                 throw new UserNotFoundException();
             user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
-            Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
+            final Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
             if (!constraintViolations.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return;

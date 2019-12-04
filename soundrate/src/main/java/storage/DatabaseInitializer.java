@@ -83,7 +83,14 @@ public class DatabaseInitializer {
                         .setPassword(BCrypt.hashpw("password123", BCrypt.gensalt()))
                         .setSignUpDate(new Date())
                         .setPicture(AvatarGenerator.randomAvatar("mod", 600, AvatarGenerator.Format.SVG))
-                        .setRole(User.Role.MODERATOR)
+                        .setRole(User.Role.MODERATOR),
+                new User()
+                        .setUsername("user")
+                        .setEmail("user@soundrate.com")
+                        .setPassword(BCrypt.hashpw("password123", BCrypt.gensalt()))
+                        .setSignUpDate(new Date())
+                        .setPicture(AvatarGenerator.randomAvatar("user", 600, AvatarGenerator.Format.SVG))
+                        .setRole(User.Role.USER)
         };
 
         for (User user : defaultUsers)

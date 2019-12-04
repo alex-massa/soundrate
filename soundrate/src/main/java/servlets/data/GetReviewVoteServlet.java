@@ -1,9 +1,9 @@
 package servlets.data;
 
-import application.model.DataAgent;
 import application.entities.Review;
 import application.entities.User;
 import application.entities.Vote;
+import application.model.DataAgent;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
@@ -51,7 +51,7 @@ public class GetReviewVoteServlet extends HttpServlet {
             return;
         }
 
-        Vote reviewVote = this.dataAgent.getVote(voterUsername, reviewerUsername, reviewedAlbumId);
+        final Vote reviewVote = this.dataAgent.getVote(voterUsername, reviewerUsername, reviewedAlbumId);
         if (reviewVote != null && reviewVote.getValue() != null)
             response.getWriter().write(String.valueOf(reviewVote.getValue()));
     }

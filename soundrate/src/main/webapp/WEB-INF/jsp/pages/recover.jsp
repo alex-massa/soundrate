@@ -15,6 +15,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.js"></script>
+    <script src="${context}/content/javascript/toast.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
     <script src="${context}/content/javascript/user-settings.js"></script>

@@ -1,10 +1,10 @@
 package servlets.control;
 
-import application.model.DataAgent;
-import application.model.exceptions.ConflictingReportException;
 import application.entities.Report;
 import application.entities.Review;
 import application.entities.User;
+import application.model.DataAgent;
+import application.model.exceptions.ConflictingReportException;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
@@ -60,10 +60,10 @@ public class ReportReviewServlet extends HttpServlet {
             return;
         }
 
-        Report report = new Report()
+        final Report report = new Report()
                 .setReporter(reporter)
                 .setReview(review);
-        Set<ConstraintViolation<Report>> constraintViolations = this.validator.validate(report);
+        final Set<ConstraintViolation<Report>> constraintViolations = this.validator.validate(report);
         if (!constraintViolations.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;

@@ -4,6 +4,7 @@
 <fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
 <c:set var="sessionUser" value="${sessionScope.user}"/>
+<c:set var="isAdministrator" value="${empty sessionUser ? null : requestScope.isAdministrator}"/>
 <c:set var="user" value="${requestScope.user}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,6 +17,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.js"></script>
+    <script src="${context}/content/javascript/toast.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/user-settings.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
@@ -65,12 +67,12 @@
                                     </a>
                                 </div>
                             </div>
-                            <c:set var="roles" value="${requestScope.roles}"/>
-                            <c:if test="${not empty roles}">
+                            <c:if test="${not empty sessionUser and isAdministrator and sessionUser.username ne user.username}">
                                 <div class="extra content">
                                     <div class="center aligned meta">
                                         <select class="ui dropdown" id="role-select" data-username="${user.username}">
                                             <div class="menu">
+                                                <c:set var="roles" value="${requestScope.roles}"/>
                                                 <c:forEach items="${roles}" var="role">
                                                     <option value="${role}" ${role eq user.role ? 'selected' : ''}>${role}</option>
                                                 </c:forEach>

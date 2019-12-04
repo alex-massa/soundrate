@@ -1,7 +1,7 @@
 package application.events;
 
-import application.events.qualifiers.UserUpdated;
 import application.entities.User;
+import application.events.qualifiers.UserUpdated;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.annotation.WebListener;

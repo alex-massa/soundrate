@@ -1,5 +1,4 @@
 window.addEventListener('load', () => {
-
     let review = document.querySelector('[data-type="review"]');
     if (!review)
         return;
@@ -16,24 +15,11 @@ window.addEventListener('load', () => {
                 url: 'delete-review',
                 data: {reviewer: reviewerUsername, album: reviewedAlbumId}
             })
-            .done(() => {
-                $('body').toast({
-                    message: 'Review successfully deleted',
-                    position: 'bottom right',
-                    class: 'success',
-                    className: {toast: 'ui message'}
-                });
-            })
+            .done(() => showToast('Review successfully deleted', status.SUCCESS))
             .fail(xhr => {
-                let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-                $('body').toast({
-                    message: toastMessage,
-                    position: 'bottom right',
-                    class: 'error',
-                    className: {toast: 'ui message'}
-                });
+                let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
+                showToast(errorMessage, status.ERROR);
             });
         });
     }
-
 });

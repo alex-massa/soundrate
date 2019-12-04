@@ -1,5 +1,4 @@
 window.addEventListener('load', () => {
-
     let recoverAccountForm = document.getElementById('recover-account-form');
     let recoverAccountButton = document.getElementById('recover-account-button');
     if (recoverAccountButton)
@@ -41,5 +40,4 @@ window.addEventListener('load', () => {
             }
         }
     })
-
 });

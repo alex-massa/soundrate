@@ -1,10 +1,10 @@
 package servlets.control;
 
+import application.entities.Review;
+import application.entities.User;
 import application.model.DataAgent;
 import application.model.exceptions.ConflictingReviewException;
 import application.model.exceptions.ReviewNotFoundException;
-import application.entities.Review;
-import application.entities.User;
 import deezer.model.Album;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.math.NumberUtils;

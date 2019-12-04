@@ -15,7 +15,7 @@ public class LogOutServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession();
+        final HttpSession session = request.getSession();
         final User sessionUser = (User) session.getAttribute("user");
         if (sessionUser == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

@@ -1,9 +1,9 @@
 package application.model;
 
-import application.model.exceptions.*;
+import application.entities.*;
 import application.interceptors.bindings.Cacheable;
 import application.interceptors.bindings.UserUpdate;
-import application.entities.*;
+import application.model.exceptions.*;
 import deezer.client.DeezerClient;
 import deezer.client.DeezerClientException;
 import deezer.model.Album;
@@ -1122,6 +1122,7 @@ public class DataAgent {
     }
 
     public void deleteReviewReports(@NotNull final Review review) {
+        /*  `Criteria API bulk deletion not supported by OpenJPA in TomEE 8.0.0`
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaDelete<Report> delete = builder.createCriteriaDelete(Report.class);
         Root<Report> report = delete.from(Report.class);
@@ -1142,6 +1143,13 @@ public class DataAgent {
         this.entityManager.createQuery(delete)
                 .setParameter(reviewerUsernameParameter, review.getReviewer().getUsername())
                 .setParameter(reviewedAlbumIdParameter, review.getReviewedAlbumId())
+                .executeUpdate();
+        */
+
+        this.entityManager.createQuery
+                ("DELETE FROM Report r WHERE r.review.reviewer.username = :reviewerUsername AND r.review.reviewedAlbumId = :reviewedAlbumId")
+                .setParameter("reviewerUsername", review.getReviewerUsername())
+                .setParameter("reviewedAlbumId", review.getReviewedAlbumId())
                 .executeUpdate();
     }
 
@@ -1317,6 +1325,22 @@ public class DataAgent {
         } catch (NoResultException e) {
             return 0;
         }
+    }
+
+    public void deleteAlbumReviews(@NotNull final Album album) {
+        CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
+        CriteriaDelete<Review> delete = builder.createCriteriaDelete(Review.class);
+        Root<Review> review = delete.from(Review.class);
+        ParameterExpression<Long> reviewedAlbumIdParameter = builder.parameter(Long.class);
+        delete
+                .where(builder.equal(
+                        review.get(Review_.reviewedAlbumId),
+                        reviewedAlbumIdParameter
+                ));
+
+        this.entityManager.createQuery(delete)
+                .setParameter(reviewedAlbumIdParameter, album.getId())
+                .executeUpdate();
     }
 
     public Double getAlbumAverageRating(@NotNull final Album album) {

@@ -1,8 +1,8 @@
 package servlets.dispatchers.pages;
 
-import application.model.DataAgent;
 import application.entities.Review;
 import application.entities.User;
+import application.model.DataAgent;
 import deezer.model.Album;
 
 import javax.inject.Inject;
@@ -26,6 +26,14 @@ public class UserPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        final User sessionuser = (User) request.getSession().getAttribute("user");
+        final Boolean isAdministrator = sessionuser == null
+                ? null
+                : sessionuser.getRole() == User.Role.ADMINISTRATOR;
+        request.setAttribute("isAdministrator", isAdministrator);
+        if (isAdministrator != null && isAdministrator)
+            request.setAttribute("roles", User.Role.values());
+
         final User user;
         final String username = request.getParameter("id");
         if (username == null || username.isEmpty())
@@ -61,14 +69,6 @@ public class UserPageServlet extends HttpServlet {
                         HashMap::putAll
                 );
                 request.setAttribute("reviewScoreMap", reviewScoreMap);
-            }
-
-            User sessionuser = (User) request.getSession().getAttribute("user");
-            if (sessionuser != null
-                    && sessionuser.getRole() == User.Role.ADMINISTRATOR
-                    && !sessionuser.getUsername().equals(user.getUsername())) {
-                final User.Role[] roles = User.Role.values();
-                request.setAttribute("roles", roles);
             }
         }
         request.getRequestDispatcher("/WEB-INF/jsp/pages/user.jsp").forward(request, response);

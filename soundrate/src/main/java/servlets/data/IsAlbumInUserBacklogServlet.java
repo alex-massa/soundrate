@@ -1,8 +1,8 @@
 package servlets.data;
 
-import application.model.DataAgent;
 import application.entities.BacklogEntry;
 import application.entities.User;
+import application.model.DataAgent;
 import deezer.model.Album;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -49,7 +49,7 @@ public class IsAlbumInUserBacklogServlet extends HttpServlet {
             return;
         }
 
-        BacklogEntry backlogEntry = this.dataAgent.getBacklogEntry(username, albumId);
+        final BacklogEntry backlogEntry = this.dataAgent.getBacklogEntry(username, albumId);
         response.getWriter().write(String.valueOf(backlogEntry != null));
     }
 

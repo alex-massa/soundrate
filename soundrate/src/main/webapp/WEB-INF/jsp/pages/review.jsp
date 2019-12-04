@@ -4,6 +4,7 @@
 <fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
 <c:set var="sessionUser" value="${sessionScope.user}"/>
+<c:set var="isModerator" value="${empty sessionUser ? null : requestScope.isModerator}"/>
 <c:set var="review" value="${requestScope.review}"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,6 +17,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.js"></script>
+    <script src="${context}/content/javascript/toast.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/user-settings.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
@@ -24,7 +26,7 @@
     <script src="${context}/content/javascript/delete-review.js"></script>
     <script src="${context}/content/javascript/report-review.js"></script>
     <%-- fixme --%>
-    <title>${not empty user ? user.username : ""}</title>
+    <title>${not empty review ? review.reviewerUsername : ""}</title>
 </head>
 <body>
 <c:import url="/header"/>
@@ -47,12 +49,11 @@
             </div>
         </c:when>
         <c:otherwise>
-            <c:set var="canDeleteReview" value="${requestScope.canDeleteReview}"/>
             <c:set var="reviewer" value="${requestScope.reviewer}"/>
             <c:set var="reviewedAlbum" value="${requestScope.reviewedAlbum}"/>
             <c:set var="reviewedAlbumArtist" value="${reviewedAlbum.artist}"/>
             <c:set var="reviewScore" value="${requestScope.reviewScore}"/>
-            <c:if test="${canDeleteReview}">
+            <c:if test="${not empty sessionUser and isModerator}">
                 <div class="ui tiny basic modal" id="delete-review-modal">
                     <div class="ui icon header">
                         <i class="remove icon"></i>
@@ -83,7 +84,7 @@
                                 <i class="red flag icon"></i>
                             </button>
                         </c:if>
-                        <c:if test="${canDeleteReview}">
+                        <c:if test="${not empty sessionUser and isModerator}">
                             <button class="ui tiny inverted icon button" name="delete-review-button">
                                 <i class="red remove icon"></i>
                             </button>

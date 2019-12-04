@@ -4,6 +4,7 @@
 <fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
 <c:set var="sessionUser" value="${sessionScope.user}"/>
+<c:set var="isModerator" value="${empty sessionUser ? null : requestScope.isModerator}"/>
 <div class="ui stackable secondary inverted blue menu">
     <a class="item" href="${context}/index">
         <img class="ui middle aligned mini image" src="${context}/content/images/logo.svg" alt="logo">
@@ -30,6 +31,12 @@
                     <i class="list icon"></i>
                     <fmt:message key="label.backlog"/>
                 </a>
+                <c:if test="${not empty sessionUser and isModerator}">
+                    <a class="item" href="${context}/reports-manager">
+                        <i class="flag icon"></i>
+                        <fmt:message key="label.reports"/>
+                    </a>
+                </c:if>
                 <div class ="item">
                     <div class="ui inverted button" id="user-settings-button">
                         <i class="cogs icon"></i>

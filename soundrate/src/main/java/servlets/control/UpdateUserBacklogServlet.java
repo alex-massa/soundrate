@@ -1,10 +1,10 @@
 package servlets.control;
 
+import application.entities.BacklogEntry;
+import application.entities.User;
 import application.model.DataAgent;
 import application.model.exceptions.BacklogEntryNotFoundException;
 import application.model.exceptions.ConflictingBacklogEntryException;
-import application.entities.BacklogEntry;
-import application.entities.User;
 import deezer.model.Album;
 import org.apache.commons.lang.math.NumberUtils;
 

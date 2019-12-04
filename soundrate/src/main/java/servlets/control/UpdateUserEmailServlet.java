@@ -1,9 +1,9 @@
 package servlets.control;
 
+import application.entities.User;
 import application.model.DataAgent;
 import application.model.exceptions.ConflictingEmailAddressException;
 import application.model.exceptions.UserNotFoundException;
-import application.entities.User;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.inject.Inject;
@@ -45,7 +45,7 @@ public class UpdateUserEmailServlet extends HttpServlet {
         }
 
         try {
-            User user = this.dataAgent.getUser(username);
+            final User user = this.dataAgent.getUser(username);
             if (user == null)
                 throw new UserNotFoundException();
             if (!BCrypt.checkpw(currentPassword, user.getPassword())) {
@@ -56,7 +56,7 @@ public class UpdateUserEmailServlet extends HttpServlet {
                 return;
             }
             user.setEmail(newEmail);
-            Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
+            final Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
             if (!constraintViolations.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return;

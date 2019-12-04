@@ -50,23 +50,13 @@ function attachEventsToReviewForm() {
             userReview.querySelector('[data-user-review-content]').textContent = content;
             userReview.querySelector('[data-user-review-rating]').textContent = rating;
             updateReviewAndFormVisibility();
-            $('body').toast({
-                message: 'Review successfully published',
-                position: 'bottom right',
-                class: 'success',
-                className: {toast: 'ui message'}
-            });
+            showToast('Review successfully published', status.SUCCESS);
         })
         .fail(xhr => {
             if (xhr.statusText === 'canceled')
                 return;
-            let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-            $('body').toast({
-                message: toastMessage,
-                position: 'bottom right',
-                class: 'error',
-                className: {toast: 'ui message'}
-            });
+            let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
+            showToast(errorMessage, status.ERROR);
         })
     });
 
@@ -114,21 +104,11 @@ function attachClickEventToConfirmReviewDeletionButton() {
             userReview.dataset.published = JSON.stringify(false);
             $(reviewRating).rating('set rating', 5);
             updateReviewAndFormVisibility();
-            $('body').toast({
-                message: 'Review successfully deleted',
-                position: 'bottom right',
-                class: 'success',
-                className: {toast: 'ui message'}
-            });
+            showToast('Review successfully deleted', status.SUCCESS);
         })
         .fail(xhr => {
-            let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-            $('body').toast({
-                message: toastMessage,
-                position: 'bottom right',
-                class: 'error',
-                className: {toast: 'ui message'}
-            });
+            let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
+            showToast(errorMessage, status.ERROR);
         });
     });
 }

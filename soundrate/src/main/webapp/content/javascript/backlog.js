@@ -1,4 +1,4 @@
-const toggleInBacklogButtonStates = {
+const toggleInBacklogButtonState = {
     POS: '<i class="green add icon"></i> Insert in listening backlog',
     NEG: '<i class="red minus icon"></i> Remove from listening backlog'
 };
@@ -28,13 +28,8 @@ function isAlbumInUserBacklog(user, album) {
         applyVisualChangesToToggleInBacklogButton(album);
     })
     .fail(xhr => {
-        let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-        $('body').toast({
-            message: toastMessage,
-            position: 'bottom right',
-            class: 'error',
-            className: {toast: 'ui message'}
-        });
+        let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
+        showToast(errorMessage, status.ERROR);
     });
 }
 
@@ -53,13 +48,8 @@ function attachClickEventToToggleInBacklogButton(user, album) {
             applyVisualChangesToToggleInBacklogButton(album);
         })
         .fail(xhr => {
-            let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-            $('body').toast({
-                message: toastMessage,
-                position: 'bottom right',
-                class: 'error',
-                className: {toast: 'ui message'}
-            });
+            let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
+            showToast(errorMessage, status.ERROR);
         });
     });
 }
@@ -67,6 +57,6 @@ function attachClickEventToToggleInBacklogButton(user, album) {
 function applyVisualChangesToToggleInBacklogButton(album) {
     let toggleButton = album.querySelector('[data-backlog]');
     toggleButton.innerHTML = JSON.parse(toggleButton.dataset.backlog)
-        ? toggleInBacklogButtonStates.NEG
-        : toggleInBacklogButtonStates.POS;
+        ? toggleInBacklogButtonState.NEG
+        : toggleInBacklogButtonState.POS;
 }

@@ -15,10 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
-@WebServlet(urlPatterns = {"/delete-review"})
-public class DeleteReviewServlet extends HttpServlet {
-
-    private static final long serialVersionUID = 1L;
+@WebServlet(urlPatterns = {"/delete-review-reports"})
+public class DeleteReviewReports extends HttpServlet {
 
     @Inject
     private DataAgent dataAgent;
@@ -28,16 +26,14 @@ public class DeleteReviewServlet extends HttpServlet {
         final String reviewerUsername = request.getParameter("reviewer");
         final long reviewedAlbumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
         if (reviewerUsername == null || reviewerUsername.isEmpty() ||
-            reviewedAlbumId == Long.MIN_VALUE) {
+                reviewedAlbumId == Long.MIN_VALUE) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         final User sessionUser = (User) request.getSession().getAttribute("user");
         if (sessionUser == null
-                || !(sessionUser.getUsername().equals(reviewerUsername)
-                    || sessionUser.getRole() == User.Role.MODERATOR
-                    || sessionUser.getRole() == User.Role.ADMINISTRATOR)) {
+                || !(sessionUser.getRole() == User.Role.MODERATOR || sessionUser.getRole() == User.Role.ADMINISTRATOR)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -63,7 +59,7 @@ public class DeleteReviewServlet extends HttpServlet {
         try {
             if (review == null)
                 throw new ReviewNotFoundException();
-            this.dataAgent.deleteReview(review);
+            this.dataAgent.deleteReviewReports(review);
         } catch (ReviewNotFoundException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

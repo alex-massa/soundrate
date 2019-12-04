@@ -30,13 +30,8 @@ function getReviewVoteValue(voter, review) {
         setReviewVoteValue(review, voteValue);
     })
     .fail(xhr => {
-        let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-        $('body').toast({
-            message: toastMessage,
-            position: 'bottom right',
-            class: 'error',
-            className: {toast: 'ui message'}
-        });
+        let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
+        showToast(errorMessage, status.ERROR);
     });
 }
 
@@ -59,13 +54,8 @@ function attachVoteButtonsClickEvent(voter, review) {
                 setReviewVoteValue(review, voteValue);
             })
             .fail(xhr => {
-                let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-                $('body').toast({
-                    message: toastMessage,
-                    position: 'bottom right',
-                    class: 'error',
-                    className: {toast: 'ui message'}
-                });
+                let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
+                showToast(errorMessage, status.ERROR);
             });
         });
     });

@@ -42,20 +42,18 @@ public class UpdateUserRoleServlet extends HttpServlet {
             return;
         }
 
-        final User sessionuser = (User) request.getSession().getAttribute("user");
-        if (sessionuser == null
-                || sessionuser.getRole() != User.Role.ADMINISTRATOR
-                || sessionuser.getUsername().equals(username)) {
+        final User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null || sessionUser.getRole() != User.Role.ADMINISTRATOR) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         try {
-            User user = this.dataAgent.getUser(username);
+            final User user = this.dataAgent.getUser(username);
             if (user == null)
                 throw new UserNotFoundException();
             user.setRole(role);
-            Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
+            final Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
             if (!constraintViolations.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return;

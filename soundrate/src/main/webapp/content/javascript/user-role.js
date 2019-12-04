@@ -1,5 +1,4 @@
 window.addEventListener('load', () => {
-
     let roleSelect = document.getElementById('role-select');
     if (!roleSelect)
         return;
@@ -18,24 +17,11 @@ window.addEventListener('load', () => {
             data: {username: username, role: role},
             beforeSend: () => updateRoleButton.disabled = true
         })
-        .done(() => {
-            $('body').toast({
-                message: 'The user role has been updated',
-                position: 'bottom right',
-                class: 'success',
-                className: {toast: 'ui message'}
-            });
-        })
+        .done(() => showToast('The user role has been updated', status.SUCCESS))
         .fail(xhr => {
             updateRoleButton.disabled = false;
-            let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-            $('body').toast({
-                message: toastMessage,
-                position: 'bottom right',
-                class: 'error',
-                className: {toast: 'ui message'}
-            });
+            let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
+            showToast(errorMessage, status.ERROR);
         });
     });
-
 });

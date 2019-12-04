@@ -1,5 +1,4 @@
 window.addEventListener('load', () => {
-
     let user = document.querySelector('[data-user]');
 
     $('#user-settings-tabs-menu .item').tab();
@@ -128,5 +127,4 @@ window.addEventListener('load', () => {
            }
        }
     });
-
 });

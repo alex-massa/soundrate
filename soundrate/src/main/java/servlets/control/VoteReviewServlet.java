@@ -1,11 +1,11 @@
 package servlets.control;
 
-import application.model.DataAgent;
-import application.model.exceptions.ConflictingVoteException;
-import application.model.exceptions.VoteNotFoundException;
 import application.entities.Review;
 import application.entities.User;
 import application.entities.Vote;
+import application.model.DataAgent;
+import application.model.exceptions.ConflictingVoteException;
+import application.model.exceptions.VoteNotFoundException;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
@@ -76,7 +76,7 @@ public class VoteReviewServlet extends HttpServlet {
                         .setVoter(voter)
                         .setReview(review)
                         .setValue(voteValue);
-                Set<ConstraintViolation<Vote>> constraintViolations = this.validator.validate(vote);
+                final Set<ConstraintViolation<Vote>> constraintViolations = this.validator.validate(vote);
                 if (!constraintViolations.isEmpty()) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     return;
@@ -89,7 +89,7 @@ public class VoteReviewServlet extends HttpServlet {
                     this.dataAgent.deleteVote(vote);
                 else {
                     vote.setValue(voteValue);
-                    Set<ConstraintViolation<Vote>> constraintViolations = this.validator.validate(vote);
+                    final Set<ConstraintViolation<Vote>> constraintViolations = this.validator.validate(vote);
                     if (!constraintViolations.isEmpty()) {
                         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                         return;

@@ -1,7 +1,7 @@
 package servlets.control;
 
-import application.model.DataAgent;
 import application.entities.User;
+import application.model.DataAgent;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -70,8 +70,8 @@ public class RecoverAccountServlet extends HttpServlet {
                         : ":" + request.getServerPort()) +
                 request.getRequestURI().substring(0, request.getRequestURI().lastIndexOf('/') + 1) + "reset" +
                 "?token=" + token;
-        ResourceBundle emailTemplateBundle = ResourceBundle.getBundle("i18n/templates/email", request.getLocale());
-        MimeMessage message = new MimeMessage(this.smtpSession);
+        final ResourceBundle emailTemplateBundle = ResourceBundle.getBundle("i18n/templates/email", request.getLocale());
+        final MimeMessage message = new MimeMessage(this.smtpSession);
         try {
             message.setSubject(emailTemplateBundle.getString("recover.subject"));
             message.setContent(MessageFormat.format(emailTemplateBundle.getString("recover.body"), passwordRecoveryUrl),

@@ -1,5 +1,4 @@
 window.addEventListener('load', () => {
-
     let resetPasswordForm = document.getElementById('reset-password-form');
     let resetPasswordButton = document.getElementById('reset-password-button');
     if (resetPasswordButton)
@@ -49,5 +48,4 @@ window.addEventListener('load', () => {
             }
         }
     })
-
 });

@@ -1,8 +1,8 @@
 package application.interceptors;
 
+import application.entities.User;
 import application.events.qualifiers.UserUpdated;
 import application.interceptors.bindings.UserUpdate;
-import application.entities.User;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;

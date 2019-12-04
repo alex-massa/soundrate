@@ -1,5 +1,4 @@
 window.addEventListener('load', () => {
-
     $('#sign-in-tabs-menu .item').tab();
 
     let logInForm = document.getElementById('log-in-form');
@@ -88,14 +87,7 @@ window.addEventListener('load', () => {
             url: 'log-out'
         })
         .done(() => location.reload())
-        .fail(() => {
-            $('body').toast({
-                message: 'An unknown error occurred, please try again',
-                position: 'bottom right',
-                class: 'error',
-                className: {toast: 'ui message'}
-            });
-        })
+        .fail(() => showToast('An unknown error occurred, please try again', status.ERROR))
     }
 
     $(logInForm).form({
@@ -158,5 +150,4 @@ window.addEventListener('load', () => {
             }
         }
     })
-
 });

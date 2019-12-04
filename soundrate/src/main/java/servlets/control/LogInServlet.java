@@ -1,7 +1,7 @@
 package servlets.control;
 
-import application.model.DataAgent;
 import application.entities.User;
+import application.model.DataAgent;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ public class LogInServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
+        final HttpSession session = request.getSession();
         final User sessionUser = (User) session.getAttribute("user");
         if (sessionUser != null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -38,7 +38,7 @@ public class LogInServlet extends HttpServlet {
             return;
         }
 
-        User user = this.dataAgent.getUser(username);
+        final User user = this.dataAgent.getUser(username);
         if (user == null || !BCrypt.checkpw(password, user.getPassword())) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -47,6 +47,7 @@ public class LogInServlet extends HttpServlet {
             return;
         }
         session.setAttribute("user", user);
+
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

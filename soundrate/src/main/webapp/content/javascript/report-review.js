@@ -27,13 +27,8 @@ function isReviewReportedByUser(reporter, review) {
         button.disabled = reported;
     })
     .fail(xhr => {
-        let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-        $('body').toast({
-            message: toastMessage,
-            position: 'bottom right',
-            class: 'error',
-            className: {toast: 'ui message'}
-        });
+        let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
+        showToast(errorMessage, status.ERROR);
     });
 }
 
@@ -50,21 +45,11 @@ function attachClickEventToReportReviewButton(reporter, review) {
         })
         .done(() => {
             button.disabled = true;
-            $('body').toast({
-                message: 'The review has been reported',
-                position: 'bottom right',
-                class: 'success',
-                className: {toast: 'ui message'}
-            });
+            showToast('The review has been reported', status.SUCCESS);
         })
         .fail(xhr => {
-            let toastMessage = xhr.responseText || 'An unknown error occurred, please try again';
-            $('body').toast({
-                message: toastMessage,
-                position: 'bottom right',
-                class: 'error',
-                className: {toast: 'ui message'}
-            });
+            let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';
+            showToast(errorMessage, status.ERROR);
         });
     });
 }

@@ -1,9 +1,9 @@
 package servlets.control;
 
+import application.entities.User;
 import application.model.DataAgent;
 import application.model.exceptions.ConflictingEmailAddressException;
 import application.model.exceptions.ConflictingUsernameException;
-import application.entities.User;
 import application.util.AvatarGenerator;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -36,7 +36,7 @@ public class SignUpServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
+        final HttpSession session = request.getSession();
         final User sessionUser = (User) session.getAttribute("user");
         if (sessionUser != null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -53,7 +53,7 @@ public class SignUpServlet extends HttpServlet {
             return;
         }
 
-        User user = new User()
+        final User user = new User()
                 .setUsername(username)
                 .setEmail(email)
                 .setPassword(BCrypt.hashpw(password, BCrypt.gensalt()))
@@ -61,7 +61,7 @@ public class SignUpServlet extends HttpServlet {
                 .setPicture(AvatarGenerator.randomAvatar
                         (username, SignUpServlet.DEFAULT_AVATAR_SIZE, SignUpServlet.DEFAULT_AVATAR_FORMAT))
                 .setRole(User.Role.USER);
-        Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
+        final Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
         if (!constraintViolations.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
