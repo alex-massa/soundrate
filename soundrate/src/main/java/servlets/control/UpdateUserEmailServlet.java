@@ -1,7 +1,7 @@
 package servlets.control;
 
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.UsersAgent;
 import application.model.exceptions.ConflictingEmailAddressException;
 import application.model.exceptions.UserNotFoundException;
 import org.mindrot.jbcrypt.BCrypt;
@@ -21,7 +21,7 @@ import java.util.Set;
 public class UpdateUserEmailServlet extends HttpServlet {
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
 
     @Inject
     private Validator validator;
@@ -45,7 +45,7 @@ public class UpdateUserEmailServlet extends HttpServlet {
         }
 
         try {
-            final User user = this.dataAgent.getUser(username);
+            final User user = this.usersAgent.getUser(username);
             if (user == null)
                 throw new UserNotFoundException();
             if (!BCrypt.checkpw(currentPassword, user.getPassword())) {
@@ -61,7 +61,7 @@ public class UpdateUserEmailServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return;
             }
-            this.dataAgent.updateUser(user);
+            this.usersAgent.updateUser(user);
         } catch (UserNotFoundException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

@@ -1,7 +1,7 @@
 package servlets.control;
 
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.UsersAgent;
 import application.model.exceptions.UserNotFoundException;
 import io.jsonwebtoken.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -25,7 +25,7 @@ public class ResetUserPasswordServlet extends HttpServlet {
     private JwtParser jwtParser;
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
 
     @Inject
     private Validator validator;
@@ -34,13 +34,12 @@ public class ResetUserPasswordServlet extends HttpServlet {
     public void init() {
         this.jwtParser = Jwts.parser();
         this.jwtParser.setSigningKeyResolver(new SigningKeyResolverAdapter() {
-
             @Override
             public byte[] resolveSigningKeyBytes(JwsHeader header, Claims claims) {
-                String username = claims.getSubject();
-                return dataAgent.getUser(username).getPassword().getBytes();
+                final String username = claims.getSubject();
+                final User user = ResetUserPasswordServlet.this.usersAgent.getUser(username);
+                return user == null ? null : user.getPassword().getBytes();
             }
-
         });
     }
 
@@ -62,7 +61,11 @@ public class ResetUserPasswordServlet extends HttpServlet {
 
         try {
             final String username = this.jwtParser.parseClaimsJws(token).getBody().getSubject();
-            final User user = this.dataAgent.getUser(username);
+            if (username == null) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+            final User user = this.usersAgent.getUser(username);
             if (user == null)
                 throw new UserNotFoundException();
             user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
@@ -71,7 +74,7 @@ public class ResetUserPasswordServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return;
             }
-            this.dataAgent.updateUser(user);
+            this.usersAgent.updateUser(user);
         } catch (JwtException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

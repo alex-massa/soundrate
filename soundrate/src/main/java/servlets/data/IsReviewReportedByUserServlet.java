@@ -1,10 +1,10 @@
 package servlets.data;
 
-import application.entities.BacklogEntry;
+import application.entities.Report;
+import application.entities.Review;
 import application.entities.User;
-import application.model.CatalogAgent;
+import application.model.ReviewsAgent;
 import application.model.UsersAgent;
-import deezer.model.Album;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
@@ -15,45 +15,45 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
-@WebServlet(urlPatterns = {"/is-album-in-user-backlog"})
-public class IsAlbumInUserBacklogServlet extends HttpServlet {
-
-    private static final long serialVersionUID = 1L;
+@WebServlet(urlPatterns = {"/is-review-reported-by-user"})
+public class IsReviewReportedByUserServlet extends HttpServlet {
 
     @Inject
     private UsersAgent usersAgent;
     @Inject
-    private CatalogAgent catalogAgent;
+    private ReviewsAgent reviewsAgent;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final String username = request.getParameter("user");
-        final long albumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
-        if (username == null || username.isEmpty()
-                || albumId == Long.MIN_VALUE) {
+        final String reporterUsername = request.getParameter("reporter");
+        final String reviewerUsername = request.getParameter("reviewer");
+        final long reviewedAlbumId = NumberUtils.toLong(request.getParameter("album"), Long.MIN_VALUE);
+        if (reporterUsername == null || reporterUsername.isEmpty()
+                || reviewerUsername == null || reviewerUsername.isEmpty()
+                || reviewedAlbumId == Long.MIN_VALUE) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        final User user = this.usersAgent.getUser(username);
-        if (user == null) {
+        final User reporter = this.usersAgent.getUser(reporterUsername);
+        if (reporter == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                             .getString("error.userNotFound"));
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        final Album album = this.catalogAgent.getAlbum(albumId);
-        if (album == null) {
+        final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
+        if (review == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
-                            .getString("error.albumNotFound"));
+                            .getString("error.reviewNotFound"));
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
-        final BacklogEntry backlogEntry = this.catalogAgent.getBacklogEntry(username, albumId);
-        response.getWriter().write(String.valueOf(backlogEntry != null));
+        final Report report = this.reviewsAgent.getReport(reporterUsername, reviewerUsername, reviewedAlbumId);
+        response.getWriter().write(String.valueOf(report != null));
     }
 
 }

@@ -2,7 +2,9 @@ package servlets.control;
 
 import application.entities.Review;
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.CatalogAgent;
+import application.model.ReviewsAgent;
+import application.model.UsersAgent;
 import application.model.exceptions.ConflictingReviewException;
 import application.model.exceptions.ReviewNotFoundException;
 import deezer.model.Album;
@@ -27,7 +29,11 @@ public class PublishReviewServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
+    @Inject
+    private ReviewsAgent reviewsAgent;
+    @Inject
+    private CatalogAgent catalogAgent;
 
     @Inject
     private Validator validator;
@@ -52,7 +58,7 @@ public class PublishReviewServlet extends HttpServlet {
             return;
         }
 
-        final User reviewer = this.dataAgent.getUser(reviewerUsername);
+        final User reviewer = this.usersAgent.getUser(reviewerUsername);
         if (reviewer == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -60,7 +66,7 @@ public class PublishReviewServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        final Album reviewedAlbum = this.dataAgent.getAlbum(albumId);
+        final Album reviewedAlbum = this.catalogAgent.getAlbum(albumId);
         if (reviewedAlbum == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -69,7 +75,7 @@ public class PublishReviewServlet extends HttpServlet {
             return;
         }
 
-        Review review = this.dataAgent.getReview(reviewerUsername, albumId);
+        Review review = this.reviewsAgent.getReview(reviewerUsername, albumId);
         if (review == null) {
             review = new Review()
                     .setReviewer(reviewer)
@@ -83,7 +89,7 @@ public class PublishReviewServlet extends HttpServlet {
                 return;
             }
             try {
-                this.dataAgent.createReview(review);
+                this.reviewsAgent.createReview(review);
             } catch (ConflictingReviewException e) {
                 response.getWriter().write
                         (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -101,7 +107,7 @@ public class PublishReviewServlet extends HttpServlet {
                 return;
             }
             try {
-                this.dataAgent.updateReview(review);
+                this.reviewsAgent.updateReview(review);
             } catch (ReviewNotFoundException e) {
                 response.getWriter().write
                         (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

@@ -3,7 +3,8 @@ package servlets.data;
 import application.entities.Review;
 import application.entities.User;
 import application.entities.Vote;
-import application.model.DataAgent;
+import application.model.ReviewsAgent;
+import application.model.UsersAgent;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.inject.Inject;
@@ -20,7 +21,9 @@ public class GetReviewVoteServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
+    @Inject
+    private ReviewsAgent reviewsAgent;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -34,7 +37,7 @@ public class GetReviewVoteServlet extends HttpServlet {
             return;
         }
 
-        final User voter = this.dataAgent.getUser(voterUsername);
+        final User voter = this.usersAgent.getUser(voterUsername);
         if (voter == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -42,7 +45,7 @@ public class GetReviewVoteServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        final Review review = this.dataAgent.getReview(reviewerUsername, reviewedAlbumId);
+        final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
         if (review == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -51,7 +54,7 @@ public class GetReviewVoteServlet extends HttpServlet {
             return;
         }
 
-        final Vote reviewVote = this.dataAgent.getVote(voterUsername, reviewerUsername, reviewedAlbumId);
+        final Vote reviewVote = this.reviewsAgent.getVote(voterUsername, reviewerUsername, reviewedAlbumId);
         if (reviewVote != null && reviewVote.getValue() != null)
             response.getWriter().write(String.valueOf(reviewVote.getValue()));
     }

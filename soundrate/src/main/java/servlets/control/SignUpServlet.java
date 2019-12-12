@@ -1,7 +1,7 @@
 package servlets.control;
 
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.UsersAgent;
 import application.model.exceptions.ConflictingEmailAddressException;
 import application.model.exceptions.ConflictingUsernameException;
 import application.util.AvatarGenerator;
@@ -29,7 +29,7 @@ public class SignUpServlet extends HttpServlet {
     private static final AvatarGenerator.Format DEFAULT_AVATAR_FORMAT = AvatarGenerator.Format.SVG;
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
 
     @Inject
     private Validator validator;
@@ -67,7 +67,7 @@ public class SignUpServlet extends HttpServlet {
             return;
         }
         try {
-            this.dataAgent.createUser(user);
+            this.usersAgent.createUser(user);
         } catch (ConflictingUsernameException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

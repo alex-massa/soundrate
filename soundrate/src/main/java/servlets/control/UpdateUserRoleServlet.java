@@ -1,7 +1,7 @@
 package servlets.control;
 
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.UsersAgent;
 import application.model.exceptions.UserNotFoundException;
 
 import javax.inject.Inject;
@@ -19,7 +19,7 @@ import java.util.Set;
 public class UpdateUserRoleServlet extends HttpServlet {
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
 
     @Inject
     private Validator validator;
@@ -49,7 +49,7 @@ public class UpdateUserRoleServlet extends HttpServlet {
         }
 
         try {
-            final User user = this.dataAgent.getUser(username);
+            final User user = this.usersAgent.getUser(username);
             if (user == null)
                 throw new UserNotFoundException();
             user.setRole(role);
@@ -58,7 +58,7 @@ public class UpdateUserRoleServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return;
             }
-            this.dataAgent.updateUser(user);
+            this.usersAgent.updateUser(user);
         } catch (UserNotFoundException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

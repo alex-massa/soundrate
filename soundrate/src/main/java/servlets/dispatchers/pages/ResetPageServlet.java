@@ -1,7 +1,7 @@
 package servlets.dispatchers.pages;
 
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.UsersAgent;
 import io.jsonwebtoken.*;
 
 import javax.inject.Inject;
@@ -20,19 +20,18 @@ public class ResetPageServlet extends HttpServlet {
     private JwtParser jwtParser;
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
 
     @Override
     public void init() {
         this.jwtParser = Jwts.parser();
         this.jwtParser.setSigningKeyResolver(new SigningKeyResolverAdapter() {
-
             @Override
             public byte[] resolveSigningKeyBytes(JwsHeader header, Claims claims) {
-                String username = claims.getSubject();
-                return dataAgent.getUser(username).getPassword().getBytes();
+                final String username = claims.getSubject();
+                final User user = ResetPageServlet.this.usersAgent.getUser(username);
+                return user == null ? null : user.getPassword().getBytes();
             }
-
         });
     }
 

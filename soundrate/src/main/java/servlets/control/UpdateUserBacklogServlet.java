@@ -2,7 +2,8 @@ package servlets.control;
 
 import application.entities.BacklogEntry;
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.CatalogAgent;
+import application.model.UsersAgent;
 import application.model.exceptions.BacklogEntryNotFoundException;
 import application.model.exceptions.ConflictingBacklogEntryException;
 import deezer.model.Album;
@@ -26,7 +27,9 @@ public class UpdateUserBacklogServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
+    @Inject
+    private CatalogAgent catalogAgent;
 
     @Inject
     private Validator validator;
@@ -47,7 +50,7 @@ public class UpdateUserBacklogServlet extends HttpServlet {
             return;
         }
 
-        final User user = this.dataAgent.getUser(username);
+        final User user = this.usersAgent.getUser(username);
         if (user == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -55,7 +58,7 @@ public class UpdateUserBacklogServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        final Album album = this.dataAgent.getAlbum(albumId);
+        final Album album = this.catalogAgent.getAlbum(albumId);
         if (album == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -64,7 +67,7 @@ public class UpdateUserBacklogServlet extends HttpServlet {
             return;
         }
 
-        BacklogEntry backlogEntry = this.dataAgent.getBacklogEntry(username, albumId);
+        BacklogEntry backlogEntry = this.catalogAgent.getBacklogEntry(username, albumId);
         if (backlogEntry == null) {
             backlogEntry = new BacklogEntry()
                     .setUser(user)
@@ -76,7 +79,7 @@ public class UpdateUserBacklogServlet extends HttpServlet {
                 return;
             }
             try {
-                this.dataAgent.createBacklogEntry(backlogEntry);
+                this.catalogAgent.createBacklogEntry(backlogEntry);
             } catch (ConflictingBacklogEntryException e) {
                 response.getWriter().write
                         (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -86,7 +89,7 @@ public class UpdateUserBacklogServlet extends HttpServlet {
             }
         } else {
             try {
-                this.dataAgent.deleteBacklogEntry(backlogEntry);
+                this.catalogAgent.deleteBacklogEntry(backlogEntry);
             } catch (BacklogEntryNotFoundException e) {
                 response.getWriter().write
                         (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

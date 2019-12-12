@@ -1,7 +1,7 @@
 package servlets.control;
 
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.UsersAgent;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -32,7 +32,7 @@ public class RecoverAccountServlet extends HttpServlet {
     private Session smtpSession;
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -48,7 +48,7 @@ public class RecoverAccountServlet extends HttpServlet {
             return;
         }
 
-        final User user = dataAgent.getUserByEmail(email);
+        final User user = this.usersAgent.getUserByEmail(email);
         if (user == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

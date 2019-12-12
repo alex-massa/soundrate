@@ -2,7 +2,9 @@ package servlets.control;
 
 import application.entities.Review;
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.CatalogAgent;
+import application.model.ReviewsAgent;
+import application.model.UsersAgent;
 import application.model.exceptions.ReviewNotFoundException;
 import deezer.model.Album;
 import org.apache.commons.lang.math.NumberUtils;
@@ -19,7 +21,11 @@ import java.util.ResourceBundle;
 public class DeleteReviewReports extends HttpServlet {
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
+    @Inject
+    private ReviewsAgent reviewsAgent;
+    @Inject
+    private CatalogAgent catalogAgent;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -38,7 +44,7 @@ public class DeleteReviewReports extends HttpServlet {
             return;
         }
 
-        final User reviewer = this.dataAgent.getUser(reviewerUsername);
+        final User reviewer = this.usersAgent.getUser(reviewerUsername);
         if (reviewer == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -46,7 +52,7 @@ public class DeleteReviewReports extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        final Album reviewedAlbum = this.dataAgent.getAlbum(reviewedAlbumId);
+        final Album reviewedAlbum = this.catalogAgent.getAlbum(reviewedAlbumId);
         if (reviewedAlbum == null) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -55,11 +61,11 @@ public class DeleteReviewReports extends HttpServlet {
             return;
         }
 
-        final Review review = this.dataAgent.getReview(reviewerUsername, reviewedAlbumId);
+        final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
         try {
             if (review == null)
                 throw new ReviewNotFoundException();
-            this.dataAgent.deleteReviewReports(review);
+            this.reviewsAgent.deleteReviewReports(review);
         } catch (ReviewNotFoundException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

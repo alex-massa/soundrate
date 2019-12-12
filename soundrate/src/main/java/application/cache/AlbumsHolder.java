@@ -1,6 +1,6 @@
 package application.cache;
 
-import application.model.DataAgent;
+import application.model.CatalogAgent;
 import deezer.model.Album;
 
 import javax.ejb.Lock;
@@ -19,7 +19,7 @@ public class AlbumsHolder {
     private final Map<Long, Optional<Album>> albumsMap = new ConcurrentHashMap<>();
 
     @Inject
-    private DataAgent dataAgent;
+    private CatalogAgent catalogAgent;
 
     @Schedule(hour = "*", minute = "*/30", persistent = false)
     private void clearCache() {
@@ -31,7 +31,7 @@ public class AlbumsHolder {
         Optional<Album> optionalAlbum = this.albumsMap.get(albumId);
         if (optionalAlbum != null)
             return optionalAlbum.orElse(null);
-        Album album = this.dataAgent.getAlbum(albumId);
+        Album album = this.catalogAgent.getAlbum(albumId);
         this.albumsMap.put(albumId, album == null ? Optional.empty() : Optional.of(album));
         return album;
     }

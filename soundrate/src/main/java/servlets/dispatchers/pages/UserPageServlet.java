@@ -2,7 +2,9 @@ package servlets.dispatchers.pages;
 
 import application.entities.Review;
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.CatalogAgent;
+import application.model.ReviewsAgent;
+import application.model.UsersAgent;
 import deezer.model.Album;
 
 import javax.inject.Inject;
@@ -22,7 +24,11 @@ public class UserPageServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
+    @Inject
+    private ReviewsAgent reviewsAgent;
+    @Inject
+    private CatalogAgent catalogAgent;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -38,34 +44,34 @@ public class UserPageServlet extends HttpServlet {
         final String username = request.getParameter("id");
         if (username == null || username.isEmpty())
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        else if ((user = this.dataAgent.getUser(username)) == null)
+        else if ((user = this.usersAgent.getUser(username)) == null)
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         else {
             request.setAttribute("user", user);
 
-            final List<Review> userReviews = this.dataAgent.getUserReviews(user);
+            final List<Review> userReviews = this.usersAgent.getUserReviews(user);
             request.setAttribute("userReviews", userReviews);
 
-            final int userNumberOfReviews = this.dataAgent.getUserNumberOfReviews(user);
+            final int userNumberOfReviews = this.usersAgent.getUserNumberOfReviews(user);
             request.setAttribute("userNumberOfReviews", userNumberOfReviews);
 
-            final Double userAverageAssignedRating = this.dataAgent.getUserAverageAssignedRating(user);
+            final Double userAverageAssignedRating = this.usersAgent.getUserAverageAssignedRating(user);
             request.setAttribute("userAverageAssignedRating", userAverageAssignedRating);
 
-            final int userReputation = this.dataAgent.getUserReputation(user);
+            final int userReputation = this.usersAgent.getUserReputation(user);
             request.setAttribute("userReputation", userReputation);
 
             if (userReviews != null) {
                 final Map<Review, Album> reviewedAlbumMap = userReviews.stream().collect(
                         HashMap::new,
-                        (map, review) -> map.put(review, this.dataAgent.getAlbum(review.getReviewedAlbumId())),
+                        (map, review) -> map.put(review, this.catalogAgent.getAlbum(review.getReviewedAlbumId())),
                         HashMap::putAll
                 );
                 request.setAttribute("reviewedAlbumMap", reviewedAlbumMap);
 
                 final Map<Review, Integer> reviewScoreMap = userReviews.stream().collect(
                         HashMap::new,
-                        (map, review) -> map.put(review, this.dataAgent.getReviewScore(review)),
+                        (map, review) -> map.put(review, this.reviewsAgent.getReviewScore(review)),
                         HashMap::putAll
                 );
                 request.setAttribute("reviewScoreMap", reviewScoreMap);

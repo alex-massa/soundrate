@@ -2,7 +2,7 @@ package servlets.data;
 
 import application.entities.Review;
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.ReviewsAgent;
 import com.google.gson.Gson;
 
 import javax.inject.Inject;
@@ -19,7 +19,7 @@ public class GetReportedReviewsServlet extends HttpServlet {
     private Gson serializer;
 
     @Inject
-    private DataAgent dataAgent;
+    private ReviewsAgent reviewsAgent;
 
     @Override
     public void init() {
@@ -36,7 +36,7 @@ public class GetReportedReviewsServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        final List<Review> reportedReviews = this.dataAgent.getReportedReviews();
+        final List<Review> reportedReviews = this.reviewsAgent.getReportedReviews();
         response.getWriter().write(this.serializer.toJson(reportedReviews));
     }
 

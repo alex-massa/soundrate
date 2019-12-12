@@ -26,7 +26,6 @@ public class DatabaseInitializer {
     private EntityManager entityManager;
 
     @PostConstruct
-    @Remove
     private void initializeDatabase() throws IOException {
         Properties properties = new Properties();
         properties.load(this.getClass().getClassLoader().getResourceAsStream("application.properties"));

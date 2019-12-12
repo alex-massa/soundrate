@@ -1,6 +1,6 @@
 package application.cache;
 
-import application.model.DataAgent;
+import application.model.CatalogAgent;
 import deezer.model.Genre;
 
 import javax.ejb.Lock;
@@ -19,7 +19,7 @@ public class GenresHolder {
     private final Map<Long, Optional<Genre>> genresMap = new ConcurrentHashMap<>();
 
     @Inject
-    private DataAgent dataAgent;
+    private CatalogAgent catalogAgent;
 
     @Schedule(hour = "*", minute = "*/30", persistent = false)
     private void clearCache() {
@@ -31,7 +31,7 @@ public class GenresHolder {
         Optional<Genre> optionalGenre = this.genresMap.get(genreId);
         if (optionalGenre != null)
             return optionalGenre.orElse(null);
-        Genre genre = this.dataAgent.getGenre(genreId);
+        Genre genre = this.catalogAgent.getGenre(genreId);
         this.genresMap.put(genreId, genre == null ? Optional.empty() : Optional.of(genre));
         return genre;
     }

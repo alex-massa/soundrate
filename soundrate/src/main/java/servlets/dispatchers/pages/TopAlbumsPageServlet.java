@@ -1,6 +1,6 @@
 package servlets.dispatchers.pages;
 
-import application.model.DataAgent;
+import application.model.CatalogAgent;
 import deezer.model.Album;
 import deezer.model.data.Albums;
 
@@ -22,23 +22,23 @@ public class TopAlbumsPageServlet extends HttpServlet {
     private static final int NUMBER_OF_ALBUMS = 100;
 
     @Inject
-    private DataAgent dataAgent;
+    private CatalogAgent catalogAgent;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        final Albums topAlbums = this.dataAgent.getTopAlbums(0, TopAlbumsPageServlet.NUMBER_OF_ALBUMS);
+        final Albums topAlbums = this.catalogAgent.getTopAlbums(0, TopAlbumsPageServlet.NUMBER_OF_ALBUMS);
         request.setAttribute("albums", topAlbums == null ? null : topAlbums.getData());
         if (topAlbums != null) {
             final Map<Album, Integer> albumNumberOfReviewsMap = topAlbums.getData().stream().collect(
                     HashMap::new,
-                    (map, album) -> map.put(album, this.dataAgent.getAlbumNumberOfReviews(album)),
+                    (map, album) -> map.put(album, this.catalogAgent.getAlbumNumberOfReviews(album)),
                     HashMap::putAll
             );
             request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
 
             final Map<Album, Double> albumAverageRatingMap = topAlbums.getData().stream().collect(
                     HashMap::new,
-                    (map, album) -> map.put(album, this.dataAgent.getAlbumAverageRating(album)),
+                    (map, album) -> map.put(album, this.catalogAgent.getAlbumAverageRating(album)),
                     HashMap::putAll
             );
             request.setAttribute("albumAverageRatingMap", albumAverageRatingMap);

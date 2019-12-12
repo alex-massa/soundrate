@@ -3,7 +3,8 @@ package servlets.control;
 import application.entities.Report;
 import application.entities.Review;
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.ReviewsAgent;
+import application.model.UsersAgent;
 import application.model.exceptions.ConflictingReportException;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -22,7 +23,9 @@ import java.util.Set;
 public class ReportReviewServlet extends HttpServlet {
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
+    @Inject
+    private ReviewsAgent reviewsAgent;
 
     @Inject
     private Validator validator;
@@ -45,14 +48,14 @@ public class ReportReviewServlet extends HttpServlet {
             return;
         }
 
-        final User reporter = this.dataAgent.getUser(reporterUsername);
+        final User reporter = this.usersAgent.getUser(reporterUsername);
         if (reporter == null) {
             response.getWriter().write(ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                     .getString("error.userNotFound"));
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        final Review review = this.dataAgent.getReview(reviewerUsername, reviewedAlbumId);
+        final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
         if (review == null) {
             response.getWriter().write(ResourceBundle.getBundle("i18n/strings/strings",
                     request.getLocale()).getString("error.reviewNotFound"));
@@ -69,7 +72,7 @@ public class ReportReviewServlet extends HttpServlet {
             return;
         }
         try {
-            this.dataAgent.createReport(report);
+            this.reviewsAgent.createReport(report);
         } catch (ConflictingReportException e) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

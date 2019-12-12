@@ -1,6 +1,6 @@
 package application.cache;
 
-import application.model.DataAgent;
+import application.model.CatalogAgent;
 import deezer.model.Album;
 import deezer.model.data.Albums;
 
@@ -21,12 +21,12 @@ public class TopAlbumsHolder {
     private Albums topAlbums;
 
     @Inject
-    private DataAgent dataAgent;
+    private CatalogAgent catalogAgent;
 
     @PostConstruct
     @Schedule(hour = "*", minute = "*/30", persistent = false)
     private void clearCache() {
-        this.topAlbums = this.dataAgent.getTopAlbums();
+        this.topAlbums = this.catalogAgent.getTopAlbums();
     }
 
     @Lock(LockType.READ)

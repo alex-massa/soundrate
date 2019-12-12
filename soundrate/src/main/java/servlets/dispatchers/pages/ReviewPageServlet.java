@@ -2,7 +2,9 @@ package servlets.dispatchers.pages;
 
 import application.entities.Review;
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.CatalogAgent;
+import application.model.ReviewsAgent;
+import application.model.UsersAgent;
 import deezer.model.Album;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -18,7 +20,11 @@ import java.io.IOException;
 public class ReviewPageServlet extends HttpServlet {
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
+    @Inject
+    private ReviewsAgent reviewsAgent;
+    @Inject
+    private CatalogAgent catalogAgent;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -34,18 +40,18 @@ public class ReviewPageServlet extends HttpServlet {
         if (reviewerUsername == null || reviewerUsername.isEmpty()
                 || reviewedAlbumId == Long.MIN_VALUE)
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        else if ((review = this.dataAgent.getReview(reviewerUsername, reviewedAlbumId)) == null)
+        else if ((review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId)) == null)
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         else {
             request.setAttribute("review", review);
 
-            final User reviewer = this.dataAgent.getUser(reviewerUsername);
+            final User reviewer = this.usersAgent.getUser(reviewerUsername);
             request.setAttribute("reviewer", reviewer);
 
-            final Album reviewedAlbum = this.dataAgent.getAlbum(reviewedAlbumId);
+            final Album reviewedAlbum = this.catalogAgent.getAlbum(reviewedAlbumId);
             request.setAttribute("reviewedAlbum", reviewedAlbum);
 
-            final Integer reviewScore = this.dataAgent.getReviewScore(review);
+            final Integer reviewScore = this.reviewsAgent.getReviewScore(review);
             request.setAttribute("reviewScore", reviewScore);
         }
 

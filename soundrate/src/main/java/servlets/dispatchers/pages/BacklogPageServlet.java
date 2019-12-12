@@ -2,7 +2,8 @@ package servlets.dispatchers.pages;
 
 import application.entities.BacklogEntry;
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.CatalogAgent;
+import application.model.UsersAgent;
 import deezer.model.Album;
 import deezer.model.Genre;
 
@@ -24,7 +25,9 @@ public class BacklogPageServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
+    @Inject
+    private CatalogAgent catalogAgent;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -32,36 +35,36 @@ public class BacklogPageServlet extends HttpServlet {
         final String username = request.getParameter("id");
         if (username == null || username.isEmpty())
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        else if ((user = this.dataAgent.getUser(username)) == null)
+        else if ((user = this.usersAgent.getUser(username)) == null)
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         else {
             request.setAttribute("user", user);
 
-            final List<BacklogEntry> userBacklog = this.dataAgent.getUserBacklog(user);
+            final List<BacklogEntry> userBacklog = this.usersAgent.getUserBacklog(user);
 
             if (userBacklog != null) {
                 final List<Album> userBacklogAlbums = userBacklog.stream().map
-                        (backlogEntry -> this.dataAgent.getAlbum(backlogEntry.getAlbumId()))
+                        (backlogEntry -> this.catalogAgent.getAlbum(backlogEntry.getAlbumId()))
                         .collect(Collectors.toList());
                 request.setAttribute("backlogAlbums", userBacklogAlbums);
 
                 final Map<Album, Genre> albumGenreMap = userBacklogAlbums.stream().collect(
                         HashMap::new,
-                        (map, album) -> map.put(album, this.dataAgent.getAlbumGenre(album)),
+                        (map, album) -> map.put(album, this.catalogAgent.getAlbumGenre(album)),
                         HashMap::putAll
                 );
                 request.setAttribute("albumGenreMap", albumGenreMap);
 
                 final Map<Album, Integer> albumNumberOfReviewsMap = userBacklogAlbums.stream().collect(
                         HashMap::new,
-                        (map, album) -> map.put(album, this.dataAgent.getAlbumNumberOfReviews(album)),
+                        (map, album) -> map.put(album, this.catalogAgent.getAlbumNumberOfReviews(album)),
                         HashMap::putAll
                 );
                 request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
 
                 final Map<Album, Double> albumAverageRatingMap = userBacklogAlbums.stream().collect(
                         HashMap::new,
-                        (map, album) -> map.put(album, this.dataAgent.getAlbumAverageRating(album)),
+                        (map, album) -> map.put(album, this.catalogAgent.getAlbumAverageRating(album)),
                         HashMap::putAll
                 );
                 request.setAttribute("albumAverageRatingMap", albumAverageRatingMap);

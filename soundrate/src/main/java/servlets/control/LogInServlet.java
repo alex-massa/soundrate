@@ -1,7 +1,7 @@
 package servlets.control;
 
 import application.entities.User;
-import application.model.DataAgent;
+import application.model.UsersAgent;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.inject.Inject;
@@ -19,7 +19,7 @@ public class LogInServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private DataAgent dataAgent;
+    private UsersAgent usersAgent;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -38,7 +38,7 @@ public class LogInServlet extends HttpServlet {
             return;
         }
 
-        final User user = this.dataAgent.getUser(username);
+        final User user = this.usersAgent.getUser(username);
         if (user == null || !BCrypt.checkpw(password, user.getPassword())) {
             response.getWriter().write
                     (ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
