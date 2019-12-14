@@ -5,7 +5,6 @@ import application.util.AvatarGenerator;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Remove;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.persistence.EntityManager;
@@ -22,7 +21,7 @@ import java.util.logging.Logger;
 @Startup
 public class DatabaseInitializer {
 
-    @PersistenceContext(unitName = "soundratePersistenceUnit")
+    @PersistenceContext
     private EntityManager entityManager;
 
     @PostConstruct

@@ -16,7 +16,7 @@ import java.util.List;
 @Stateless
 public class ReviewsAgent {
 
-    @PersistenceContext(unitName = "soundratePersistenceUnit")
+    @PersistenceContext
     private EntityManager entityManager;
 
     public List<Review> getReviews() {
@@ -521,7 +521,7 @@ public class ReviewsAgent {
     }
 
     public void deleteReviewReports(@NotNull final Review review) {
-        /*  `Criteria API bulk deletion not supported by OpenJPA in TomEE 8.0.0`
+        /*  @fixme `Criteria API bulk deletion not supported by OpenJPA in TomEE 8.0.0`
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaDelete<Report> delete = builder.createCriteriaDelete(Report.class);
         Root<Report> report = delete.from(Report.class);

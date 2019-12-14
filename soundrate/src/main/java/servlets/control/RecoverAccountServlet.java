@@ -28,7 +28,7 @@ public class RecoverAccountServlet extends HttpServlet {
 
     private static final int TOKEN_TIME_TO_LIVE = 3 * 60 * 60 * 1000;    // 3 hours
 
-    @Resource(mappedName = "mail/soundrateSession")
+    @Resource(mappedName = "mail/soundrateMailSession")
     private Session smtpSession;
 
     @Inject

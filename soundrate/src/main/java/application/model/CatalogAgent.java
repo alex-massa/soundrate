@@ -15,9 +15,7 @@ import deezer.model.data.Genres;
 import deezer.model.search.AlbumsSearch;
 import deezer.model.search.ArtistsSearch;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -31,7 +29,7 @@ import java.util.OptionalDouble;
 @Stateless
 public class CatalogAgent {
 
-    @PersistenceContext(unitName = "soundratePersistenceUnit")
+    @PersistenceContext
     private EntityManager entityManager;
 
     private DeezerClient client;
@@ -139,11 +137,11 @@ public class CatalogAgent {
         ParameterExpression<Long> reviewedAlbumIdParameter = builder.parameter(Long.class);
         query
                 .select(review)
+                .groupBy(review)
                 .where(builder.equal(
                         review.get(Review_.reviewedAlbumId),
                         reviewedAlbumIdParameter
                 ))
-                .groupBy(review)
                 .orderBy(builder.desc(builder.coalesce(
                         builder.sum(vote.get(Vote_.value)),
                         builder.literal(0)

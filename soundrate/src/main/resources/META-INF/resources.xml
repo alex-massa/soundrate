@@ -6,11 +6,11 @@
         UserName = root
     </Resource>
     -->
-    <Resource id="jdbc/soundrateTestDataSource" type="javax.sql.DataSource">
+    <Resource id="jdbc/soundrateDataSource" type="javax.sql.DataSource">
         JdbcDriver = org.hsqldb.jdbcDriver
         JdbcUrl = jdbc:hsqldb:file:soundrate
     </Resource>
-    <Resource id="mail/soundrateSession" type="javax.mail.Session">
+    <Resource id="mail/soundrateMailSession" type="javax.mail.Session">
         mail.transport.protocol=smtp
         mail.smtp.host=smtp.gmail.com
         mail.smtp.port=587

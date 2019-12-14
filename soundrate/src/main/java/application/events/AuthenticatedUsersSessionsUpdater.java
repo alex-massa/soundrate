@@ -12,21 +12,23 @@ import java.util.concurrent.ConcurrentHashMap;
 @WebListener
 public class AuthenticatedUsersSessionsUpdater implements HttpSessionListener, HttpSessionAttributeListener {
 
-    private Map<String, Map<String, HttpSession>> authenticatedUsersSessions = new ConcurrentHashMap<>();
+    private static Map<String, Map<String, HttpSession>> authenticatedUsersSessions = new ConcurrentHashMap<>();
 
     private void updateUserSession(@Observes @UserUpdated(type = "updated") User user) {
-        Map<String, HttpSession> authenticatedUserSessions = this.authenticatedUsersSessions.get(user.getUsername());
+        Map<String, HttpSession> authenticatedUserSessions =
+                AuthenticatedUsersSessionsUpdater.authenticatedUsersSessions.get(user.getUsername());
         if (authenticatedUserSessions != null)
             for (HttpSession authenticatedUserSession : authenticatedUserSessions.values())
                 authenticatedUserSession.setAttribute("user", user);
     }
 
     private void invalidateUserSession(@Observes @UserUpdated(type = "deleted") User user) {
-        Map<String, HttpSession> authenticatedUserSessions = this.authenticatedUsersSessions.get(user.getUsername());
+        Map<String, HttpSession> authenticatedUserSessions =
+                AuthenticatedUsersSessionsUpdater.authenticatedUsersSessions.get(user.getUsername());
         if (authenticatedUserSessions != null) {
             for (HttpSession authenticatedUserSession : authenticatedUserSessions.values())
                 authenticatedUserSession.invalidate();
-            this.authenticatedUsersSessions.remove(user.getUsername());
+            AuthenticatedUsersSessionsUpdater.authenticatedUsersSessions.remove(user.getUsername());
         }
     }
 
@@ -36,11 +38,12 @@ public class AuthenticatedUsersSessionsUpdater implements HttpSessionListener, H
         User user = (User) session.getAttribute("user");
         if (user == null)
             return;
-        Map<String, HttpSession> authenticatedUserSessions = this.authenticatedUsersSessions.get(user.getUsername());
+        Map<String, HttpSession> authenticatedUserSessions =
+                AuthenticatedUsersSessionsUpdater.authenticatedUsersSessions.get(user.getUsername());
         if (authenticatedUserSessions != null) {
             authenticatedUserSessions.remove(session.getId());
             if (authenticatedUserSessions.isEmpty())
-                this.authenticatedUsersSessions.remove(user.getUsername());
+                AuthenticatedUsersSessionsUpdater.authenticatedUsersSessions.remove(user.getUsername());
         }
     }
 
@@ -49,10 +52,11 @@ public class AuthenticatedUsersSessionsUpdater implements HttpSessionListener, H
         if (!event.getName().equals("user"))
             return;
         User user = (User) event.getValue();
-        Map<String, HttpSession> authenticatedUserSessions = this.authenticatedUsersSessions.get(user.getUsername());
+        Map<String, HttpSession> authenticatedUserSessions =
+                AuthenticatedUsersSessionsUpdater.authenticatedUsersSessions.get(user.getUsername());
         if (authenticatedUserSessions == null) {
             authenticatedUserSessions = new ConcurrentHashMap<>();
-            this.authenticatedUsersSessions.put(user.getUsername(), authenticatedUserSessions);
+            AuthenticatedUsersSessionsUpdater.authenticatedUsersSessions.put(user.getUsername(), authenticatedUserSessions);
         }
         HttpSession authenticatedUserSession = event.getSession();
         authenticatedUserSessions.put(authenticatedUserSession.getId(), authenticatedUserSession);
@@ -63,11 +67,12 @@ public class AuthenticatedUsersSessionsUpdater implements HttpSessionListener, H
         if (!event.getName().equals("user"))
             return;
         User user = (User) event.getValue();
-        Map<String, HttpSession> authenticatedUserSessions = this.authenticatedUsersSessions.get(user.getUsername());
+        Map<String, HttpSession> authenticatedUserSessions =
+                AuthenticatedUsersSessionsUpdater.authenticatedUsersSessions.get(user.getUsername());
         if (authenticatedUserSessions != null) {
             authenticatedUserSessions.remove(event.getSession().getId());
             if (authenticatedUserSessions.isEmpty())
-                this.authenticatedUsersSessions.remove(user.getUsername());
+                AuthenticatedUsersSessionsUpdater.authenticatedUsersSessions.remove(user.getUsername());
         }
     }
 
