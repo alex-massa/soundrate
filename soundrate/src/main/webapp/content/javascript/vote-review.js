@@ -21,11 +21,12 @@ function getReviewVoteValue(voter, review) {
     let reviewedAlbumId = review.dataset.album;
     $.ajax({
         method: 'get',
-        url: 'get-review-vote-value',
+        url: 'get-review-vote',
         data: {voter: voterUsername, reviewer: reviewerUsername, album: reviewedAlbumId}
     })
     .done(data => {
-        let voteValue = !data ? null : JSON.parse(data);
+        let vote = JSON.parse(data);
+        let voteValue = !vote ? null : vote.value;
         applyReviewButtonsVisualChanges(review, voteValue);
         setReviewVoteValue(review, voteValue);
     })

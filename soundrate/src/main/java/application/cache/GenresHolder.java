@@ -16,23 +16,23 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class GenresHolder {
 
-    private final Map<Long, Optional<Genre>> genresMap = new ConcurrentHashMap<>();
+    private static final Map<Long, Optional<Genre>> genresMap = new ConcurrentHashMap<>();
 
     @Inject
     private CatalogAgent catalogAgent;
 
     @Schedule(hour = "*", minute = "*/30", persistent = false)
     private void clearCache() {
-        this.genresMap.clear();
+        GenresHolder.genresMap.clear();
     }
 
     @Lock(LockType.READ)
     public Genre getGenre(@NotNull final Long genreId) {
-        Optional<Genre> optionalGenre = this.genresMap.get(genreId);
+        Optional<Genre> optionalGenre = GenresHolder.genresMap.get(genreId);
         if (optionalGenre != null)
             return optionalGenre.orElse(null);
         Genre genre = this.catalogAgent.getGenre(genreId);
-        this.genresMap.put(genreId, genre == null ? Optional.empty() : Optional.of(genre));
+        GenresHolder.genresMap.put(genreId, genre == null ? Optional.empty() : Optional.of(genre));
         return genre;
     }
 

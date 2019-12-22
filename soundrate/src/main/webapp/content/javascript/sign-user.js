@@ -116,8 +116,8 @@ window.addEventListener('load', () => {
             username: {
                 identifier: 'username',
                 rules: [{
-                    type: 'regExp[/^(?=.{4,32}$)[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9])*$/]',
-                    prompt: 'The username must be composed of 4-32 alphanumeric characters'
+                    type: 'regExp[/^(?=.{3,36}$)[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9])*$/]',
+                    prompt: 'The username must be composed of 3-36 alphanumeric characters'
                 }]
             },
             email: {

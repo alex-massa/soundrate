@@ -8,7 +8,7 @@ window.addEventListener('load', () => {
         let email = $(recoverAccountForm).form('get value', 'email');
         $.ajax({
             method: 'post',
-            url: 'recover-account',
+            url: 'recover-user-account',
             data: {email: email},
             beforeSend: xhr => {
                 recoverAccountButton.disabled = true;

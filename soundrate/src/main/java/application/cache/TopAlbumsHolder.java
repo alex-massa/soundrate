@@ -18,31 +18,32 @@ import java.util.stream.Collectors;
 @Singleton
 public class TopAlbumsHolder {
 
-    private Albums topAlbums;
+    private static Albums topAlbums;
 
     @Inject
     private CatalogAgent catalogAgent;
 
+    // @fixme could fail at startup
     @PostConstruct
     @Schedule(hour = "*", minute = "*/30", persistent = false)
     private void clearCache() {
-        this.topAlbums = this.catalogAgent.getTopAlbums();
+        TopAlbumsHolder.topAlbums = this.catalogAgent.getTopAlbums();
     }
 
     @Lock(LockType.READ)
     public Albums getTopAlbums() {
-        return this.topAlbums;
+        return TopAlbumsHolder.topAlbums;
     }
 
     @Lock(LockType.READ)
     public Albums getTopAlbums(@NotNull @Min(0) final Integer index, @NotNull @Min(1) final Integer limit) {
-        if (this.topAlbums == null)
+        if (TopAlbumsHolder.topAlbums == null)
             return null;
-        List<Album> data = this.topAlbums.getData().stream()
+        List<Album> data = TopAlbumsHolder.topAlbums.getData().stream()
                 .skip(index)
-                .limit(Math.min(this.topAlbums.getTotal() - index, limit))
+                .limit(Math.min(TopAlbumsHolder.topAlbums.getTotal() - index, limit))
                 .collect(Collectors.toList());
-        return new Albums().setData(data).setTotal(this.topAlbums.getTotal());
+        return new Albums().setData(data).setTotal(TopAlbumsHolder.topAlbums.getTotal());
     }
 
 }

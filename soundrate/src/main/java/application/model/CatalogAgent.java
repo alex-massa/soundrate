@@ -119,8 +119,8 @@ public class CatalogAgent {
     }
 
     public Genre getAlbumGenre(@NotNull final Album album) {
-        Genres albumGenres = album.getGenres().getAsNullIfNoData();
-        return albumGenres == null ? null : albumGenres.getData().get(0);
+        Genres albumGenres = album.getGenres();
+        return albumGenres == null || albumGenres.isEmpty() ? null : albumGenres.getData().get(0);
     }
 
     public List<Review> getAlbumReviews(@NotNull final Album album) {
@@ -219,7 +219,8 @@ public class CatalogAgent {
     @Cacheable(type = "artistAlbums")
     public Albums getArtistAlbums(@NotNull final Artist artist) {
         try {
-            return this.client.getArtistAlbums(artist.getId(), 0, Integer.MAX_VALUE).getAsNullIfNoData();
+            Albums artistAlbums = this.client.getArtistAlbums(artist.getId(), 0, Integer.MAX_VALUE);
+            return artistAlbums == null || artistAlbums.isEmpty() ? null : artistAlbums;
         } catch (DeezerClientException e) {
             if (e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
                 return null;
@@ -232,7 +233,8 @@ public class CatalogAgent {
                                   @NotNull @Min(0) final Integer index,
                                   @NotNull @Min(1) final Integer limit) {
         try {
-            return this.client.getArtistAlbums(artist.getId(), index, limit).getAsNullIfNoData();
+            Albums artistAlbums = this.client.getArtistAlbums(artist.getId(), index, limit);
+            return artistAlbums == null || artistAlbums.isEmpty() ? null : artistAlbums;
         } catch (DeezerClientException e) {
             if (e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
                 return null;
@@ -262,37 +264,43 @@ public class CatalogAgent {
 
     @Cacheable(type = "topAlbums")
     public Albums getTopAlbums() {
-        return this.client.getTopAlbums(0, Integer.MAX_VALUE).getAsNullIfNoData();
+        Albums topAlbums = this.client.getTopAlbums(0, Integer.MAX_VALUE);
+        return topAlbums == null || topAlbums.isEmpty() ? null : topAlbums;
     }
 
     @Cacheable(type = "topAlbums")
     public Albums getTopAlbums(@NotNull @Min(0) final Integer index,
                                @NotNull @Min(1) final Integer limit) {
-        return this.client.getTopAlbums(index, limit).getAsNullIfNoData();
+        Albums topAlbums = this.client.getTopAlbums(index, limit);
+        return topAlbums == null || topAlbums.isEmpty() ? null : topAlbums;
     }
 
     public Albums searchAlbums(@NotNull final String query) {
         AlbumsSearch albumsSearch = new AlbumsSearch(query);
-        return this.client.getAlbumsSearchResults(albumsSearch, 0, Integer.MAX_VALUE).getAsNullIfNoData();
+        Albums searchResults = this.client.getAlbumsSearchResults(albumsSearch, 0, Integer.MAX_VALUE);
+        return searchResults == null || searchResults.isEmpty() ? null : searchResults;
     }
 
     public Albums searchAlbums(@NotNull final String query,
                                @NotNull @Min(0) final Integer index,
                                @NotNull @Min(1) final Integer limit) {
         AlbumsSearch albumsSearch = new AlbumsSearch(query);
-        return this.client.getAlbumsSearchResults(albumsSearch, index, limit).getAsNullIfNoData();
+        Albums searchResults = this.client.getAlbumsSearchResults(albumsSearch, index, limit);
+        return searchResults == null || searchResults.isEmpty() ? null : searchResults;
     }
 
     public Artists searchArtists(@NotNull final String query) {
         ArtistsSearch artistsSearch = new ArtistsSearch(query);
-        return this.client.getArtistsSearchResults(artistsSearch, 0, Integer.MAX_VALUE).getAsNullIfNoData();
+        Artists searchResults = this.client.getArtistsSearchResults(artistsSearch, 0, Integer.MAX_VALUE);
+        return searchResults == null || searchResults.isEmpty() ? null : searchResults;
     }
 
     public Artists searchArtists(@NotNull final String query,
                                  @NotNull @Min(0) final Integer index,
                                  @NotNull @Min(1) final Integer limit) {
         ArtistsSearch artistsSearch = new ArtistsSearch(query);
-        return this.client.getArtistsSearchResults(artistsSearch, index, limit).getAsNullIfNoData();
+        Artists searchResults = this.client.getArtistsSearchResults(artistsSearch, index, limit);
+        return searchResults == null || searchResults.isEmpty() ? null : searchResults;
     }
 
 }

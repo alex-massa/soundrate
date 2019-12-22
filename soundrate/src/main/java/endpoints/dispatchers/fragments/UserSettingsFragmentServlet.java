@@ -1,4 +1,4 @@
-package servlets.dispatchers.fragments;
+package endpoints.dispatchers.fragments;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

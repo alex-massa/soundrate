@@ -1,4 +1,4 @@
-package servlets.dispatchers.pages;
+package endpoints.dispatchers.pages;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

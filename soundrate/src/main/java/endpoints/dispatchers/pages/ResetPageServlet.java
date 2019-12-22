@@ -1,4 +1,4 @@
-package servlets.dispatchers.pages;
+package endpoints.dispatchers.pages;
 
 import application.entities.User;
 import application.model.UsersAgent;

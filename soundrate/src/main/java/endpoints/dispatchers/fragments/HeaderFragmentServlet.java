@@ -1,4 +1,4 @@
-package servlets.dispatchers.fragments;
+package endpoints.dispatchers.fragments;
 
 import application.entities.User;
 

@@ -1,4 +1,4 @@
-package servlets.dispatchers.pages;
+package endpoints.dispatchers.pages;
 
 import application.entities.BacklogEntry;
 import application.entities.User;

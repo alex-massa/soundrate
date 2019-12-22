@@ -21,23 +21,23 @@ import java.util.stream.Collectors;
 @Singleton
 public class ArtistAlbumsHolder {
 
-    private final Map<Artist, Optional<Albums>> artistAlbumsMap = new ConcurrentHashMap<>();
+    private static final Map<Artist, Optional<Albums>> artistAlbumsMap = new ConcurrentHashMap<>();
 
     @Inject
     private CatalogAgent catalogAgent;
 
     @Schedule(hour = "*", minute = "*/30", persistent = false)
     private void clearCache() {
-        this.artistAlbumsMap.clear();
+        ArtistAlbumsHolder.artistAlbumsMap.clear();
     }
 
     @Lock(LockType.READ)
     public Albums getArtistAlbums(@NotNull final Artist artist) {
-        Optional<Albums> optionalArtistAlbums = this.artistAlbumsMap.get(artist);
+        Optional<Albums> optionalArtistAlbums = ArtistAlbumsHolder.artistAlbumsMap.get(artist);
         if (optionalArtistAlbums != null)
             return optionalArtistAlbums.orElse(null);
         Albums artistAlbums = this.catalogAgent.getArtistAlbums(artist);
-        this.artistAlbumsMap.put(artist, artistAlbums == null ? Optional.empty() : Optional.of(artistAlbums));
+        ArtistAlbumsHolder.artistAlbumsMap.put(artist, artistAlbums == null ? Optional.empty() : Optional.of(artistAlbums));
         return artistAlbums;
     }
 

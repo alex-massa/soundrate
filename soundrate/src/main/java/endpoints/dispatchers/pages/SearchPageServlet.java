@@ -1,4 +1,4 @@
-package servlets.dispatchers.pages;
+package endpoints.dispatchers.pages;
 
 import application.model.CatalogAgent;
 import deezer.model.Album;

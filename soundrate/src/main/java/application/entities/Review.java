@@ -31,7 +31,7 @@ public class Review implements Serializable {
     @NotNull(message = "{review.reviewedAlbumId.NotNull}")
     private Long reviewedAlbumId;
     @Column(name = "content", nullable = false, length = Review.MAX_CONTENT_LENGTH)
-    @NotNull(message = "{review.content.NotNull}")
+    @NotBlank(message = "{review.content.NotBlank}")
     @Size(min = Review.MIN_CONTENT_LENGTH, max = Review.MAX_CONTENT_LENGTH, message = "{review.content.Size}")
     private String content;
     @Column(name = "rating", nullable = false)

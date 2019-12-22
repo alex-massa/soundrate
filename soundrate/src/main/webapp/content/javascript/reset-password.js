@@ -9,7 +9,7 @@ window.addEventListener('load', () => {
         let password = $(resetPasswordForm).form('get value', 'password');
         $.ajax({
             method: 'post',
-            url: 'reset-password',
+            url: 'reset-user-password',
             data: {token: token, password: password},
             beforeSend: xhr => {
                 resetPasswordButton.disabled = true;

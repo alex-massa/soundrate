@@ -3,7 +3,10 @@ package application.cache;
 import application.model.CatalogAgent;
 import deezer.model.Artist;
 
-import javax.ejb.*;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
@@ -11,7 +14,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
-@Startup
 public class ArtistsHolder {
 
     private final Map<Long, Optional<Artist>> artistsMap = new ConcurrentHashMap<>();

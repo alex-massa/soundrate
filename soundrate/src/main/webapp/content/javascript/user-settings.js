@@ -28,7 +28,7 @@ window.addEventListener('load', () => {
         let currentPassword = $(updateEmailForm).form('get value', 'current-password');
         $.ajax({
             method: 'post',
-            url: 'update-email',
+            url: 'update-user-email',
             data: {username: username, cpassword: currentPassword, nemail: newEmail},
             beforeSend: xhr => {
                 updateEmailButton.disabled = true;
@@ -54,7 +54,7 @@ window.addEventListener('load', () => {
         let currentPassword = $(updatePasswordForm).form('get value', 'current-password');
         $.ajax({
             method: 'post',
-            url: 'update-password',
+            url: 'update-user-password',
             data: {username: username, cpassword: currentPassword, npassword: newPassword},
             beforeSend: xhr => {
                 updatePasswordButton.disabled = true;

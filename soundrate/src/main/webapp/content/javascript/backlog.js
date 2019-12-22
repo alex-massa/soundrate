@@ -18,13 +18,14 @@ function isAlbumInUserBacklog(user, album) {
     let username = user.dataset.user;
     let albumId = album.dataset.album;
     $.ajax({
-        url: 'is-album-in-user-backlog',
+        url: 'get-backlog-entry',
         method: 'get',
         data: {user: username, album: albumId}
     })
     .done(data => {
+        let backlogEntry = JSON.parse(data);
         let button = album.querySelector('[data-backlog]');
-        button.dataset.backlog = data;
+        button.dataset.backlog = JSON.stringify(Boolean(backlogEntry));
         applyVisualChangesToToggleInBacklogButton(album);
     })
     .fail(xhr => {
@@ -40,7 +41,7 @@ function attachClickEventToToggleInBacklogButton(user, album) {
         let albumId = album.dataset.album;
         $.ajax({
             method: 'post',
-            url: 'update-user-backlog',
+            url: 'update-backlog',
             data: {user: username, album: albumId}
         })
         .done(() => {

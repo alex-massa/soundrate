@@ -18,13 +18,13 @@ function isReviewReportedByUser(reporter, review) {
     let reviewedAlbumId = review.dataset.album;
     $.ajax({
         method: 'get',
-        url: 'is-review-reported-by-user',
+        url: 'get-report',
         data: {reporter: reporterUsername, reviewer: reviewerUsername, album: reviewedAlbumId}
     })
     .done(data => {
-        let reported = JSON.parse(data);
+        let report = JSON.parse(data);
         let button = review.querySelector('[data-report]');
-        button.disabled = reported;
+        button.disabled = Boolean(report);
     })
     .fail(xhr => {
         let errorMessage = xhr.responseText || 'An unknown error occurred, please try again';

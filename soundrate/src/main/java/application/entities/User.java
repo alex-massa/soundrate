@@ -2,6 +2,7 @@ package application.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.io.Serializable;
@@ -18,18 +19,20 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 1;
 
+    public static final String PASSWORD_PATTERN = "^(?=(.*\\d){2})[0-9a-zA-Z]{8,72}$";
+
     public enum Role {USER, MODERATOR, ADMINISTRATOR}
 
     @Id
     @Column(name = "username")
-    @NotNull(message = "{user.username.NotNull}")
+    @NotBlank(message = "{user.username.NotBlank}")
     private String username;
     @Column(unique = true, nullable = false)
-    @NotNull(message = "{user.email.NotNull}")
+    @NotBlank(message = "{user.email.NotBlank}")
     @Email(message = "{user.email.Email}")
     private String email;
     @Column(name = "password", nullable = false)
-    @NotNull(message = "{user.password.NotNull}")
+    @NotBlank(message = "{user.password.NotBlank}")
     private String password;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "signUpDate", nullable = false)
@@ -40,7 +43,7 @@ public class User implements Serializable {
     private String picture;
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
-    @NotNull
+    @NotNull(message = "{user.role.NotNull}")
     private User.Role role;
 
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

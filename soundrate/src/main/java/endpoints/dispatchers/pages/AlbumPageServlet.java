@@ -1,4 +1,4 @@
-package servlets.dispatchers.pages;
+package endpoints.dispatchers.pages;
 
 import application.entities.Review;
 import application.entities.User;
