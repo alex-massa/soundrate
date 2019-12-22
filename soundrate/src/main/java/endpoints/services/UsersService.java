@@ -27,6 +27,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Date;
@@ -38,8 +39,6 @@ public class UsersService {
 
     private static final int RECOVER_ACCOUNT_TOKEN_TIME_TO_LIVE = 3 * 60 * 60 * 1000;
 
-    private JwtParser jwtParser;
-
     @Resource(mappedName = "mail/soundrateMailSession")
     private Session mailSession;
 
@@ -47,6 +46,8 @@ public class UsersService {
     private UsersAgent usersAgent;
     @Inject
     private Validator validator;
+
+    private JwtParser jwtParser;
 
     @PostConstruct
     private void init() {
@@ -156,7 +157,8 @@ public class UsersService {
     @Path("/recover-user-account")
     @POST
     public Response recoverUserAccount(@FormParam("email") @NotBlank @Email final String email,
-                                       @Context final HttpServletRequest request) {
+                                       @Context final HttpServletRequest request,
+                                       @Context final UriInfo uriInfo) {
         final User sessionUser = (User) request.getSession().getAttribute("user");
         if (sessionUser != null)
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -171,14 +173,7 @@ public class UsersService {
                 .setExpiration(new Date(System.currentTimeMillis() + UsersService.RECOVER_ACCOUNT_TOKEN_TIME_TO_LIVE))
                 .signWith(SignatureAlgorithm.HS256, user.getPassword().getBytes(StandardCharsets.UTF_8))
                 .compact();
-        final String passwordRecoveryUrl = request.getScheme() + "://" +
-                request.getServerName() +
-                ("http".equals(request.getScheme()) && request.getServerPort() == 80
-                        || "https".equals(request.getScheme()) && request.getServerPort() == 443
-                        ? ""
-                        : ":" + request.getServerPort()) +
-                request.getRequestURI().substring(0, request.getRequestURI().lastIndexOf('/') + 1) + "reset" +
-                "?token=" + token;
+        final String passwordRecoveryUrl = uriInfo.getBaseUri() + "reset?token=" + token;
         final ResourceBundle emailTemplateBundle = ResourceBundle.getBundle("i18n/templates/email", request.getLocale());
         final MimeMessage message = new MimeMessage(this.mailSession);
         try {

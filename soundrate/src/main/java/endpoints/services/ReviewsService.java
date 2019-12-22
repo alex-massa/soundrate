@@ -50,7 +50,7 @@ public class ReviewsService {
     public Response getReviewVote(@QueryParam("voter") @NotBlank final String voterUsername,
                                   @QueryParam("reviewer") @NotBlank final String reviewerUsername,
                                   @QueryParam("album") @NotNull final Long reviewedAlbumId,
-                                  @Context HttpServletRequest request) {
+                                  @Context final HttpServletRequest request) {
         final User voter = this.usersAgent.getUser(voterUsername);
         if (voter == null) {
             final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -72,7 +72,7 @@ public class ReviewsService {
     public Response getReviewReport(@QueryParam("reporter") @NotBlank final String reporterUsername,
                                     @QueryParam("reviewer") @NotBlank final String reviewerUsername,
                                     @QueryParam("album") @NotNull final Long reviewedAlbumId,
-                                    @Context HttpServletRequest request) {
+                                    @Context final HttpServletRequest request) {
         final User reporter = this.usersAgent.getUser(reporterUsername);
         if (reporter == null) {
             final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
