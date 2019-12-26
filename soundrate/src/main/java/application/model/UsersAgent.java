@@ -6,7 +6,9 @@ import application.model.exceptions.ConflictingEmailAddressException;
 import application.model.exceptions.ConflictingUsernameException;
 import application.model.exceptions.UserNotFoundException;
 
-import javax.ejb.Stateless;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -17,7 +19,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@Stateless
+@Singleton
+@Lock(LockType.READ)
 public class UsersAgent {
 
     @PersistenceContext
@@ -474,8 +477,8 @@ public class UsersAgent {
             getUserBacklogQuery.setFirstResult(index);
         if (limit != null)
             getUserBacklogQuery.setMaxResults(limit);
-        List<BacklogEntry> backlogEntries = getUserBacklogQuery.getResultList();
-        return backlogEntries == null || backlogEntries.isEmpty() ? null : backlogEntries;
+        List<BacklogEntry> userBacklog = getUserBacklogQuery.getResultList();
+        return userBacklog == null || userBacklog.isEmpty() ? null : userBacklog;
     }
 
     public Integer getUserBacklogLength(@NotNull User user) {

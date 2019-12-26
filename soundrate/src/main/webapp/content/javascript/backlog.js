@@ -20,10 +20,10 @@ function isAlbumInUserBacklog(user, album) {
     $.ajax({
         url: 'get-backlog-entry',
         method: 'get',
-        data: {user: username, album: albumId}
+        data: {user: username, album: albumId},
+        dataType: 'json'
     })
-    .done(data => {
-        let backlogEntry = JSON.parse(data);
+    .done(backlogEntry => {
         let button = album.querySelector('[data-backlog]');
         button.dataset.backlog = JSON.stringify(Boolean(backlogEntry));
         applyVisualChangesToToggleInBacklogButton(album);

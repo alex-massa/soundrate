@@ -1,10 +1,8 @@
 package application.entities;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,13 +17,15 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 1;
 
+    public static final String USERNAME_PATTERN = "^(?=.{3,36}$)[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9])*$";
     public static final String PASSWORD_PATTERN = "^(?=(.*\\d){2})[0-9a-zA-Z]{8,72}$";
 
     public enum Role {USER, MODERATOR, ADMINISTRATOR}
 
     @Id
     @Column(name = "username")
-    @NotBlank(message = "{user.username.NotBlank}")
+    @NotNull(message = "{user.username.NotBlank}")
+    @Pattern(regexp = User.USERNAME_PATTERN, message = "{user.username.pattern}")
     private String username;
     @Column(unique = true, nullable = false)
     @NotBlank(message = "{user.email.NotBlank}")
@@ -64,6 +64,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @JsonbTransient
     public String getEmail() {
         return this.email;
     }
@@ -73,6 +74,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @JsonbTransient
     public String getPassword() {
         return this.password;
     }
@@ -113,6 +115,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @JsonbTransient
     public List<Review> getReviews() {
         return this.reviews;
     }
@@ -122,6 +125,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @JsonbTransient
     public List<Vote> getVotes() {
         return this.votes;
     }
@@ -131,6 +135,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @JsonbTransient
     public List<BacklogEntry> getBacklog() {
         return this.backlog;
     }
@@ -140,6 +145,7 @@ public class User implements Serializable {
         return this;
     }
 
+    @JsonbTransient
     public List<Report> getReports() {
         return this.reports;
     }

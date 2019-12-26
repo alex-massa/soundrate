@@ -1,5 +1,6 @@
 package application.entities;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
@@ -30,6 +31,7 @@ public class BacklogEntry implements Serializable {
     @PastOrPresent(message = "{backlogEntry.insertionTime.PastOrPresent}")
     private Date insertionTime;
 
+    @JsonbTransient
     public User getUser() {
         return this.user;
     }

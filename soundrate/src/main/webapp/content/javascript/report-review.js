@@ -18,11 +18,11 @@ function isReviewReportedByUser(reporter, review) {
     let reviewedAlbumId = review.dataset.album;
     $.ajax({
         method: 'get',
-        url: 'get-report',
-        data: {reporter: reporterUsername, reviewer: reviewerUsername, album: reviewedAlbumId}
+        url: 'get-review-report',
+        data: {reporter: reporterUsername, reviewer: reviewerUsername, album: reviewedAlbumId},
+        dataType: 'json'
     })
-    .done(data => {
-        let report = JSON.parse(data);
+    .done(report => {
         let button = review.querySelector('[data-report]');
         button.disabled = Boolean(report);
     })

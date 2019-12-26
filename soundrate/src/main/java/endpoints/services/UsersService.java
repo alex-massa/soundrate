@@ -1,6 +1,6 @@
 package endpoints.services;
 
-import application.entities.User;
+import application.entities.*;
 import application.model.UsersAgent;
 import application.model.exceptions.ConflictingEmailAddressException;
 import application.model.exceptions.UserNotFoundException;
@@ -9,7 +9,12 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Singleton;
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -18,23 +23,23 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.validation.constraints.*;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+
 @Path("/")
+@Singleton
+@Lock(LockType.READ)
 public class UsersService {
 
     private static final int RECOVER_ACCOUNT_TOKEN_TIME_TO_LIVE = 3 * 60 * 60 * 1000;
@@ -48,9 +53,11 @@ public class UsersService {
     private Validator validator;
 
     private JwtParser jwtParser;
+    private Jsonb mapper;
 
     @PostConstruct
     private void init() {
+        this.mapper = JsonbBuilder.create();
         this.jwtParser = Jwts.parser();
         this.jwtParser.setSigningKeyResolver(new SigningKeyResolverAdapter() {
             @Override
@@ -60,6 +67,117 @@ public class UsersService {
                 return user == null ? null : user.getPassword().getBytes();
             }
         });
+    }
+
+    @Path("/get-user")
+    @GET
+    public Response getUser(@FormParam("username") @NotBlank final String username) {
+        final User user = this.usersAgent.getUser(username);
+        return Response.ok(this.mapper.toJson(user), MediaType.APPLICATION_JSON).build();
+    }
+
+    @Path("/get-user-reviews")
+    @GET
+    public Response getUserReviews(@FormParam("user") @NotBlank final String username,
+                                   @QueryParam("index") @Min(0) final Integer index,
+                                   @QueryParam("limit") @Min(1) final Integer limit,
+                                   @Context final HttpServletRequest request) {
+        final User user = this.usersAgent.getUser(username);
+        if (user == null) {
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                    .getString("error.userNotFound");
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        final List<Review> userReviews = this.usersAgent.getUserReviews(user, index, limit);
+        return Response.ok(this.mapper.toJson(userReviews), MediaType.APPLICATION_JSON).build();
+    }
+
+    @Path("/get-user-votes")
+    @GET
+    public Response getUserVotes(@FormParam("user") @NotBlank final String username,
+                                 @QueryParam("index") @Min(0) final Integer index,
+                                 @QueryParam("limit") @Min(1) final Integer limit,
+                                 @Context final HttpServletRequest request) {
+        final User user = this.usersAgent.getUser(username);
+        if (user == null) {
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                    .getString("error.userNotFound");
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        final List<Vote> userVotes = this.usersAgent.getUserVotes(user, index, limit);
+        return Response.ok(this.mapper.toJson(userVotes), MediaType.APPLICATION_JSON).build();
+    }
+
+    @Path("/get-user-upvotes")
+    @GET
+    public Response getUserUpvotes(@FormParam("user") @NotBlank final String username,
+                                   @QueryParam("index") @Min(0) final Integer index,
+                                   @QueryParam("limit") @Min(1) final Integer limit,
+                                   @Context final HttpServletRequest request) {
+        final User user = this.usersAgent.getUser(username);
+        if (user == null) {
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                    .getString("error.userNotFound");
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        final List<Vote> userUpvotes = this.usersAgent.getUserUpvotes(user, index, limit);
+        return Response.ok(this.mapper.toJson(userUpvotes), MediaType.APPLICATION_JSON).build();
+    }
+
+    @Path("/get-user-downvotes")
+    @GET
+    public Response getUserDownvotes(@FormParam("user") @NotBlank final String username,
+                                     @QueryParam("index") @Min(0) final Integer index,
+                                     @QueryParam("limit") @Min(1) final Integer limit,
+                                     @Context final HttpServletRequest request) {
+        final User user = this.usersAgent.getUser(username);
+        if (user == null) {
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                    .getString("error.userNotFound");
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        final List<Vote> userDownvotes = this.usersAgent.getUserDownvotes(user, index, limit);
+        return Response.ok(this.mapper.toJson(userDownvotes), MediaType.APPLICATION_JSON).build();
+    }
+
+    @Path("/get-user-reports")
+    @GET
+    public Response getUserReports(@FormParam("user") @NotBlank final String username,
+                                   @QueryParam("index") @Min(0) final Integer index,
+                                   @QueryParam("limit") @Min(1) final Integer limit,
+                                   @Context final HttpServletRequest request) {
+        final User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null
+                || !(sessionUser.getRole() == User.Role.MODERATOR || sessionUser.getRole() == User.Role.ADMINISTRATOR))
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        final User user = this.usersAgent.getUser(username);
+        if (user == null) {
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                    .getString("error.userNotFound");
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        final List<Report> userReports = this.usersAgent.getUserReports(user, index, limit);
+        return Response.ok(this.mapper.toJson(userReports), MediaType.APPLICATION_JSON).build();
+    }
+
+    @Path("/get-user-backlog")
+    @GET
+    public Response getUserBacklog(@FormParam("user") @NotBlank final String username,
+                                   @QueryParam("index") @Min(0) final Integer index,
+                                   @QueryParam("limit") @Min(1) final Integer limit,
+                                   @Context final HttpServletRequest request) {
+        final User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null
+                || !(sessionUser.getRole() == User.Role.MODERATOR || sessionUser.getRole() == User.Role.ADMINISTRATOR))
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        final User user = this.usersAgent.getUser(username);
+        if (user == null) {
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                    .getString("error.userNotFound");
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        final List<BacklogEntry> userBacklog = this.usersAgent.getUserBacklog(user, index, limit);
+        return Response.ok(this.mapper.toJson(userBacklog), MediaType.APPLICATION_JSON).build();
     }
 
     @Path("/update-user-email")

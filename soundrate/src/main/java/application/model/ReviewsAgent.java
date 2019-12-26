@@ -3,7 +3,9 @@ package application.model;
 import application.entities.*;
 import application.model.exceptions.*;
 
-import javax.ejb.Stateless;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -13,7 +15,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@Stateless
+@Singleton
+@Lock(LockType.READ)
 public class ReviewsAgent {
 
     @PersistenceContext

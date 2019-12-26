@@ -15,7 +15,9 @@ import deezer.model.data.Genres;
 import deezer.model.search.AlbumsSearch;
 import deezer.model.search.ArtistsSearch;
 
-import javax.ejb.Stateless;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -26,7 +28,8 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.OptionalDouble;
 
-@Stateless
+@Singleton
+@Lock(LockType.READ)
 public class CatalogAgent {
 
     @PersistenceContext
@@ -227,6 +230,7 @@ public class CatalogAgent {
             throw e;
         }
     }
+
 
     @Cacheable(type = "artistAlbums")
     public Albums getArtistAlbums(@NotNull final Artist artist,

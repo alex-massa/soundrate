@@ -18,10 +18,10 @@ window.addEventListener('load', () => {
         },
         columns: [
             {render: (data, type, row) =>
-                    $('<a/>', {href: `review?reviewer=${row["reviewer"].username}&album=${row["reviewedAlbumId"]}`})
+                    $('<a/>', {href: `review?reviewer=${row["reviewerUsername"]}&album=${row["reviewedAlbumId"]}`})
                         .append($('<i/>', {class: 'ui external icon'})).prop('outerHTML')
             },
-            {data: 'reviewer.username'},
+            {data: 'reviewerUsername'},
             {data: 'reviewedAlbumId'},
             {data: 'rating'},
             {data: 'publicationDate'}
@@ -98,22 +98,23 @@ function setReportedReviewsTableContent(reportedReviews) {
 }
 
 function getReportedReviews() {
-    let reportedReviews;
+    let reviews;
     $.ajax({
         cache: false,
         method: 'get',
         url: 'get-reported-reviews',
-        async: false
+        async: false,
+        dataType: 'json'
     })
-    .done(data => reportedReviews = JSON.parse(data))
+    .done(reportedReviews => reviews = reportedReviews)
     .fail(xhr => {
         throw xhr.responseText || 'An unknown error occurred, please try again'
     });
-    return reportedReviews;
+    return reviews;
 }
 
 function deleteReview(review) {
-    let reviewerUsername = review.reviewer.username;
+    let reviewerUsername = review.reviewerUsername;
     let reviewedAlbumId = review.reviewedAlbumId;
     $.ajax({
         method: 'post',
@@ -127,7 +128,7 @@ function deleteReview(review) {
 }
 
 function deleteReviewReports(review) {
-    let reviewerUsername = review.reviewer.username;
+    let reviewerUsername = review.reviewerUsername;
     let reviewedAlbumId = review.reviewedAlbumId;
     $.ajax({
         method: 'post',

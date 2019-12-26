@@ -22,10 +22,10 @@ function getReviewVoteValue(voter, review) {
     $.ajax({
         method: 'get',
         url: 'get-review-vote',
-        data: {voter: voterUsername, reviewer: reviewerUsername, album: reviewedAlbumId}
+        data: {voter: voterUsername, reviewer: reviewerUsername, album: reviewedAlbumId},
+        dataType: 'json'
     })
-    .done(data => {
-        let vote = JSON.parse(data);
+    .done(vote => {
         let voteValue = !vote ? null : vote.value;
         applyReviewButtonsVisualChanges(review, voteValue);
         setReviewVoteValue(review, voteValue);

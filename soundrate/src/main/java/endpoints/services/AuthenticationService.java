@@ -7,6 +7,9 @@ import application.model.exceptions.ConflictingUsernameException;
 import application.util.AvatarGenerator;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Singleton;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -26,6 +29,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 @Path("/")
+@Singleton
+@Lock(LockType.READ)
 public class AuthenticationService {
 
     private static final int DEFAULT_AVATAR_SIZE = 600;
@@ -68,7 +73,7 @@ public class AuthenticationService {
 
     @Path("/sign-up")
     @POST
-    public Response signUp(@FormParam("username") @NotBlank final String username,
+    public Response signUp(@FormParam("username") @NotNull @Pattern(regexp = User.USERNAME_PATTERN) final String username,
                            @FormParam("email") @NotBlank @Email final String email,
                            @FormParam("password") @NotNull @Pattern(regexp = User.PASSWORD_PATTERN) final String password,
                            @Context final HttpServletRequest request) {

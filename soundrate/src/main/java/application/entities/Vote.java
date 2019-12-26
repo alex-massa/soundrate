@@ -1,5 +1,6 @@
 package application.entities;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -30,6 +31,7 @@ public class Vote implements Serializable {
     @NotNull(message = "{vote.value.NotNull}")
     private Integer value;
 
+    @JsonbTransient
     public User getVoter() {
         return this.voter;
     }
@@ -39,6 +41,7 @@ public class Vote implements Serializable {
         return this;
     }
 
+    @JsonbTransient
     public Review getReview() {
         return this.review;
     }

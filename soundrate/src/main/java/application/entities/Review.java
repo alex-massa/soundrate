@@ -1,5 +1,6 @@
 package application.entities;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
@@ -50,6 +51,7 @@ public class Review implements Serializable {
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Report> reports;
 
+    @JsonbTransient
     public User getReviewer() {
         return this.reviewer;
     }
@@ -95,6 +97,7 @@ public class Review implements Serializable {
         return this;
     }
 
+    @JsonbTransient
     public List<Vote> getVotes() {
         return this.votes;
     }
@@ -104,6 +107,7 @@ public class Review implements Serializable {
         return this;
     }
 
+    @JsonbTransient
     public List<Report> getReports() {
         return this.reports;
     }

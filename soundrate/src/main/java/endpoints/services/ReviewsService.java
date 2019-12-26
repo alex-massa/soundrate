@@ -11,6 +11,9 @@ import application.model.exceptions.*;
 import deezer.model.Album;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Singleton;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
@@ -20,6 +23,7 @@ import javax.validation.Validator;
 import javax.validation.constraints.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +31,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 @Path("/")
+@Singleton
+@Lock(LockType.READ)
 public class ReviewsService {
 
     @Inject
@@ -43,6 +49,14 @@ public class ReviewsService {
     @PostConstruct
     private void init() {
         this.mapper = JsonbBuilder.create();
+    }
+
+    @Path("/get-review")
+    @GET
+    public Response getReview(@QueryParam("reviewer") @NotBlank final String reviewerUsername,
+                              @QueryParam("album") @NotNull final Long reviewedAlbumId) {
+        final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
+        return Response.ok(this.mapper.toJson(review), MediaType.APPLICATION_JSON).build();
     }
 
     @Path("/get-review-vote")
@@ -63,11 +77,62 @@ public class ReviewsService {
                     .getString("error.reviewNotFound");
             return Response.status(Response.Status.NOT_FOUND).entity(response).build();
         }
-        final Vote vote = this.reviewsAgent.getVote(voterUsername, reviewerUsername, reviewedAlbumId);
-        return Response.ok(this.mapper.toJson(vote)).build();
+        final Vote reviewVote = this.reviewsAgent.getVote(voterUsername, reviewerUsername, reviewedAlbumId);
+        return Response.ok(this.mapper.toJson(reviewVote), MediaType.APPLICATION_JSON).build();
     }
 
-    @Path("/get-report")
+    @Path("/get-review-votes")
+    @GET
+    public Response getReviewVotes(@QueryParam("reviewer") @NotNull final String reviewerUsername,
+                                   @QueryParam("album") @NotNull final Long reviewedAlbumId,
+                                   @QueryParam("index") @Min(0) final Integer index,
+                                   @QueryParam("limit") @Min(1) final Integer limit,
+                                   @Context final HttpServletRequest request) {
+        final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
+        if (review == null) {
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                    .getString("error.reviewNotFound");
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        final List<Vote> reviewVotes = this.reviewsAgent.getReviewVotes(review, index, limit);
+        return Response.ok(this.mapper.toJson(reviewVotes), MediaType.APPLICATION_JSON).build();
+    }
+
+    @Path("/get-review-votes")
+    @GET
+    public Response getReviewUpvotes(@QueryParam("reviewer") @NotNull final String reviewerUsername,
+                                     @QueryParam("album") @NotNull final Long reviewedAlbumId,
+                                     @QueryParam("index") @Min(0) final Integer index,
+                                     @QueryParam("limit") @Min(1) final Integer limit,
+                                     @Context final HttpServletRequest request) {
+        final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
+        if (review == null) {
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                    .getString("error.reviewNotFound");
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        final List<Vote> reviewUpvotes = this.reviewsAgent.getReviewUpvotes(review, index, limit);
+        return Response.ok(this.mapper.toJson(reviewUpvotes), MediaType.APPLICATION_JSON).build();
+    }
+
+    @Path("/get-review-votes")
+    @GET
+    public Response getReviewDownvotes(@QueryParam("reviewer") @NotNull final String reviewerUsername,
+                                       @QueryParam("album") @NotNull final Long reviewedAlbumId,
+                                       @QueryParam("index") @Min(0) final Integer index,
+                                       @QueryParam("limit") @Min(1) final Integer limit,
+                                       @Context final HttpServletRequest request) {
+        final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
+        if (review == null) {
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                    .getString("error.reviewNotFound");
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        final List<Vote> reviewDownvotes = this.reviewsAgent.getReviewDownvotes(review, index, limit);
+        return Response.ok(this.mapper.toJson(reviewDownvotes), MediaType.APPLICATION_JSON).build();
+    }
+
+    @Path("/get-review-report")
     @GET
     public Response getReviewReport(@QueryParam("reporter") @NotBlank final String reporterUsername,
                                     @QueryParam("reviewer") @NotBlank final String reviewerUsername,
@@ -81,12 +146,29 @@ public class ReviewsService {
         }
         final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
         if (review == null) {
-            final String responsePhrase = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                     .getString("error.reviewNotFound");
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
         }
-        final Report report = this.reviewsAgent.getReport(reporterUsername, reviewerUsername, reviewedAlbumId);
-        return Response.ok(this.mapper.toJson(report)).build();
+        final Report reviewReport = this.reviewsAgent.getReport(reporterUsername, reviewerUsername, reviewedAlbumId);
+        return Response.ok(this.mapper.toJson(reviewReport), MediaType.APPLICATION_JSON).build();
+    }
+
+    @Path("/get-review-reports")
+    @GET
+    public Response getReviewReports(@QueryParam("reviewer") @NotBlank final String reviewerUsername,
+                                     @QueryParam("album") @NotNull final Long reviewedAlbumId,
+                                     @QueryParam("index") @Min(0) final Integer index,
+                                     @QueryParam("limit") @Min(1) final Integer limit,
+                                     @Context final HttpServletRequest request) {
+        final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
+        if (review == null) {
+            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
+                    .getString("error.reviewNotFound");
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+        }
+        final List<Report> reviewReports = this.reviewsAgent.getReviewReports(review, index, limit);
+        return Response.ok(this.mapper.toJson(reviewReports), MediaType.APPLICATION_JSON).build();
     }
 
     @Path("/get-reported-reviews")
@@ -101,7 +183,7 @@ public class ReviewsService {
         if (isModerator == null || !isModerator)
             return Response.status(Response.Status.UNAUTHORIZED).build();
         final List<Review> reportedReviews = this.reviewsAgent.getReportedReviews(index, limit);
-        return Response.ok(this.mapper.toJson(reportedReviews)).build();
+        return Response.ok(this.mapper.toJson(reportedReviews), MediaType.APPLICATION_JSON).build();
     }
 
     @Path("/publish-review")
@@ -242,11 +324,11 @@ public class ReviewsService {
         } catch (ConflictingVoteException e) {
             final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                     .getString("error.conflictingVote");
-            return Response.status(Response.Status.CONFLICT).build();
+            return Response.status(Response.Status.CONFLICT).entity(response).build();
         } catch (VoteNotFoundException e) {
             final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                     .getString("error.voteNotFound");
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
         }
         return Response.ok().build();
     }
@@ -280,12 +362,12 @@ public class ReviewsService {
             return Response.status(Response.Status.BAD_REQUEST).build();
         try {
             this.reviewsAgent.createReport(report);
-            return Response.ok().build();
         } catch (ConflictingReportException e) {
             final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                     .getString("error.conflictingReport");
             return Response.status(Response.Status.CONFLICT).entity(response).build();
         }
+        return Response.ok().build();
     }
 
     @Path("/delete-review-reports")

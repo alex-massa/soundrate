@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @WebListener
 public class AuthenticatedUsersSessionsUpdater implements HttpSessionListener, HttpSessionAttributeListener {
 
-    private static Map<String, Map<String, HttpSession>> authenticatedUsersSessions = new ConcurrentHashMap<>();
+    private static final Map<String, Map<String, HttpSession>> authenticatedUsersSessions = new ConcurrentHashMap<>();
 
     private void updateUserSession(@Observes @UserUpdated(type = "updated") User user) {
         Map<String, HttpSession> authenticatedUserSessions =
