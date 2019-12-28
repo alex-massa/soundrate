@@ -30,8 +30,8 @@ public class UsersAgent {
         return this.getUsers(null, null);
     }
 
-    public List<User> getUsers(@Min(0) Integer index,
-                               @Min(1) Integer limit) {
+    public List<User> getUsers(@Min(0) final Integer index,
+                               @Min(1) final Integer limit) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<User> query = builder.createQuery(User.class);
         Root<User> user = query.from(User.class);
@@ -184,6 +184,10 @@ public class UsersAgent {
 
         TypedQuery<Vote> getUserVotesQuery = this.entityManager.createQuery(query)
                 .setParameter(voterUsernameParameter, user.getUsername());
+        if (index != null)
+            getUserVotesQuery.setFirstResult(index);
+        if (limit != null)
+            getUserVotesQuery.setMaxResults(limit);
         List<Vote> userVotes = getUserVotesQuery.getResultList();
         return userVotes == null || userVotes.isEmpty() ? null : userVotes;
     }
@@ -252,11 +256,15 @@ public class UsersAgent {
 
         TypedQuery<Vote> getUserUpvotesQuery = this.entityManager.createQuery(query)
                 .setParameter(voterUsernameParameter, user.getUsername());
+        if (index != null)
+            getUserUpvotesQuery.setFirstResult(index);
+        if (limit != null)
+            getUserUpvotesQuery.setMaxResults(limit);
         List<Vote> userUpvotes = getUserUpvotesQuery.getResultList();
         return userUpvotes == null || userUpvotes.isEmpty() ? null : userUpvotes;
     }
 
-    public @NotNull Integer getUserNumberOfUpvotes(@NotNull User user) {
+    public @NotNull Integer getUserNumberOfUpvotes(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Vote> vote = query.from(Vote.class);
@@ -332,11 +340,15 @@ public class UsersAgent {
 
         TypedQuery<Vote> getUserDownvotesQuery = this.entityManager.createQuery(query)
                 .setParameter(voterUsernameParameter, user.getUsername());
+        if (index != null)
+            getUserDownvotesQuery.setFirstResult(index);
+        if (limit != null)
+            getUserDownvotesQuery.setMaxResults(limit);
         List<Vote> userDownvotes = getUserDownvotesQuery.getResultList();
         return userDownvotes == null || userDownvotes.isEmpty() ? null : userDownvotes;
     }
 
-    public @NotNull Integer getUserNumberOfDownvotes(@NotNull User user) {
+    public @NotNull Integer getUserNumberOfDownvotes(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Vote> vote = query.from(Vote.class);
@@ -386,13 +398,13 @@ public class UsersAgent {
                 .executeUpdate();
     }
 
-    public List<Report> getUserReports(@NotNull User user) {
+    public List<Report> getUserReports(@NotNull final User user) {
         return this.getUserReports(user, null, null);
     }
 
-    public List<Report> getUserReports(@NotNull User user,
-                                       @Min(0) Integer index,
-                                       @Min(1) Integer limit) {
+    public List<Report> getUserReports(@NotNull final User user,
+                                       @Min(0) final Integer index,
+                                       @Min(1) final Integer limit) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Report> query = builder.createQuery(Report.class);
         Root<Report> report = query.from(Report.class);
@@ -414,7 +426,7 @@ public class UsersAgent {
         return userReports == null || userReports.isEmpty() ? null : userReports;
     }
 
-    public @NotNull Integer getUserNumberOfReports(@NotNull User user) {
+    public @NotNull Integer getUserNumberOfReports(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Report> report = query.from(Report.class);
@@ -436,7 +448,7 @@ public class UsersAgent {
         }
     }
 
-    public void deleteUserReports(@NotNull User user) {
+    public void deleteUserReports(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaDelete<Report> delete = builder.createCriteriaDelete(Report.class);
         Root<Report> report = delete.from(Report.class);
@@ -481,7 +493,7 @@ public class UsersAgent {
         return userBacklog == null || userBacklog.isEmpty() ? null : userBacklog;
     }
 
-    public Integer getUserBacklogLength(@NotNull User user) {
+    public Integer getUserBacklogLength(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<BacklogEntry> backlogEntry = query.from(BacklogEntry.class);
@@ -503,7 +515,7 @@ public class UsersAgent {
         }
     }
 
-    public void clearUserBacklog(@NotNull User user) {
+    public void clearUserBacklog(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaDelete<BacklogEntry> delete = builder.createCriteriaDelete(BacklogEntry.class);
         Root<BacklogEntry> backlogEntry = delete.from(BacklogEntry.class);

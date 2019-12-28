@@ -98,7 +98,7 @@ public class ReviewsService {
         return Response.ok(this.mapper.toJson(reviewVotes), MediaType.APPLICATION_JSON).build();
     }
 
-    @Path("/get-review-votes")
+    @Path("/get-review-upvotes")
     @GET
     public Response getReviewUpvotes(@QueryParam("reviewer") @NotNull final String reviewerUsername,
                                      @QueryParam("album") @NotNull final Long reviewedAlbumId,
@@ -115,7 +115,7 @@ public class ReviewsService {
         return Response.ok(this.mapper.toJson(reviewUpvotes), MediaType.APPLICATION_JSON).build();
     }
 
-    @Path("/get-review-votes")
+    @Path("/get-review-downvotes")
     @GET
     public Response getReviewDownvotes(@QueryParam("reviewer") @NotNull final String reviewerUsername,
                                        @QueryParam("album") @NotNull final Long reviewedAlbumId,
@@ -138,6 +138,10 @@ public class ReviewsService {
                                     @QueryParam("reviewer") @NotBlank final String reviewerUsername,
                                     @QueryParam("album") @NotNull final Long reviewedAlbumId,
                                     @Context final HttpServletRequest request) {
+        final User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null
+                || !(sessionUser.getRole() == User.Role.MODERATOR || sessionUser.getRole() == User.Role.ADMINISTRATOR))
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         final User reporter = this.usersAgent.getUser(reporterUsername);
         if (reporter == null) {
             final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -161,6 +165,10 @@ public class ReviewsService {
                                      @QueryParam("index") @Min(0) final Integer index,
                                      @QueryParam("limit") @Min(1) final Integer limit,
                                      @Context final HttpServletRequest request) {
+        final User sessionUser = (User) request.getSession().getAttribute("user");
+        if (sessionUser == null
+                || !(sessionUser.getRole() == User.Role.MODERATOR || sessionUser.getRole() == User.Role.ADMINISTRATOR))
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         final Review review = this.reviewsAgent.getReview(reviewerUsername, reviewedAlbumId);
         if (review == null) {
             final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())

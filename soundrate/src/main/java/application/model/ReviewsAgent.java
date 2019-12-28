@@ -26,8 +26,8 @@ public class ReviewsAgent {
         return this.getReviews(null, null);
     }
 
-    public List<Review> getReviews(@Min(0) Integer index,
-                                   @Min(1) Integer limit) {
+    public List<Review> getReviews(@Min(0) final Integer index,
+                                   @Min(1) final Integer limit) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Review> query = builder.createQuery(Review.class);
         Root<Review> review = query.from(Review.class);
@@ -73,8 +73,8 @@ public class ReviewsAgent {
         return this.getVotes(null, null);
     }
 
-    public List<Vote> getVotes(@Min(0) Integer index,
-                               @Min(1) Integer limit) {
+    public List<Vote> getVotes(@Min(0) final Integer index,
+                               @Min(1) final Integer limit) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Vote> query = builder.createQuery(Vote.class);
         Root<Vote> vote = query.from(Vote.class);
@@ -124,8 +124,8 @@ public class ReviewsAgent {
         return this.getReports(null, null);
     }
 
-    public List<Report> getReports(@Min(0) Integer index,
-                                   @Min(1) Integer limit) {
+    public List<Report> getReports(@Min(0) final Integer index,
+                                   @Min(1) final Integer limit) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Report> query = builder.createQuery(Report.class);
         Root<Report> report = query.from(Report.class);
@@ -237,7 +237,7 @@ public class ReviewsAgent {
         }
     }
 
-    public void deleteReviewVotes(@NotNull Review review) {
+    public void deleteReviewVotes(@NotNull final Review review) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaDelete<Vote> delete = builder.createCriteriaDelete(Vote.class);
         Root<Vote> vote = delete.from(Vote.class);
@@ -333,7 +333,7 @@ public class ReviewsAgent {
         }
     }
 
-    public void deleteReviewUpvotes(@NotNull Review review) {
+    public void deleteReviewUpvotes(@NotNull final Review review) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaDelete<Vote> delete = builder.createCriteriaDelete(Vote.class);
         Root<Vote> vote = delete.from(Vote.class);
@@ -431,7 +431,7 @@ public class ReviewsAgent {
         }
     }
 
-    public void deleteReviewDownvotes(@NotNull Review review) {
+    public void deleteReviewDownvotes(@NotNull final Review review) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaDelete<Vote> delete = builder.createCriteriaDelete(Vote.class);
         Root<Vote> vote = delete.from(Vote.class);

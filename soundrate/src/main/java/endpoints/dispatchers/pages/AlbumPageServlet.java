@@ -43,7 +43,9 @@ public class AlbumPageServlet extends HttpServlet {
         else {
             request.setAttribute("album", album);
 
-            final Genre albumGenre = this.catalogAgent.getAlbumGenre(album);
+            final Genre albumGenre = album.getGenres() == null || album.getGenres().isEmpty()
+                    ? null
+                    : album.getGenres().getData().get(0);
             request.setAttribute("albumGenre", albumGenre);
 
             final List<Review> albumReviews = this.catalogAgent.getAlbumReviews(album);

@@ -41,9 +41,9 @@ public class TopAlbumsHolder {
             return null;
         List<Album> data = TopAlbumsHolder.topAlbums.getData().stream()
                 .skip(index)
-                .limit(Math.min(TopAlbumsHolder.topAlbums.getTotal() - index, limit))
+                .limit(limit)
                 .collect(Collectors.toList());
-        return new Albums().setData(data).setTotal(TopAlbumsHolder.topAlbums.getTotal());
+        return data.isEmpty() ? null : new Albums().setData(data).setTotal(TopAlbumsHolder.topAlbums.getTotal());
     }
 
 }

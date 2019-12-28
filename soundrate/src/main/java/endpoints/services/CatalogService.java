@@ -57,20 +57,7 @@ public class CatalogService {
     @Path("/get-backlog-entry")
     @GET
     public Response getBacklogEntry(@QueryParam("user") @NotBlank final String username,
-                                    @QueryParam("album") @NotNull final Long albumId,
-                                    @Context final HttpServletRequest request) {
-        final User user = this.usersAgent.getUser(username);
-        if (user == null) {
-            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
-                    .getString("error.userNotFound");
-            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
-        }
-        final Album album = this.catalogAgent.getAlbum(albumId);
-        if (album == null) {
-            final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
-                    .getString("error.albumNotFound");
-            return Response.status(Response.Status.NOT_FOUND).entity(response).build();
-        }
+                                    @QueryParam("album") @NotNull final Long albumId) {
         final BacklogEntry backlogEntry = this.catalogAgent.getBacklogEntry(username, albumId);
         return Response.ok(this.mapper.toJson(backlogEntry), MediaType.APPLICATION_JSON).build();
     }

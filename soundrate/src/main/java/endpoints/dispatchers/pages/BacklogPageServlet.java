@@ -50,7 +50,9 @@ public class BacklogPageServlet extends HttpServlet {
 
                 final Map<Album, Genre> albumGenreMap = userBacklogAlbums.stream().collect(
                         HashMap::new,
-                        (map, album) -> map.put(album, this.catalogAgent.getAlbumGenre(album)),
+                        (map, album) -> map.put(album, album.getGenres().isEmpty()
+                                ? null
+                                : album.getGenres().getData().get(0)),
                         HashMap::putAll
                 );
                 request.setAttribute("albumGenreMap", albumGenreMap);

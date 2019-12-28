@@ -71,14 +71,14 @@ public class UsersService {
 
     @Path("/get-user")
     @GET
-    public Response getUser(@FormParam("username") @NotBlank final String username) {
+    public Response getUser(@QueryParam("username") @NotBlank final String username) {
         final User user = this.usersAgent.getUser(username);
         return Response.ok(this.mapper.toJson(user), MediaType.APPLICATION_JSON).build();
     }
 
     @Path("/get-user-reviews")
     @GET
-    public Response getUserReviews(@FormParam("user") @NotBlank final String username,
+    public Response getUserReviews(@QueryParam("user") @NotBlank final String username,
                                    @QueryParam("index") @Min(0) final Integer index,
                                    @QueryParam("limit") @Min(1) final Integer limit,
                                    @Context final HttpServletRequest request) {
@@ -94,7 +94,7 @@ public class UsersService {
 
     @Path("/get-user-votes")
     @GET
-    public Response getUserVotes(@FormParam("user") @NotBlank final String username,
+    public Response getUserVotes(@QueryParam("user") @NotBlank final String username,
                                  @QueryParam("index") @Min(0) final Integer index,
                                  @QueryParam("limit") @Min(1) final Integer limit,
                                  @Context final HttpServletRequest request) {
@@ -110,7 +110,7 @@ public class UsersService {
 
     @Path("/get-user-upvotes")
     @GET
-    public Response getUserUpvotes(@FormParam("user") @NotBlank final String username,
+    public Response getUserUpvotes(@QueryParam("user") @NotBlank final String username,
                                    @QueryParam("index") @Min(0) final Integer index,
                                    @QueryParam("limit") @Min(1) final Integer limit,
                                    @Context final HttpServletRequest request) {
@@ -126,7 +126,7 @@ public class UsersService {
 
     @Path("/get-user-downvotes")
     @GET
-    public Response getUserDownvotes(@FormParam("user") @NotBlank final String username,
+    public Response getUserDownvotes(@QueryParam("user") @NotBlank final String username,
                                      @QueryParam("index") @Min(0) final Integer index,
                                      @QueryParam("limit") @Min(1) final Integer limit,
                                      @Context final HttpServletRequest request) {
@@ -142,7 +142,7 @@ public class UsersService {
 
     @Path("/get-user-reports")
     @GET
-    public Response getUserReports(@FormParam("user") @NotBlank final String username,
+    public Response getUserReports(@QueryParam("user") @NotBlank final String username,
                                    @QueryParam("index") @Min(0) final Integer index,
                                    @QueryParam("limit") @Min(1) final Integer limit,
                                    @Context final HttpServletRequest request) {
@@ -162,14 +162,10 @@ public class UsersService {
 
     @Path("/get-user-backlog")
     @GET
-    public Response getUserBacklog(@FormParam("user") @NotBlank final String username,
+    public Response getUserBacklog(@QueryParam("user") @NotBlank final String username,
                                    @QueryParam("index") @Min(0) final Integer index,
                                    @QueryParam("limit") @Min(1) final Integer limit,
                                    @Context final HttpServletRequest request) {
-        final User sessionUser = (User) request.getSession().getAttribute("user");
-        if (sessionUser == null
-                || !(sessionUser.getRole() == User.Role.MODERATOR || sessionUser.getRole() == User.Role.ADMINISTRATOR))
-            return Response.status(Response.Status.UNAUTHORIZED).build();
         final User user = this.usersAgent.getUser(username);
         if (user == null) {
             final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
@@ -308,7 +304,7 @@ public class UsersService {
 
     @Path("/reset-user-password")
     @POST
-    public Response resetUserPassword(@FormParam("token") final String token,
+    public Response resetUserPassword(@FormParam("token") @NotBlank final String token,
                                       @FormParam("password") @NotNull @Pattern(regexp = User.PASSWORD_PATTERN)
                                       final String password,
                                       @Context final HttpServletRequest request) {

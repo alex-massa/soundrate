@@ -11,10 +11,10 @@ import deezer.model.Artist;
 import deezer.model.Genre;
 import deezer.model.data.Albums;
 import deezer.model.data.Artists;
-import deezer.model.data.Genres;
 import deezer.model.search.AlbumsSearch;
 import deezer.model.search.ArtistsSearch;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Singleton;
@@ -37,7 +37,8 @@ public class CatalogAgent {
 
     private DeezerClient client;
 
-    public CatalogAgent() {
+    @PostConstruct
+    private void init() {
         this.client = new DeezerClient();
     }
 
@@ -45,8 +46,8 @@ public class CatalogAgent {
         return this.getBacklogEntries(null, null);
     }
 
-    public List<BacklogEntry> getBacklogEntries(@Min(0) Integer index,
-                                                @Min(1) Integer limit) {
+    public List<BacklogEntry> getBacklogEntries(@Min(0) final Integer index,
+                                                @Min(1) final Integer limit) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<BacklogEntry> query = builder.createQuery(BacklogEntry.class);
         Root<BacklogEntry> backlogEntry = query.from(BacklogEntry.class);
@@ -68,13 +69,13 @@ public class CatalogAgent {
         return this.entityManager.find(BacklogEntry.class, backlogEntryId);
     }
 
-    public void createBacklogEntry(@NotNull BacklogEntry backlogEntry) {
+    public void createBacklogEntry(@NotNull final BacklogEntry backlogEntry) {
         if (this.getBacklogEntry(backlogEntry.getUsername(), backlogEntry.getAlbumId()) != null)
             throw new ConflictingBacklogEntryException();
         this.entityManager.persist(backlogEntry);
     }
 
-    public void updateBacklogEntry(@NotNull BacklogEntry backlogEntry) {
+    public void updateBacklogEntry(@NotNull final BacklogEntry backlogEntry) {
         if (this.getBacklogEntry(backlogEntry.getUsername(), backlogEntry.getAlbumId()) == null)
             throw new BacklogEntryNotFoundException();
         this.entityManager.merge(backlogEntry);
@@ -119,11 +120,6 @@ public class CatalogAgent {
                 return null;
             throw e;
         }
-    }
-
-    public Genre getAlbumGenre(@NotNull final Album album) {
-        Genres albumGenres = album.getGenres();
-        return albumGenres == null || albumGenres.isEmpty() ? null : albumGenres.getData().get(0);
     }
 
     public List<Review> getAlbumReviews(@NotNull final Album album) {
