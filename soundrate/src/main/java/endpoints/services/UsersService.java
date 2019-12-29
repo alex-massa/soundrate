@@ -4,7 +4,9 @@ import application.entities.*;
 import application.model.UsersAgent;
 import application.model.exceptions.ConflictingEmailAddressException;
 import application.model.exceptions.UserNotFoundException;
-import io.jsonwebtoken.*;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.annotation.PostConstruct;
@@ -52,21 +54,11 @@ public class UsersService {
     @Inject
     private Validator validator;
 
-    private JwtParser jwtParser;
     private Jsonb mapper;
 
     @PostConstruct
     private void init() {
         this.mapper = JsonbBuilder.create();
-        this.jwtParser = Jwts.parser();
-        this.jwtParser.setSigningKeyResolver(new SigningKeyResolverAdapter() {
-            @Override
-            public byte[] resolveSigningKeyBytes(JwsHeader header, Claims claims) {
-                final String username = claims.getSubject();
-                final User user = UsersService.this.usersAgent.getUser(username);
-                return user == null ? null : user.getPassword().getBytes();
-            }
-        });
     }
 
     @Path("/get-user")
@@ -282,11 +274,10 @@ public class UsersService {
                     .getString("error.emailNotLinked");
             return Response.status(Response.Status.NOT_FOUND).entity(response).build();
         }
-        final String token = Jwts.builder()
-                .setSubject(user.getUsername())
-                .setExpiration(new Date(System.currentTimeMillis() + UsersService.RECOVER_ACCOUNT_TOKEN_TIME_TO_LIVE))
-                .signWith(SignatureAlgorithm.HS256, user.getPassword().getBytes(StandardCharsets.UTF_8))
-                .compact();
+        final String token = JWT.create()
+                .withSubject(user.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + UsersService.RECOVER_ACCOUNT_TOKEN_TIME_TO_LIVE))
+                .sign(Algorithm.HMAC256(user.getPassword().getBytes(StandardCharsets.UTF_8)));
         final String passwordRecoveryUrl = uriInfo.getBaseUri() + "reset?token=" + token;
         final ResourceBundle emailTemplateBundle = ResourceBundle.getBundle("i18n/templates/email", request.getLocale());
         final MimeMessage message = new MimeMessage(this.mailSession);
@@ -312,16 +303,17 @@ public class UsersService {
         if (sessionUser != null)
             return Response.status(Response.Status.UNAUTHORIZED).build();
         try {
-            final String username = this.jwtParser.parseClaimsJws(token).getBody().getSubject();
-            final User user = this.usersAgent.getUser(username);
+            final String username = JWT.decode(token).getSubject();
+            final User user = username == null || username.isEmpty() ? null : this.usersAgent.getUser(username);
             if (user == null)
                 throw new UserNotFoundException();
+            JWT.require(Algorithm.HMAC256(user.getPassword())).build().verify(token);
             user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
             final Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
             if (!constraintViolations.isEmpty())
                 return Response.status(Response.Status.BAD_REQUEST).build();
             this.usersAgent.updateUser(user);
-        } catch (JwtException e) {
+        } catch (JWTVerificationException e) {
             final String response = ResourceBundle.getBundle("i18n/strings/strings", request.getLocale())
                     .getString("error.invalidLink");
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();

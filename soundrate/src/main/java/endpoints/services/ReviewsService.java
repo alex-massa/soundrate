@@ -140,7 +140,9 @@ public class ReviewsService {
                                     @Context final HttpServletRequest request) {
         final User sessionUser = (User) request.getSession().getAttribute("user");
         if (sessionUser == null
-                || !(sessionUser.getRole() == User.Role.MODERATOR || sessionUser.getRole() == User.Role.ADMINISTRATOR))
+                || !(sessionUser.getUsername().equals(reporterUsername)
+                || sessionUser.getRole() == User.Role.MODERATOR
+                || sessionUser.getRole() == User.Role.ADMINISTRATOR))
             return Response.status(Response.Status.UNAUTHORIZED).build();
         final User reporter = this.usersAgent.getUser(reporterUsername);
         if (reporter == null) {

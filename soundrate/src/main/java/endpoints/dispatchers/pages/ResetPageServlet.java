@@ -2,7 +2,10 @@ package endpoints.dispatchers.pages;
 
 import application.entities.User;
 import application.model.UsersAgent;
-import io.jsonwebtoken.*;
+import application.model.exceptions.UserNotFoundException;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -17,23 +20,8 @@ public class ResetPageServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private JwtParser jwtParser;
-
     @Inject
     private UsersAgent usersAgent;
-
-    @Override
-    public void init() {
-        this.jwtParser = Jwts.parser();
-        this.jwtParser.setSigningKeyResolver(new SigningKeyResolverAdapter() {
-            @Override
-            public byte[] resolveSigningKeyBytes(JwsHeader header, Claims claims) {
-                final String username = claims.getSubject();
-                final User user = ResetPageServlet.this.usersAgent.getUser(username);
-                return user == null ? null : user.getPassword().getBytes();
-            }
-        });
-    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -45,9 +33,13 @@ public class ResetPageServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         else {
             try {
-                this.jwtParser.parse(token);
+                final String username = JWT.decode(token).getSubject();
+                final User user = username == null || username.isEmpty() ? null : this.usersAgent.getUser(username);
+                if (user == null)
+                    throw new UserNotFoundException();
+                JWT.require(Algorithm.HMAC256(user.getPassword())).build().verify(token);
                 request.setAttribute("token", token);
-            } catch (JwtException e) {
+            } catch (UserNotFoundException | JWTVerificationException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             }
         }
