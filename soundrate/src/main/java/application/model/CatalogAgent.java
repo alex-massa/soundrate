@@ -94,7 +94,7 @@ public class CatalogAgent {
         try {
             return this.client.getAlbum(albumId);
         } catch (DeezerClientException e) {
-            if (e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
+            if (e.getErrorCode() != null && e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
                 return null;
             throw e;
         }
@@ -105,7 +105,7 @@ public class CatalogAgent {
         try {
             return this.client.getArtist(artistId);
         } catch (DeezerClientException e) {
-            if (e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
+            if (e.getErrorCode() != null && e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
                 return null;
             throw e;
         }
@@ -116,7 +116,7 @@ public class CatalogAgent {
         try {
             return this.client.getGenre(genreId);
         } catch (DeezerClientException e) {
-            if (e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
+            if (e.getErrorCode() != null && e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
                 return null;
             throw e;
         }
@@ -221,7 +221,7 @@ public class CatalogAgent {
             Albums artistAlbums = this.client.getArtistAlbums(artist.getId(), 0, Integer.MAX_VALUE);
             return artistAlbums == null || artistAlbums.isEmpty() ? null : artistAlbums;
         } catch (DeezerClientException e) {
-            if (e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
+            if (e.getErrorCode() != null && e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
                 return null;
             throw e;
         }
@@ -236,7 +236,7 @@ public class CatalogAgent {
             Albums artistAlbums = this.client.getArtistAlbums(artist.getId(), index, limit);
             return artistAlbums == null || artistAlbums.isEmpty() ? null : artistAlbums;
         } catch (DeezerClientException e) {
-            if (e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
+            if (e.getErrorCode() != null && e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
                 return null;
             throw e;
         }

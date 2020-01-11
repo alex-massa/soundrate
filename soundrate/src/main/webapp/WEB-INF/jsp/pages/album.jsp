@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setBundle basename="i18n/strings/strings"/>
 <c:set var="context" value="${pageContext.request.contextPath}"/>
@@ -13,9 +14,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2962FF">
     <link rel="icon" href="${context}/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.js"></script>
     <script src="${context}/content/javascript/toast.js"></script>
     <script src="${context}/content/javascript/sign-user.js"></script>
     <script src="${context}/content/javascript/search.js"></script>
@@ -154,12 +155,13 @@
                                     <c:if test="${review.reviewer.username eq sessionUser.username}">
                                         <c:set var="userReview" value="${review}"/>
                                         <c:set var="userReviewScore" value="${reviewScoreMap[review]}"/>
+                                        <c:set var="userReviewContent" value="${review.content}"/>
                                     </c:if>
                                 </c:forEach>
                                 <form class="ui form ${not empty userReview ? 'hidden' : ''}" id="review-form">
                                     <div class="required field">
                                         <label><fmt:message key="tooltip.publishReview"/></label>
-                                        <textarea name="content" id="review-content">${not empty userReview ? userReview.content : ""}</textarea>
+                                        <textarea name="content" id="review-content">${fn:escapeXml(userReviewContent)}</textarea>
                                     </div>
                                     <div class="required field">
                                         <label><fmt:message key="tooltip.rating"/></label>
@@ -204,7 +206,7 @@
                                         </div>
                                     </div>
                                     <div class="content">
-                                        <p data-user-review-content>${not empty userReview ? userReview.content : ""}</p>
+                                        <p data-user-review-content>${fn:escapeXml(userReviewContent)}</p>
                                     </div>
                                     <div class="extra content">
                                         <button class="ui positive small basic labeled icon button"
@@ -276,7 +278,7 @@
                                                     </a>
                                                 </div>
                                                 <div class="content">
-                                                    <p>${review.content}</p>
+                                                    <p>${fn:escapeXml(review.content)}</p>
                                                 </div>
                                                 <c:choose>
                                                     <c:when test="${empty sessionUser}">

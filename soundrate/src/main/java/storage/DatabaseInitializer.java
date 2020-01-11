@@ -10,6 +10,7 @@ import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -40,15 +41,15 @@ public class DatabaseInitializer {
         final long begin = System.nanoTime();
 
         logger.info("Generating users...");
-        List<User> users = UsersDataGenerator.generateUsers();
+        List<User> users = DataGenerator.generateUsers();
         logger.info("Generating reviews...");
-        List<Review> reviews = UsersDataGenerator.generateReviews(users);
+        List<Review> reviews = DataGenerator.generateReviews(users);
         logger.info("Generating votes...");
-        List<Vote> votes = UsersDataGenerator.generateVotes(users, reviews);
+        List<Vote> votes = DataGenerator.generateVotes(users, reviews);
         logger.info("Generating backlog entries...");
-        List<BacklogEntry> backlogEntries = UsersDataGenerator.generateBacklogEntries(users);
+        List<BacklogEntry> backlogEntries = DataGenerator.generateBacklogEntries(users);
         logger.info("Generating reviews reports...");
-        List<Report> reports = UsersDataGenerator.generateReports(users, reviews);
+        List<Report> reports = DataGenerator.generateReports(users, reviews);
 
         logger.info(String.format("Persisting %d users...", users.size()));
         users.forEach(this.entityManager::persist);
@@ -67,7 +68,7 @@ public class DatabaseInitializer {
     }
 
     private void generateDefaultUsers() {
-        final User[] defaultUsers = {
+        final List<User> defaultUsers = Arrays.asList(
                 new User()
                         .setUsername("admin")
                         .setEmail("admin@soundrate.com")
@@ -89,11 +90,12 @@ public class DatabaseInitializer {
                         .setSignUpDate(new Date())
                         .setPicture(AvatarGenerator.randomAvatar("user", 600, AvatarGenerator.Format.SVG))
                         .setRole(User.Role.USER)
-        };
+        );
 
-        for (User user : defaultUsers)
+        defaultUsers.forEach(user -> {
             if (this.entityManager.find(User.class, user.getUsername()) == null)
                 this.entityManager.persist(user);
+        });
     }
 
 }

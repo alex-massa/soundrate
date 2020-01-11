@@ -1,11 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <!--
-    <Resource id="jdbc/soundrateDataSource" type="javax.sql.DataSource">
-        JdbcDriver = com.mysql.cj.jdbc.Driver
-        JdbcUrl = jdbc:mysql://localhost:3306/soundrate
-        UserName = root
-    </Resource>
-    -->
     <Resource id="jdbc/soundrateDataSource" type="javax.sql.DataSource">
         JdbcDriver = org.hsqldb.jdbcDriver
         JdbcUrl = jdbc:hsqldb:file:soundrate
