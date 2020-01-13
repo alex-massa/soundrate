@@ -367,7 +367,7 @@ public class ReviewsService {
         final Report report = new Report()
                 .setReporter(reporter)
                 .setReview(review);
-        final Set<ConstraintViolation<Review>> constraintViolations = this.validator.validate(review);
+        final Set<ConstraintViolation<Report>> constraintViolations = this.validator.validate(report);
         if (!constraintViolations.isEmpty())
             return Response.status(Response.Status.BAD_REQUEST).build();
         try {
