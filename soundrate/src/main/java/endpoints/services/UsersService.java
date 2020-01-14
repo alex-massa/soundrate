@@ -186,6 +186,8 @@ public class UsersService {
                         .getString("error.invalidCredentials");
                 return Response.status(Response.Status.UNAUTHORIZED).entity(response).build();
             }
+            if (this.usersAgent.getUserByEmail(newEmail) != null)
+                throw new ConflictingEmailAddressException();
             user.setEmail(newEmail);
             final Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
             if (!constraintViolations.isEmpty())

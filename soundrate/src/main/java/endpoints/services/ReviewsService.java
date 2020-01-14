@@ -350,7 +350,7 @@ public class ReviewsService {
                                  @FormParam("album") @NotNull final Long reviewedAlbumId,
                                  @Context final HttpServletRequest request) {
         final User sessionUser = (User) request.getSession().getAttribute("user");
-        if (sessionUser == null)
+        if (sessionUser == null || !sessionUser.getUsername().equals(reporterUsername))
             return Response.status(Response.Status.UNAUTHORIZED).build();
         final User reporter = this.usersAgent.getUser(reporterUsername);
         if (reporter == null) {
