@@ -524,7 +524,7 @@ public class ReviewsAgent {
     }
 
     public void deleteReviewReports(@NotNull final Review review) {
-        /*  @fixme `Criteria API bulk deletion not yet supported by OpenJPA (current version 3.1.0 in TomEE 8.0.0)`
+        /*  @fixme `Criteria API bulk deletion not yet supported by OpenJPA (current version 3.1.2 in TomEE 8.0.4)`
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaDelete<Report> delete = builder.createCriteriaDelete(Report.class);
         Root<Report> report = delete.from(Report.class);

@@ -201,7 +201,7 @@
                                                 </div>
                                             </div>
                                             <div class="content">
-                                                <p>${fn:escapeXml(reviewContent)}</p>
+                                                <p>${fn:escapeXml(review.content)}</p>
                                             </div>
                                             <c:choose>
                                                 <c:when test="${empty sessionUser}">
