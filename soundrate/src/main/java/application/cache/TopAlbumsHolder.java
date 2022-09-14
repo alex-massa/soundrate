@@ -23,7 +23,7 @@ public class TopAlbumsHolder {
     @Inject
     private CatalogAgent catalogAgent;
 
-    // @fixme could fail at startup
+    // @fixme could fail at startup if disconnected or api offline
     @PostConstruct
     @Schedule(hour = "*", minute = "*/30", persistent = false)
     private void clearCache() {

@@ -29,7 +29,7 @@ public class DatabaseInitializer {
     private void initializeDatabase() throws IOException {
         Properties properties = new Properties();
         properties.load(this.getClass().getClassLoader().getResourceAsStream("application.properties"));
-        if (Boolean.parseBoolean(properties.getProperty("generateDataOnStartup")))
+        if (Boolean.parseBoolean(properties.getProperty("populateDatabase")))
             this.generateData();
         if (Boolean.parseBoolean(properties.getProperty("generateDefaultUsers")))
             this.generateDefaultUsers();

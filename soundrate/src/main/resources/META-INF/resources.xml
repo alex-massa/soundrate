@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+    <!--
     <Resource id="jdbc/soundrateDataSource" type="javax.sql.DataSource">
         JdbcDriver = org.hsqldb.jdbcDriver
         JdbcUrl = jdbc:hsqldb:file:soundrate
     </Resource>
+    -->
+    <Resource id="jdbc/soundrateDataSource" type="javax.sql.DataSource">
+        JdbcDriver = com.mysql.cj.jdbc.Driver
+        JdbcUrl = jdbc:mysql://${DATASOURCE_HOST}:3306/${DATASOURCE_DB}
+        UserName = ${DATASOURCE_USER}
+        Password = ${DATASOURCE_PASSWORD}
+    </Resource>
     <Resource id="mail/soundrateMailSession" type="javax.mail.Session">
         mail.transport.protocol=smtp
-        mail.smtp.host=smtp.gmail.com
-        mail.smtp.port=587
+        mail.smtp.host=${EMAIL_SMTP_HOST}
+        mail.smtp.port=${EMAIL_SMTP_PORT}
         mail.smtp.starttls.enable=true
         mail.smtp.auth=true
-        mail.smtp.user=soundrate.noreply@gmail.com
-        password=8z8RshFCpYeGjw
+        mail.smtp.user=${EMAIL_ADDRESS}
+        password=${EMAIL_PASSWORD}
     </Resource>
 </resources>

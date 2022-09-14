@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  app:
+    image: maven:alpine
+    container_name: soundrate-app
+    working_dir: /app
+    depends_on:
+      - storage
+    volumes:
+      - ./soundrate:/app
+    command: > 
+      sh -c "
+        apk add git &&
+        git clone https://github.com/alex-massa/deezer-api.git &&
+        mvn -f ./deezer-api/pom.xml &&
+        rm -rf ./deezer-api &&
+        mvn
+      "
+    ports:
+      - 8080:8080
+    networks: ["soundrate-net"]
+    environment:
+      DATASOURCE_USER: root
+      DATASOURCE_PASSWORD: secret
+      DATASOURCE_DB: soundrate
+      DATASOURCE_HOST: soundrate-storage
+
+  storage:
+    image: mysql:debian
+    container_name: soundrate-storage
+    restart: always
+    volumes:
+      - soundrate-db:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks: ["soundrate-net"] 
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: soundrate
+
+volumes:
+  soundrate-db:
+networks:
+  soundrate-net:

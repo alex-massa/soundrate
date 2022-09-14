@@ -38,13 +38,13 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-
 @Path("/")
 @Singleton
 @Lock(LockType.READ)
 public class UsersService {
 
-    private static final int RECOVER_ACCOUNT_TOKEN_TIME_TO_LIVE = 3 * 60 * 60 * 1000;
+    // 30 minutes
+    private static final int RECOVER_ACCOUNT_TOKEN_TIME_TO_LIVE = 30 * 60 * 1000;
 
     @Resource(mappedName = "mail/soundrateMailSession")
     private Session mailSession;

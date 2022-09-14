@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class AvatarGenerator {
 
-    private static final String PATTERN = "http://tinygraphs.com/%s/%s?theme=%s&numcolors=%s&size=%d&fmt=%s";
+    private static final String PATTERN = "https://www.tinygraphs.com/%s/%s?theme=%s&numcolors=%s&size=%d&fmt=%s";
 
     public enum Shape {
         SQUARES {
