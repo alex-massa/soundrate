@@ -91,30 +91,6 @@
         <defaultGoal>clean package verify tomee:run</defaultGoal>
         <plugins>
             <plugin>
-                <groupId>org.apache.tomee.maven</groupId>
-                <artifactId>tomee-maven-plugin</artifactId>
-                <version>${tomee.version}</version>
-                <configuration>
-                    <synchronization>
-                        <extensions>
-                            <extension>.class</extension>
-                            <extension>.jsp</extension>
-                            <extension>.html</extension>
-                            <extension>.js</extension>
-                            <extension>.css</extension>
-                        </extensions>
-                    </synchronization>
-                    <reloadOnUpdate>true</reloadOnUpdate>
-                    <path>/${project.artifactId}</path>
-                    <tomeeClassifier>webprofile</tomeeClassifier>
-                    <systemVariables>
-                        <openejb.system.apps>true</openejb.system.apps>
-                        <tomee.remote.support>true</tomee.remote.support>
-                        <tomee.serialization.class.blacklist>-</tomee.serialization.class.blacklist>
-                    </systemVariables>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
@@ -175,6 +151,30 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.tomee.maven</groupId>
+                <artifactId>tomee-maven-plugin</artifactId>
+                <version>${tomee.version}</version>
+                <configuration>
+                    <synchronization>
+                        <extensions>
+                            <extension>.class</extension>
+                            <extension>.jsp</extension>
+                            <extension>.html</extension>
+                            <extension>.js</extension>
+                            <extension>.css</extension>
+                        </extensions>
+                    </synchronization>
+                    <reloadOnUpdate>true</reloadOnUpdate>
+                    <path>/${project.artifactId}</path>
+                    <tomeeClassifier>webprofile</tomeeClassifier>
+                    <systemVariables>
+                        <openejb.system.apps>true</openejb.system.apps>
+                        <tomee.remote.support>true</tomee.remote.support>
+                        <tomee.serialization.class.blacklist>-</tomee.serialization.class.blacklist>
+                    </systemVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>

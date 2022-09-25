@@ -8,17 +8,17 @@
     -->
     <Resource id="jdbc/soundrateDataSource" type="javax.sql.DataSource">
         JdbcDriver = com.mysql.cj.jdbc.Driver
-        JdbcUrl = jdbc:mysql://${DATASOURCE_HOST}:3306/${DATASOURCE_DB}
+        JdbcUrl = jdbc:mysql://${DATASOURCE_HOST}:${DATASOURCE_PORT}/${DATASOURCE_DB}
         UserName = ${DATASOURCE_USER}
         Password = ${DATASOURCE_PASSWORD}
     </Resource>
     <Resource id="mail/soundrateMailSession" type="javax.mail.Session">
         mail.transport.protocol=smtp
-        mail.smtp.host=${EMAIL_SMTP_HOST}
-        mail.smtp.port=${EMAIL_SMTP_PORT}
-        mail.smtp.starttls.enable=true
-        mail.smtp.auth=true
-        mail.smtp.user=${EMAIL_ADDRESS}
-        password=${EMAIL_PASSWORD}
+        mail.smtp.host=${SMTP_HOST}
+        mail.smtp.port=${SMTP_PORT}
+        mail.smtp.starttls.enable=${SMTP_STARTTLS}
+        mail.smtp.auth=${SMTP_AUTH}
+        mail.smtp.user=${SMTP_EMAIL_ADDRESS}
+        password=${SMTP_EMAIL_PASSWORD}
     </Resource>
 </resources>
