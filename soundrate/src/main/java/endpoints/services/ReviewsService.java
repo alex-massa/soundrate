@@ -187,9 +187,9 @@ public class ReviewsService {
                                        @QueryParam("limit") @Min(1) final Integer limit,
                                        @Context final HttpServletRequest request) {
         final User sessionUser = (User) request.getSession().getAttribute("user");
-        final Boolean isModerator = sessionUser == null ?
-                null :
-                sessionUser.getRole() == User.Role.MODERATOR || sessionUser.getRole() == User.Role.ADMINISTRATOR;
+        final Boolean isModerator = sessionUser == null
+                ? null
+                : sessionUser.getRole() == User.Role.MODERATOR || sessionUser.getRole() == User.Role.ADMINISTRATOR;
         if (isModerator == null || !isModerator)
             return Response.status(Response.Status.UNAUTHORIZED).build();
         final List<Review> reportedReviews = this.reviewsAgent.getReportedReviews(index, limit);

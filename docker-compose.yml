@@ -1,51 +1,64 @@
 version: "3.9"
 
 services:
-  app:
-    image: maven:alpine
-    working_dir: /app
-    depends_on:
-      - storage
+  maven:
+    image: maven:3.8.6-eclipse-temurin-8-alpine
+    working_dir: /build
     volumes:
-      - ./soundrate:/app
-    ports:
-      - ${EXT_HTTP_PORT:-8080}:8080
-    networks: ["soundrate-network"]
+      - ./soundrate:/source
+      - soundrate-shared:/target
+      - maven-cache:/root/.m2
     command: >
       sh -c "
+        cp -r /source/. . &&
         apk add git &&
         git clone https://github.com/alex-massa/deezer-api.git &&
         mvn -f ./deezer-api/pom.xml &&
-        rm -rf ./deezer-api &&
-        mvn clean package verify tomee:run
+        mvn clean package verify &&
+        cp ./target/soundrate.war /target
       "
+
+  app:
+    image: tomee:8.0.13-alpine
+    depends_on:
+      - storage
+    volumes:
+      - soundrate-shared:/usr/local/tomee/webapps
+    ports:
+      - ${EXT_HTTP_PORT:-8080}:8080
+    networks:
+      - soundrate-network
     environment:
-      DATASOURCE_USER: ${DBMS_USER:-root}
-      DATASOURCE_PASSWORD: ${DBMS_PASSWORD:-secret}
+      DATASOURCE_USER: ${DBMS_USER}
+      DATASOURCE_PASSWORD: ${DBMS_PASSWORD}
       DATASOURCE_DB: ${DBMS_DB}
       DATASOURCE_HOST: ${DBMS_HOSTNAME}
       DATASOURCE_PORT: 3306
-      SMPT_HOST: ${SMTP_HOST}
-      SMPT_PORT: ${SMTP_PORT}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
       SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
-      SMPT_AUTH: ${SMTP_AUTH:-true}
+      SMTP_AUTH: ${SMTP_AUTH:-true}
       SMTP_EMAIL_ADDRESS: ${SMTP_EMAIL_ADDRESS}
-      SMTP_EMAIL_PASSWORD: ${SMTP_EMAIL_PASSWORD}
+
 
   storage:
-    image: mysql:debian
+    image: mysql:5.7.40-debian
     container_name: ${DBMS_HOSTNAME}
     volumes:
       - soundrate-db:/var/lib/mysql
     ports:
       - ${EXT_DBMS_PORT:-3306}:3306
-    networks: ["soundrate-network"]
+    networks:
+      - soundrate-network
     environment:
-      MYSQL_USER: ${DBMS_USER:-root}
-      MYSQL_PASSWORD: ${DBMS_PASSWORD:-secret}
+      MYSQL_RANDOM_ROOT_PASSWORD: true 
+      MYSQL_USER: ${DBMS_USER}
+      MYSQL_PASSWORD: ${DBMS_PASSWORD}
       MYSQL_DATABASE: ${DBMS_DB}
 
 volumes:
+  soundrate-shared:
   soundrate-db:
+  maven-cache:
 networks:
   soundrate-network:

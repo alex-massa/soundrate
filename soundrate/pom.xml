@@ -17,7 +17,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <jee.version>8.0.0</jee.version>
-        <tomee.version>8.0.12</tomee.version>
+        <tomee.version>8.0.13</tomee.version>
         <openjpa.version>3.2.2</openjpa.version>
     </properties>
 
@@ -43,9 +43,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
         </dependency>
         <dependency>
             <groupId>deezer-api</groupId>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>4.0.0</version>
+            <version>4.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.javafaker</groupId>
@@ -80,9 +80,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.30</version>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.31</version>
         </dependency>
     </dependencies>
 

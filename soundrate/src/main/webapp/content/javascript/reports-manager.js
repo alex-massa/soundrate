@@ -8,6 +8,7 @@ window.addEventListener('load', () => {
     if (!table)
         return;
 
+    // @todo add a column that displays the number of reports per review
     reportedReviewsTable = $(table).DataTable({
         paging: false,
         scrollY: 420,

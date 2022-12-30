@@ -33,9 +33,6 @@ import java.util.Set;
 @Lock(LockType.READ)
 public class AuthenticationService {
 
-    private static final int DEFAULT_AVATAR_SIZE = 600;
-    private static final AvatarGenerator.Format DEFAULT_AVATAR_FORMAT = AvatarGenerator.Format.SVG;
-
     @Inject
     private UsersAgent usersAgent;
     @Inject
@@ -86,8 +83,7 @@ public class AuthenticationService {
                 .setEmail(email)
                 .setPassword(BCrypt.hashpw(password, BCrypt.gensalt()))
                 .setSignUpDate(new Date())
-                .setPicture(AvatarGenerator.randomAvatar
-                        (username, AuthenticationService.DEFAULT_AVATAR_SIZE, AuthenticationService.DEFAULT_AVATAR_FORMAT))
+                .setPicture(AvatarGenerator.generateRandomAvatarUrl(username))
                 .setRole(User.Role.USER);
         final Set<ConstraintViolation<User>> constraintViolations = this.validator.validate(user);
         if (!constraintViolations.isEmpty())

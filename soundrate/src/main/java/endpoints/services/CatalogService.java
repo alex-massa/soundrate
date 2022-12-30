@@ -10,8 +10,6 @@ import application.model.exceptions.ConflictingBacklogEntryException;
 import deezer.model.Album;
 import deezer.model.Artist;
 import deezer.model.Genre;
-import deezer.model.data.Albums;
-import deezer.model.data.Artists;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Lock;
@@ -112,7 +110,7 @@ public class CatalogService {
                     .getString("error.albumNotFound");
             return Response.status(Response.Status.NOT_FOUND).entity(response).build();
         }
-        final Albums artistAlbums = this.catalogAgent
+        final List<Album> artistAlbums = this.catalogAgent
                 .getArtistAlbums(artist, index == null ? 0 : index, limit == null ? Integer.MAX_VALUE : limit);
         return Response.ok(this.mapper.toJson(artistAlbums), MediaType.APPLICATION_JSON).build();
     }
@@ -121,9 +119,9 @@ public class CatalogService {
     @GET
     public Response getTopAlbums(@QueryParam("index") @Min(0) final Integer index,
                                  @QueryParam("limit") @Min(1) final Integer limit) {
-        final Albums topAlbums = this.catalogAgent.getTopAlbums
+        final List<Album> topAlbums = this.catalogAgent.getTopAlbums
                 (index == null ? 0 : index, limit == null ? Integer.MAX_VALUE : limit);
-        return Response.ok(this.mapper.toJson(topAlbums == null ? null : topAlbums.getData()), MediaType.APPLICATION_JSON).build();
+        return Response.ok(this.mapper.toJson(topAlbums), MediaType.APPLICATION_JSON).build();
     }
 
     @Path("/search-albums")
@@ -131,9 +129,9 @@ public class CatalogService {
     public Response searchAlbums(@QueryParam("q") @NotBlank final String query,
                                  @QueryParam("index") @Min(0) final Integer index,
                                  @QueryParam("limit") @Min(1) final Integer limit) {
-        final Albums albums = this.catalogAgent.searchAlbums
+        final List<Album> albums = this.catalogAgent.searchAlbums
                 (query, index == null ? 0 : index, limit == null ? Integer.MAX_VALUE : limit);
-        return Response.ok(this.mapper.toJson(albums == null ? null : albums.getData()), MediaType.APPLICATION_JSON).build();
+        return Response.ok(this.mapper.toJson(albums), MediaType.APPLICATION_JSON).build();
     }
 
     @Path("/search-artists")
@@ -141,9 +139,9 @@ public class CatalogService {
     public Response searchArtists(@QueryParam("q") @NotBlank final String query,
                                   @QueryParam("index") @Min(0) final Integer index,
                                   @QueryParam("limit") @Min(1) final Integer limit) {
-        final Artists artists = this.catalogAgent.searchArtists
+        final List<Artist> artists = this.catalogAgent.searchArtists
                 (query, index == null ? 0 : index, limit == null ? Integer.MAX_VALUE : limit);
-        return Response.ok(this.mapper.toJson(artists == null ? null : artists.getData()), MediaType.APPLICATION_JSON).build();
+        return Response.ok(this.mapper.toJson(artists), MediaType.APPLICATION_JSON).build();
     }
 
     @Path("/update-backlog")

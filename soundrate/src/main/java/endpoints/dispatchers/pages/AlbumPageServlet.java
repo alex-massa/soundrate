@@ -7,7 +7,7 @@ import application.model.ReviewsAgent;
 import application.model.UsersAgent;
 import deezer.model.Album;
 import deezer.model.Genre;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +26,7 @@ public class AlbumPageServlet extends HttpServlet {
 
     @Inject
     private UsersAgent usersAgent;
+
     @Inject
     private ReviewsAgent reviewsAgent;
     @Inject
@@ -51,26 +51,18 @@ public class AlbumPageServlet extends HttpServlet {
             final List<Review> albumReviews = this.catalogAgent.getAlbumReviews(album);
             request.setAttribute("albumReviews", albumReviews);
 
-            final int albumNumberOfReviews = this.catalogAgent.getAlbumNumberOfReviews(album);
-            request.setAttribute("albumNumberOfReviews", albumNumberOfReviews);
+            final int albumReviewsCount = this.catalogAgent.getAlbumReviewsCount(album);
+            request.setAttribute("albumReviewsCount", albumReviewsCount);
 
             final Double albumAverageRating = this.catalogAgent.getAlbumAverageRating(album);
             request.setAttribute("albumAverageRating", albumAverageRating);
 
             if (albumReviews != null) {
-                final Map<Review, Integer> reviewScoreMap = albumReviews.stream().collect(
-                        HashMap::new,
-                        (map, review) -> map.put(review, this.reviewsAgent.getReviewScore(review)),
-                        HashMap::putAll
-                );
-                request.setAttribute("reviewScoreMap", reviewScoreMap);
+                final Map<Review, User> reviewersMap = this.usersAgent.getReviewers(albumReviews);
+                request.setAttribute("reviewersMap", reviewersMap);
 
-                final Map<Review, User> reviewerMap = albumReviews.stream().collect(
-                        HashMap::new,
-                        (map, review) -> map.put(review, this.usersAgent.getUser(review.getReviewerUsername())),
-                        HashMap::putAll
-                );
-                request.setAttribute("reviewerMap", reviewerMap);
+                final Map<Review, Integer> reviewsScoresMap = this.reviewsAgent.getReviewsScores(albumReviews);
+                request.setAttribute("reviewsScoresMap", reviewsScoresMap);
             }
         }
         request.getRequestDispatcher("/WEB-INF/jsp/pages/album.jsp").forward(request, response);

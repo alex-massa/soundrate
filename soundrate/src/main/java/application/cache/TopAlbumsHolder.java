@@ -2,7 +2,6 @@ package application.cache;
 
 import application.model.CatalogAgent;
 import deezer.model.Album;
-import deezer.model.data.Albums;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Lock;
@@ -18,12 +17,12 @@ import java.util.stream.Collectors;
 @Singleton
 public class TopAlbumsHolder {
 
-    private static Albums topAlbums;
+    private static List<Album> topAlbums;
 
     @Inject
     private CatalogAgent catalogAgent;
 
-    // @fixme could fail at startup if disconnected or api offline
+    // @fixme could fail at startup if disconnected or API offline
     @PostConstruct
     @Schedule(hour = "*", minute = "*/30", persistent = false)
     private void clearCache() {
@@ -31,19 +30,18 @@ public class TopAlbumsHolder {
     }
 
     @Lock(LockType.READ)
-    public Albums getTopAlbums() {
+    public List<Album> getTopAlbums() {
         return TopAlbumsHolder.topAlbums;
     }
 
     @Lock(LockType.READ)
-    public Albums getTopAlbums(@NotNull @Min(0) final Integer index, @NotNull @Min(1) final Integer limit) {
-        if (TopAlbumsHolder.topAlbums == null)
+    public List<Album> getTopAlbums(@NotNull @Min(0) final Integer index, @NotNull @Min(1) final Integer limit) {
+        if (TopAlbumsHolder.topAlbums == null || TopAlbumsHolder.topAlbums.isEmpty())
             return null;
-        List<Album> data = TopAlbumsHolder.topAlbums.getData().stream()
+        return TopAlbumsHolder.topAlbums.stream()
                 .skip(index)
                 .limit(limit)
                 .collect(Collectors.toList());
-        return data.isEmpty() ? null : new Albums().setData(data).setTotal(TopAlbumsHolder.topAlbums.getTotal());
     }
 
 }

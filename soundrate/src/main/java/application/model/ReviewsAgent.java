@@ -12,8 +12,11 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Singleton
 @Lock(LockType.READ)
@@ -207,7 +210,7 @@ public class ReviewsAgent {
         return reviewVotes == null || reviewVotes.isEmpty() ? null : reviewVotes;
     }
 
-    public @NotNull Integer getReviewNumberOfVotes(@NotNull final Review review) {
+    public @NotNull Integer getReviewVotesCount(@NotNull final Review review) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Vote> vote = query.from(Vote.class);
@@ -226,12 +229,12 @@ public class ReviewsAgent {
                         )
                 ));
 
-        TypedQuery<Long> getReviewNumberOfVotesQuery = this.entityManager.createQuery(query)
+        TypedQuery<Long> getReviewVotesCountQuery = this.entityManager.createQuery(query)
                 .setParameter(reviewerUsernameParameter, review.getReviewerUsername())
                 .setParameter(reviewedAlbumIdParameter, review.getReviewedAlbumId());
         try {
-            Long reviewNumberOfVotes = getReviewNumberOfVotesQuery.getSingleResult();
-            return reviewNumberOfVotes == null ? 0 : Math.toIntExact(reviewNumberOfVotes);
+            Long reviewVotesCount = getReviewVotesCountQuery.getSingleResult();
+            return reviewVotesCount == null ? 0 : Math.toIntExact(reviewVotesCount);
         } catch (NoResultException e) {
             return 0;
         }
@@ -299,7 +302,7 @@ public class ReviewsAgent {
         return reviewUpvotes == null || reviewUpvotes.isEmpty() ? null : reviewUpvotes;
     }
 
-    public @NotNull Integer getReviewNumberOfUpvotes(@NotNull final Review review) {
+    public @NotNull Integer getReviewUpvotesCount(@NotNull final Review review) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Vote> vote = query.from(Vote.class);
@@ -322,12 +325,12 @@ public class ReviewsAgent {
                         )
                 ));
 
-        TypedQuery<Long> getReviewNumberOfUpvotesQuery = this.entityManager.createQuery(query)
+        TypedQuery<Long> getReviewUpvotesCountQuery = this.entityManager.createQuery(query)
                 .setParameter(reviewerUsernameParameter, review.getReviewerUsername())
                 .setParameter(reviewedAlbumIdParameter, review.getReviewedAlbumId());
         try {
-            Long reviewNumberOfUpvotes = getReviewNumberOfUpvotesQuery.getSingleResult();
-            return reviewNumberOfUpvotes == null ? 0 : Math.toIntExact(reviewNumberOfUpvotes);
+            Long reviewUpvotesCount = getReviewUpvotesCountQuery.getSingleResult();
+            return reviewUpvotesCount == null ? 0 : Math.toIntExact(reviewUpvotesCount);
         } catch (NoResultException e) {
             return 0;
         }
@@ -397,7 +400,7 @@ public class ReviewsAgent {
         return reviewDownvotes == null || reviewDownvotes.isEmpty() ? null : reviewDownvotes;
     }
 
-    public @NotNull Integer getReviewNumberOfDownvotes(@NotNull final Review review) {
+    public @NotNull Integer getReviewDownvotesCount(@NotNull final Review review) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Vote> vote = query.from(Vote.class);
@@ -420,12 +423,12 @@ public class ReviewsAgent {
                         )
                 ));
 
-        TypedQuery<Long> getReviewNumberOfDownvotesQuery = this.entityManager.createQuery(query)
+        TypedQuery<Long> getReviewDownvotesCountQuery = this.entityManager.createQuery(query)
                 .setParameter(reviewerUsernameParameter, review.getReviewerUsername())
                 .setParameter(reviewedAlbumIdParameter, review.getReviewedAlbumId());
         try {
-            Long reviewNumberOfDownvotes = getReviewNumberOfDownvotesQuery.getSingleResult();
-            return reviewNumberOfDownvotes == null ? 0 : Math.toIntExact(reviewNumberOfDownvotes);
+            Long reviewDownvotesCount = getReviewDownvotesCountQuery.getSingleResult();
+            return reviewDownvotesCount == null ? 0 : Math.toIntExact(reviewDownvotesCount);
         } catch (NoResultException e) {
             return 0;
         }
@@ -493,7 +496,7 @@ public class ReviewsAgent {
         return reviewReports == null || reviewReports.isEmpty() ? null : reviewReports;
     }
 
-    public @NotNull Integer getReviewNumberOfReports(@NotNull final Review review) {
+    public @NotNull Integer getReviewReportsCount(@NotNull final Review review) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Report> report = query.from(Report.class);
@@ -512,19 +515,19 @@ public class ReviewsAgent {
                         )
                 ));
 
-        TypedQuery<Long> getReviewNumberOfReportsQuery = this.entityManager.createQuery(query)
+        TypedQuery<Long> getReviewReportsCountQuery = this.entityManager.createQuery(query)
                 .setParameter(reviewerUsernameParameter, review.getReviewer().getUsername())
                 .setParameter(reviewedAlbumIdParameter, review.getReviewedAlbumId());
         try {
-            Long reviewNumberOfReports = getReviewNumberOfReportsQuery.getSingleResult();
-            return reviewNumberOfReports == null ? 0 : Math.toIntExact(reviewNumberOfReports);
+            Long reviewReportsCount = getReviewReportsCountQuery.getSingleResult();
+            return reviewReportsCount == null ? 0 : Math.toIntExact(reviewReportsCount);
         } catch (NoResultException e) {
             return 0;
         }
     }
 
     public void deleteReviewReports(@NotNull final Review review) {
-        /*  @fixme `Criteria API bulk deletion not yet supported by OpenJPA (current version 3.2.2 in TomEE 8.0.12)`
+        /*  @fixme `Criteria API bulk deletion not yet implemented in OpenJPA (current version 3.2.2 in TomEE 8.0.13)`
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaDelete<Report> delete = builder.createCriteriaDelete(Report.class);
         Root<Report> report = delete.from(Report.class);
@@ -583,6 +586,14 @@ public class ReviewsAgent {
         } catch (NoResultException e) {
             return 0;
         }
+    }
+
+    public @NotEmpty Map<Review, Integer> getReviewsScores(@NotEmpty final List<Review> reviews) {
+        return reviews.stream().collect(
+                HashMap::new,
+                (map, review) -> map.put(review, this.getReviewScore(review)),
+                HashMap::putAll
+        );
     }
 
     public List<Review> getTopReviews() {

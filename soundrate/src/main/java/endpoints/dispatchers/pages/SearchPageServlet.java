@@ -2,8 +2,7 @@ package endpoints.dispatchers.pages;
 
 import application.model.CatalogAgent;
 import deezer.model.Album;
-import deezer.model.data.Albums;
-import deezer.model.data.Artists;
+import deezer.model.Artist;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -12,7 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @WebServlet(urlPatterns = {"/search"})
@@ -29,42 +28,27 @@ public class SearchPageServlet extends HttpServlet {
         if (query == null || query.isEmpty())
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         else {
-            final Artists artists = this.catalogAgent.searchArtists(query);
-            request.setAttribute("artists", artists == null ? null : artists.getData());
+            final List<Artist> artists = this.catalogAgent.searchArtists(query);
+            request.setAttribute("artists", artists);
             /*  @fixme API quota limit exceeded
             if (artists != null) {
-                final Map<Artist, Integer> artistNumberOfReviewsMap = artists.getData().stream().collect(
-                        HashMap::new,
-                        (map, artist) -> map.put(artist, this.catalogAgent.getArtistNumberOfReviews(artist)),
-                        HashMap::putAll
-                );
-                request.setAttribute("artistNumberOfReviewsMap", artistNumberOfReviewsMap);
+                final Map<Artist, Integer> artistsReviewsCountMap =
+                        this.catalogAgent.getArtistsReviewsCount(artists);
+                request.setAttribute("artistsReviewsCountMap", artistsReviewsCountMap);
 
-                final Map<Artist, Double> artistAverageRatingMap = artists.getData().stream().collect(
-                        HashMap::new,
-                        (map, artist) -> map.put(artist, this.catalogAgent.getArtistAverageRating(artist)),
-                        HashMap::putAll
-                );
-                request.setAttribute("artistAverageRatingMap", artistAverageRatingMap);
+                final Map<Artist, Double> artistsAverageRatingsMap = this.catalogAgent.getArtistsAverageRatings(artists);
+                request.setAttribute("artistAverageRatingMap", artistsAverageRatingsMap);
             }
             */
 
-            final Albums albums = this.catalogAgent.searchAlbums(query);
-            request.setAttribute("albums", albums == null ? null : albums.getData());
+            final List<Album> albums = this.catalogAgent.searchAlbums(query);
+            request.setAttribute("albums", albums);
             if (albums != null) {
-                final Map<Album, Integer> albumNumberOfReviewsMap = albums.getData().stream().collect(
-                        HashMap::new,
-                        (map, album) -> map.put(album, this.catalogAgent.getAlbumNumberOfReviews(album)),
-                        HashMap::putAll
-                );
-                request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
+                final Map<Album, Integer> albumsReviewsCountMap = this.catalogAgent.getAlbumsReviewsCount(albums);
+                request.setAttribute("albumsReviewsCountMap", albumsReviewsCountMap);
 
-                final Map<Album, Double> albumAverageRatingMap = albums.getData().stream().collect(
-                        HashMap::new,
-                        (map, album) -> map.put(album, this.catalogAgent.getAlbumAverageRating(album)),
-                        HashMap::putAll
-                );
-                request.setAttribute("albumAverageRatingMap", albumAverageRatingMap);
+                final Map<Album, Double> albumsAverageRatingsMap = this.catalogAgent.getAlbumsAverageRatings(albums);
+                request.setAttribute("albumAverageRatingsMap", albumsAverageRatingsMap);
             }
         }
         request.getRequestDispatcher("/WEB-INF/jsp/pages/search.jsp").forward(request, response);

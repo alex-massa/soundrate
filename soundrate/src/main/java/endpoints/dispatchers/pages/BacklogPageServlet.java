@@ -43,11 +43,13 @@ public class BacklogPageServlet extends HttpServlet {
             final List<BacklogEntry> userBacklog = this.usersAgent.getUserBacklog(user);
 
             if (userBacklog != null) {
+                // @todo consider implementing as method in CatalogAgent
                 final List<Album> userBacklogAlbums = userBacklog.stream().map
                         (backlogEntry -> this.catalogAgent.getAlbum(backlogEntry.getAlbumId()))
                         .collect(Collectors.toList());
                 request.setAttribute("backlogAlbums", userBacklogAlbums);
 
+                // @todo consider implementing as method in CatalogAgent
                 final Map<Album, Genre> albumGenreMap = userBacklogAlbums.stream().collect(
                         HashMap::new,
                         (map, album) -> map.put(album, album.getGenres().isEmpty()
@@ -57,18 +59,12 @@ public class BacklogPageServlet extends HttpServlet {
                 );
                 request.setAttribute("albumGenreMap", albumGenreMap);
 
-                final Map<Album, Integer> albumNumberOfReviewsMap = userBacklogAlbums.stream().collect(
-                        HashMap::new,
-                        (map, album) -> map.put(album, this.catalogAgent.getAlbumNumberOfReviews(album)),
-                        HashMap::putAll
-                );
-                request.setAttribute("albumNumberOfReviewsMap", albumNumberOfReviewsMap);
+                final Map<Album, Integer> albumReviewsCountMap =
+                        this.catalogAgent.getAlbumsReviewsCount(userBacklogAlbums);
+                request.setAttribute("albumReviewsCountMap", albumReviewsCountMap);
 
-                final Map<Album, Double> albumAverageRatingMap = userBacklogAlbums.stream().collect(
-                        HashMap::new,
-                        (map, album) -> map.put(album, this.catalogAgent.getAlbumAverageRating(album)),
-                        HashMap::putAll
-                );
+                final Map<Album, Double> albumAverageRatingMap =
+                        this.catalogAgent.getAlbumsAverageRatings(userBacklogAlbums);
                 request.setAttribute("albumAverageRatingMap", albumAverageRatingMap);
             }
         }

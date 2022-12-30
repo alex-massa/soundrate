@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,8 +51,8 @@ public class UserPageServlet extends HttpServlet {
             final List<Review> userReviews = this.usersAgent.getUserReviews(user);
             request.setAttribute("userReviews", userReviews);
 
-            final int userNumberOfReviews = this.usersAgent.getUserNumberOfReviews(user);
-            request.setAttribute("userNumberOfReviews", userNumberOfReviews);
+            final int userReviewsCount = this.usersAgent.getUserReviewsCount(user);
+            request.setAttribute("userReviewsCount", userReviewsCount);
 
             final Double userAverageAssignedRating = this.usersAgent.getUserAverageAssignedRating(user);
             request.setAttribute("userAverageAssignedRating", userAverageAssignedRating);
@@ -62,19 +61,11 @@ public class UserPageServlet extends HttpServlet {
             request.setAttribute("userReputation", userReputation);
 
             if (userReviews != null) {
-                final Map<Review, Album> reviewedAlbumMap = userReviews.stream().collect(
-                        HashMap::new,
-                        (map, review) -> map.put(review, this.catalogAgent.getAlbum(review.getReviewedAlbumId())),
-                        HashMap::putAll
-                );
-                request.setAttribute("reviewedAlbumMap", reviewedAlbumMap);
+                final Map<Review, Album> reviewedAlbumsMap = this.catalogAgent.getReviewedAlbums(userReviews);
+                request.setAttribute("reviewedAlbumsMap", reviewedAlbumsMap);
 
-                final Map<Review, Integer> reviewScoreMap = userReviews.stream().collect(
-                        HashMap::new,
-                        (map, review) -> map.put(review, this.reviewsAgent.getReviewScore(review)),
-                        HashMap::putAll
-                );
-                request.setAttribute("reviewScoreMap", reviewScoreMap);
+                final Map<Review, Integer> reviewsScoresMap = this.reviewsAgent.getReviewsScores(userReviews);
+                request.setAttribute("reviewsScoresMap", reviewsScoresMap);
             }
         }
         request.getRequestDispatcher("/WEB-INF/jsp/pages/user.jsp").forward(request, response);

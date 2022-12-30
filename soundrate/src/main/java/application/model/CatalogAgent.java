@@ -24,9 +24,9 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.OptionalDouble;
+import java.util.*;
 
 @Singleton
 @Lock(LockType.READ)
@@ -156,7 +156,7 @@ public class CatalogAgent {
         return topReviews == null || topReviews.isEmpty() ? null : topReviews;
     }
 
-    public @NotNull Integer getAlbumNumberOfReviews(@NotNull final Album album) {
+    public @NotNull Integer getAlbumReviewsCount(@NotNull final Album album) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Review> review = query.from(Review.class);
@@ -168,14 +168,22 @@ public class CatalogAgent {
                         reviewedAlbumIdParameter
                 ));
 
-        TypedQuery<Long> getAlbumNumberOfReviewsQuery = this.entityManager.createQuery(query)
+        TypedQuery<Long> getAlbumReviewsCountQuery = this.entityManager.createQuery(query)
                 .setParameter(reviewedAlbumIdParameter, album.getId());
         try {
-            Long albumNumberOfReviews = getAlbumNumberOfReviewsQuery.getSingleResult();
-            return albumNumberOfReviews == null ? 0 : Math.toIntExact(albumNumberOfReviews);
+            Long albumReviewsCount = getAlbumReviewsCountQuery.getSingleResult();
+            return albumReviewsCount == null ? 0 : Math.toIntExact(albumReviewsCount);
         } catch (NoResultException e) {
             return 0;
         }
+    }
+
+    public @NotEmpty Map<Album, Integer> getAlbumsReviewsCount(@NotEmpty final Collection<Album> albums) {
+        return albums.stream().collect(
+                HashMap::new,
+                (map, album) -> map.put(album, this.getAlbumReviewsCount(album)),
+                HashMap::putAll
+        );
     }
 
     public void deleteAlbumReviews(@NotNull final Album album) {
@@ -215,26 +223,33 @@ public class CatalogAgent {
         }
     }
 
+    public @NotEmpty Map<Album, Double> getAlbumsAverageRatings(@NotEmpty final Collection<Album> albums) {
+        return albums.stream().collect(
+                HashMap::new,
+                (map, album) -> map.put(album, this.getAlbumAverageRating(album)),
+                HashMap::putAll
+        );
+    }
+
     @Cacheable(type = "artistAlbums")
-    public Albums getArtistAlbums(@NotNull final Artist artist) {
+    public List<Album> getArtistAlbums(@NotNull final Artist artist) {
         try {
             Albums artistAlbums = this.client.getArtistAlbums(artist.getId(), 0, Integer.MAX_VALUE);
-            return artistAlbums == null || artistAlbums.isEmpty() ? null : artistAlbums;
+            return artistAlbums == null || artistAlbums.isEmpty() ? null : artistAlbums.getData();
         } catch (DeezerClientException e) {
             if (e.getErrorCode() != null && e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
                 return null;
             throw e;
         }
     }
-
 
     @Cacheable(type = "artistAlbums")
-    public Albums getArtistAlbums(@NotNull final Artist artist,
-                                  @NotNull @Min(0) final Integer index,
-                                  @NotNull @Min(1) final Integer limit) {
+    public List<Album> getArtistAlbums(@NotNull final Artist artist,
+                                       @NotNull @Min(0) final Integer index,
+                                       @NotNull @Min(1) final Integer limit) {
         try {
             Albums artistAlbums = this.client.getArtistAlbums(artist.getId(), index, limit);
-            return artistAlbums == null || artistAlbums.isEmpty() ? null : artistAlbums;
+            return artistAlbums == null || artistAlbums.isEmpty() ? null : artistAlbums.getData();
         } catch (DeezerClientException e) {
             if (e.getErrorCode() != null && e.getErrorCode().equals(DeezerClientException.DATA_NOT_FOUND))
                 return null;
@@ -242,65 +257,93 @@ public class CatalogAgent {
         }
     }
 
-    public @NotNull Integer getArtistNumberOfReviews(@NotNull final Artist artist) {
-        Albums artistAlbums = this.getArtistAlbums(artist);
+    public @NotNull Integer getArtistReviewsCount(@NotNull final Artist artist) {
+        List<Album> artistAlbums = this.getArtistAlbums(artist);
         return artistAlbums == null
                 ? 0
-                : artistAlbums.getData().stream()
-                .mapToInt(this::getAlbumNumberOfReviews)
+                : artistAlbums.stream()
+                .mapToInt(this::getAlbumReviewsCount)
                 .sum();
     }
 
+    public @NotEmpty Map<Artist, Integer> getArtistsReviewsCount(@NotEmpty final Collection<Artist> artists) {
+        return artists.stream().collect(
+                HashMap::new,
+                (map, artist) -> map.put(artist, this.getArtistReviewsCount(artist)),
+                HashMap::putAll
+        );
+    }
+
     public Double getArtistAverageRating(@NotNull final Artist artist) {
-        Albums artistAlbums = this.getArtistAlbums(artist);
+        List<Album> artistAlbums = this.getArtistAlbums(artist);
         OptionalDouble averageRating = artistAlbums == null
                 ? OptionalDouble.empty()
-                : artistAlbums.getData().stream()
-                .filter(album -> this.getAlbumNumberOfReviews(album) != 0)
+                : artistAlbums.stream()
+                .filter(album -> this.getAlbumReviewsCount(album) != 0)
                 .mapToDouble(this::getAlbumAverageRating)
                 .average();
         return averageRating.isPresent() ? averageRating.getAsDouble() : null;
     }
 
+    public @NotEmpty Map<Artist, Double> getArtistsAverageRatings(@NotEmpty final Collection<Artist> artists) {
+        return artists.stream().collect(
+                HashMap::new,
+                (map, artist) -> map.put(artist, this.getArtistAverageRating(artist)),
+                HashMap::putAll
+        );
+    }
+
+    public @NotNull Album getReviewedAlbum(@NotNull final Review review) {
+        return this.getAlbum(review.getReviewedAlbumId());
+    }
+
+    public @NotEmpty Map<Review, Album> getReviewedAlbums(@NotEmpty final Collection<Review> reviews) {
+        return reviews.stream().collect(
+                HashMap::new,
+                (map, review) -> map.put(review, this.getReviewedAlbum(review)),
+                HashMap::putAll
+        );
+    }
+
     @Cacheable(type = "topAlbums")
-    public Albums getTopAlbums() {
+    public List<Album> getTopAlbums() {
         Albums topAlbums = this.client.getTopAlbums(0, Integer.MAX_VALUE);
-        return topAlbums == null || topAlbums.isEmpty() ? null : topAlbums;
+        return topAlbums == null || topAlbums.isEmpty() ? null : topAlbums.getData();
     }
 
     @Cacheable(type = "topAlbums")
-    public Albums getTopAlbums(@NotNull @Min(0) final Integer index,
-                               @NotNull @Min(1) final Integer limit) {
+    public List<Album> getTopAlbums(@NotNull @Min(0) final Integer index,
+                                    @NotNull @Min(1) final Integer limit) {
         Albums topAlbums = this.client.getTopAlbums(index, limit);
-        return topAlbums == null || topAlbums.isEmpty() ? null : topAlbums;
+        return topAlbums == null || topAlbums.isEmpty() ? null : topAlbums.getData();
     }
 
-    public Albums searchAlbums(@NotNull final String query) {
+    public List<Album> searchAlbums(@NotNull final String query) {
         AlbumsSearch albumsSearch = new AlbumsSearch(query);
         Albums searchResults = this.client.getAlbumsSearchResults(albumsSearch, 0, Integer.MAX_VALUE);
-        return searchResults == null || searchResults.isEmpty() ? null : searchResults;
+        return searchResults == null || searchResults.isEmpty() ? null : searchResults.getData();
     }
 
-    public Albums searchAlbums(@NotNull final String query,
-                               @NotNull @Min(0) final Integer index,
-                               @NotNull @Min(1) final Integer limit) {
+    public List<Album> searchAlbums(@NotNull final String query,
+                                    @NotNull @Min(0) final Integer index,
+                                    @NotNull @Min(1) final Integer limit) {
         AlbumsSearch albumsSearch = new AlbumsSearch(query);
         Albums searchResults = this.client.getAlbumsSearchResults(albumsSearch, index, limit);
-        return searchResults == null || searchResults.isEmpty() ? null : searchResults;
+        return searchResults == null || searchResults.isEmpty() ? null : searchResults.getData();
     }
 
-    public Artists searchArtists(@NotNull final String query) {
+    public List<Artist> searchArtists(@NotNull final String query) {
         ArtistsSearch artistsSearch = new ArtistsSearch(query);
         Artists searchResults = this.client.getArtistsSearchResults(artistsSearch, 0, Integer.MAX_VALUE);
-        return searchResults == null || searchResults.isEmpty() ? null : searchResults;
+        return searchResults == null || searchResults.isEmpty() ? null : searchResults.getData();
     }
 
-    public Artists searchArtists(@NotNull final String query,
-                                 @NotNull @Min(0) final Integer index,
-                                 @NotNull @Min(1) final Integer limit) {
+    public List<Artist> searchArtists(@NotNull final String query,
+                                      @NotNull @Min(0) final Integer index,
+                                      @NotNull @Min(1) final Integer limit) {
         ArtistsSearch artistsSearch = new ArtistsSearch(query);
         Artists searchResults = this.client.getArtistsSearchResults(artistsSearch, index, limit);
-        return searchResults == null || searchResults.isEmpty() ? null : searchResults;
+        return searchResults == null || searchResults.isEmpty() ? null : searchResults.getData();
     }
 
 }

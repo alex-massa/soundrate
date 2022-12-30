@@ -4,8 +4,8 @@
              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
                                  http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
              version="2.1">
-    <persistence-unit name="soundrateTestPersistenceUnit" transaction-type="JTA">
-        <jta-data-source>jdbc/soundrateTestDataSource</jta-data-source>
+    <persistence-unit name="soundratePersistenceUnitTest" transaction-type="JTA">
+        <jta-data-source>jdbc/soundrateDataSourceTest</jta-data-source>
         <properties>
             <property name="javax.persistence.schema-generation.database.action"
                       value="drop-and-create"/>

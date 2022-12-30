@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <Resource id="jdbc/soundrateTestDataSource" type="javax.sql.DataSource">
+    <Resource id="jdbc/soundrateDataSourceTest" type="javax.sql.DataSource">
         JdbcDriver = org.hsqldb.jdbcDriver
         JdbcUrl = jdbc:hsqldb:mem:soundrate
     </Resource>

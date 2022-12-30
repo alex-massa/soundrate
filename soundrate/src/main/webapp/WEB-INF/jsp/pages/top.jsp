@@ -39,11 +39,11 @@
             </div>
             <div class="ui divided list">
                 <!-- @todo add placeholder or message if no albums are available -->
-                <c:set var="albumNumberOfReviewsMap" value="${requestScope.albumNumberOfReviewsMap}"/>
-                <c:set var="albumAverageRatingMap" value="${requestScope.albumAverageRatingMap}"/>
+                <c:set var="albumsReviewsCountMap" value="${requestScope.albumsReviewsCountMap}"/>
+                <c:set var="albumsAverageRatingsMap" value="${requestScope.albumsAverageRatingsMap}"/>
                 <c:forEach items="${albums}" var="album">
-                    <c:set var="albumNumberOfReviews" value="${albumNumberOfReviewsMap[album]}"/>
-                    <c:set var="albumAverageRating" value="${albumAverageRatingMap[album]}"/>
+                    <c:set var="albumsReviewsCount" value="${albumsReviewsCountMap[album]}"/>
+                    <c:set var="albumAverageRating" value="${albumsAverageRatingsMap[album]}"/>
                     <div class="item">
                         <img class="ui tiny image" src="${album.bigCover}" alt="artwork">
                         <div class="content">
@@ -59,7 +59,7 @@
                             </div>
                             <div class="extra">
                                 <c:choose>
-                                    <c:when test="${albumNumberOfReviews eq 0}">
+                                    <c:when test="${albumsReviewsCount eq 0}">
                                         <span class="ui blue circular medium label">N/A</span>
                                     </c:when>
                                     <c:otherwise>
@@ -68,8 +68,8 @@
                                                               value="${albumAverageRating}"/>
                                         </span>
                                         <span>
-                                            (<fmt:message key="label.numberOfReviews">
-                                                <fmt:param value="${albumNumberOfReviews}"/>
+                                            (<fmt:message key="label.reviewsCount">
+                                                <fmt:param value="${albumsReviewsCount}"/>
                                             </fmt:message>)
                                         </span>
                                     </c:otherwise>

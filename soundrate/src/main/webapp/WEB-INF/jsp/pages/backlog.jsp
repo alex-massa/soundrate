@@ -55,13 +55,13 @@
             </c:when>
             <c:otherwise>
                 <c:set var="albumGenreMap" value="${requestScope.albumGenreMap}"/>
-                <c:set var="albumNumberOfReviewsMap" value="${requestScope.albumNumberOfReviewsMap}"/>
+                <c:set var="albumReviewsCountMap" value="${requestScope.albumReviewsCountMap}"/>
                 <c:set var="albumAverageRatingMap" value="${requestScope.albumAverageRatingMap}"/>
                 <div class="ui fluid segment">
                     <div class="ui four doubling cards">
                         <c:forEach items="${backlogAlbums}" var="album">
                             <c:set var="albumGenre" value="${albumGenreMap[album]}"/>
-                            <c:set var="albumNumberOfReviews" value="${albumNumberOfReviewsMap[album]}"/>
+                            <c:set var="albumReviewsCount" value="${albumReviewsCountMap[album]}"/>
                             <c:set var="albumAverageRating" value="${albumAverageRatingMap[album]}"/>
                             <div class="ui card" data-type="album" data-album="${album.id}">
                                 <a class="image" href="${context}/album?id=${album.id}">
@@ -88,7 +88,7 @@
                                             <fmt:message key="label.averageRating"/>
                                         </span>
                                         <c:choose>
-                                            <c:when test="${albumNumberOfReviews eq 0}">
+                                            <c:when test="${albumReviewsCount eq 0}">
                                                 <span class="ui blue circular medium label">N/A</span>
                                             </c:when>
                                             <c:otherwise>
@@ -97,7 +97,7 @@
                                                                       value="${albumAverageRating}"/>
                                                 </span>
                                                 (<fmt:message key="label.basedOn">
-                                                    <fmt:param value="${albumNumberOfReviews}"/>
+                                                    <fmt:param value="${albumReviewsCount}"/>
                                                 </fmt:message>)
                                             </c:otherwise>
                                         </c:choose>

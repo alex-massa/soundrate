@@ -16,8 +16,12 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Singleton
 @Lock(LockType.READ)
@@ -126,7 +130,7 @@ public class UsersAgent {
         return userReviews == null || userReviews.isEmpty() ? null : userReviews;
     }
 
-    public @NotNull Integer getUserNumberOfReviews(@NotNull final User user) {
+    public @NotNull Integer getUserReviewsCount(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Review> review = query.from(Review.class);
@@ -138,14 +142,26 @@ public class UsersAgent {
                         reviewerUsernameParameter
                 ));
 
-        TypedQuery<Long> getUserNumberOfReviewsQuery = this.entityManager.createQuery(query)
+        TypedQuery<Long> getUserReviewsCountQuery = this.entityManager.createQuery(query)
                 .setParameter(reviewerUsernameParameter, user.getUsername());
         try {
-            Long userNumberOfReviews = getUserNumberOfReviewsQuery.getSingleResult();
-            return userNumberOfReviews == null ? 0 : Math.toIntExact(userNumberOfReviews);
+            Long userReviewsCount = getUserReviewsCountQuery.getSingleResult();
+            return userReviewsCount == null ? 0 : Math.toIntExact(userReviewsCount);
         } catch (NoResultException e) {
             return 0;
         }
+    }
+
+    public @NotNull User getReviewer(@NotNull Review review) {
+        return this.getUser(review.getReviewerUsername());
+    }
+
+    public @NotEmpty Map<Review, User> getReviewers(@NotEmpty Collection<Review> reviews) {
+        return reviews.stream().collect(
+                HashMap::new,
+                (map, review) -> map.put(review, this.getReviewer(review)),
+                HashMap::putAll
+        );
     }
 
     public void deleteUserReviews(@NotNull final User user) {
@@ -192,7 +208,7 @@ public class UsersAgent {
         return userVotes == null || userVotes.isEmpty() ? null : userVotes;
     }
 
-    public @NotNull Integer getUserNumberOfVotes(@NotNull final User user) {
+    public @NotNull Integer getUserVotesCount(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Vote> vote = query.from(Vote.class);
@@ -204,11 +220,11 @@ public class UsersAgent {
                         voterUsernameParameter
                 ));
 
-        TypedQuery<Long> getUserNumberOfVotesQuery = this.entityManager.createQuery(query)
+        TypedQuery<Long> getUserVotesCountQuery = this.entityManager.createQuery(query)
                 .setParameter(voterUsernameParameter, user.getUsername());
         try {
-            Long userNumberOfVotes = getUserNumberOfVotesQuery.getSingleResult();
-            return userNumberOfVotes == null ? 0 : Math.toIntExact(userNumberOfVotes);
+            Long userVotesCount = getUserVotesCountQuery.getSingleResult();
+            return userVotesCount == null ? 0 : Math.toIntExact(userVotesCount);
         } catch (NoResultException e) {
             return 0;
         }
@@ -264,7 +280,7 @@ public class UsersAgent {
         return userUpvotes == null || userUpvotes.isEmpty() ? null : userUpvotes;
     }
 
-    public @NotNull Integer getUserNumberOfUpvotes(@NotNull final User user) {
+    public @NotNull Integer getUserUpvotesCount(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Vote> vote = query.from(Vote.class);
@@ -282,11 +298,11 @@ public class UsersAgent {
                         )
                 ));
 
-        TypedQuery<Long> getUserNumberOfUpvotesQuery = this.entityManager.createQuery(query)
+        TypedQuery<Long> getUserUpvotesCountQuery = this.entityManager.createQuery(query)
                 .setParameter(voterUsernameParameter, user.getUsername());
         try {
-            Long userNumberOfUpvotes = getUserNumberOfUpvotesQuery.getSingleResult();
-            return userNumberOfUpvotes == null ? 0 : Math.toIntExact(userNumberOfUpvotes);
+            Long userUpvotesCount = getUserUpvotesCountQuery.getSingleResult();
+            return userUpvotesCount == null ? 0 : Math.toIntExact(userUpvotesCount);
         } catch (NoResultException e) {
             return 0;
         }
@@ -348,7 +364,7 @@ public class UsersAgent {
         return userDownvotes == null || userDownvotes.isEmpty() ? null : userDownvotes;
     }
 
-    public @NotNull Integer getUserNumberOfDownvotes(@NotNull final User user) {
+    public @NotNull Integer getUserDownvotesCount(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Vote> vote = query.from(Vote.class);
@@ -366,11 +382,11 @@ public class UsersAgent {
                         )
                 ));
 
-        TypedQuery<Long> getUserNumberOfDownvotesQuery = this.entityManager.createQuery(query)
+        TypedQuery<Long> getUserDownvotesCountQuery = this.entityManager.createQuery(query)
                 .setParameter(voterUsernameParameter, user.getUsername());
         try {
-            Long userNumberOfDownvotes = getUserNumberOfDownvotesQuery.getSingleResult();
-            return userNumberOfDownvotes == null ? 0 : Math.toIntExact(userNumberOfDownvotes);
+            Long userDownvotesCount = getUserDownvotesCountQuery.getSingleResult();
+            return userDownvotesCount == null ? 0 : Math.toIntExact(userDownvotesCount);
         } catch (NoResultException e) {
             return 0;
         }
@@ -426,7 +442,7 @@ public class UsersAgent {
         return userReports == null || userReports.isEmpty() ? null : userReports;
     }
 
-    public @NotNull Integer getUserNumberOfReports(@NotNull final User user) {
+    public @NotNull Integer getUserReportsCount(@NotNull final User user) {
         CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Report> report = query.from(Report.class);
@@ -438,11 +454,11 @@ public class UsersAgent {
                         reporterUsernameParameter
                 ));
 
-        TypedQuery<Long> getUserNumberOfReportsQuery = this.entityManager.createQuery(query)
+        TypedQuery<Long> getUserReportsCountQuery = this.entityManager.createQuery(query)
                 .setParameter(reporterUsernameParameter, user.getUsername());
         try {
-            Long userNumberOfReports = getUserNumberOfReportsQuery.getSingleResult();
-            return userNumberOfReports == null ? 0 : Math.toIntExact(userNumberOfReports);
+            Long userReportsCount = getUserReportsCountQuery.getSingleResult();
+            return userReportsCount == null ? 0 : Math.toIntExact(userReportsCount);
         } catch (NoResultException e) {
             return 0;
         }

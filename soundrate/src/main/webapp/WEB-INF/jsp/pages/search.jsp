@@ -46,12 +46,12 @@
                     </div>
                 </c:when>
                 <c:otherwise>
-                    <c:set var="artistNumberOfReviewsMap" value="${requestScope.artistNumberOfReviewsMap}"/>
-                    <c:set var="artistAverageRatingMap" value="${requestScope.artistAverageRatingMap}"/>
+                    <c:set var="artistsReviewsCountMap" value="${requestScope.artistsReviewsCountMap}"/>
+                    <c:set var="artistsAverageRatingsMap" value="${requestScope.artistsAverageRatingsMap}"/>
                     <div class="ui six doubling cards">
                         <c:forEach items="${artists}" var="artist">
-                            <c:set var="artistNumberOfReviews" value="${artistNumberOfReviewsMap[artist]}"/>
-                            <c:set var="artistAverageRating" value="${artistAverageRatingMap[artist]}"/>
+                            <c:set var="artistReviewsCount" value="${artistsReviewsCountMap[artist]}"/>
+                            <c:set var="artistAverageRating" value="${artistsAverageRatingsMap[artist]}"/>
                             <div class="card">
                                 <a class="image" href="${context}/artist?id=${artist.id}">
                                     <img src="${artist.bigPicture}" alt="picture">
@@ -68,7 +68,7 @@
                                 <div class="extra content">
                                     <div class="center aligned meta">
                                         <c:choose>
-                                            <c:when test="${artistNumberOfReviews eq 0}">
+                                            <c:when test="${artistReviewsCount eq 0}">
                                                 <span class="ui blue circular medium label">N/A</span>
                                             </c:when>
                                             <c:otherwise>
@@ -77,8 +77,8 @@
                                                                       value="${artistAverageRating}"/>
                                                 </span>
                                                 <span>
-                                                    (<fmt:message key="label.numberOfReviews">
-                                                        <fmt:param value="${artistNumberOfReviews}"/>
+                                                    (<fmt:message key="label.reviewsCount">
+                                                        <fmt:param value="${artistReviewsCount}"/>
                                                     </fmt:message>)
                                                 </span>
                                             </c:otherwise>
@@ -104,12 +104,12 @@
                     </div>
                 </c:when>
                 <c:otherwise>
-                    <c:set var="albumNumberOfReviewsMap" value="${requestScope.albumNumberOfReviewsMap}"/>
-                    <c:set var="albumAverageRatingMap" value="${requestScope.albumAverageRatingMap}"/>
+                    <c:set var="albumsReviewsCountMap" value="${requestScope.albumsReviewsCountMap}"/>
+                    <c:set var="albumsAverageRatingsMap" value="${requestScope.albumsAverageRatingsMap}"/>
                     <div class="ui six doubling cards">
                         <c:forEach items="${albums}" var="album">
-                            <c:set var="albumNumberOfReviews" value="${albumNumberOfReviewsMap[album]}"/>
-                            <c:set var="albumAverageRating" value="${albumAverageRatingMap[album]}"/>
+                            <c:set var="albumReviewsCount" value="${albumsReviewsCountMap[album]}"/>
+                            <c:set var="albumAverageRating" value="${albumsAverageRatingsMap[album]}"/>
                             <div class="card">
                                 <a class="image" href="${context}/album?id=${album.id}">
                                     <img src="${album.bigCover}" alt="artwork">
@@ -131,7 +131,7 @@
                                 <div class="extra content">
                                     <div class="center aligned meta">
                                         <c:choose>
-                                            <c:when test="${albumNumberOfReviews eq 0}">
+                                            <c:when test="${albumReviewsCount eq 0}">
                                                 <span class="ui blue circular medium label">N/A</span>
                                             </c:when>
                                             <c:otherwise>
@@ -140,8 +140,8 @@
                                                                       value="${albumAverageRating}"/>
                                                 </span>
                                                 <span>
-                                                    (<fmt:message key="label.numberOfReviews">
-                                                        <fmt:param value="${albumNumberOfReviews}"/>
+                                                    (<fmt:message key="label.reviewsCount">
+                                                        <fmt:param value="${albumReviewsCount}"/>
                                                     </fmt:message>)
                                                 </span>
                                             </c:otherwise>

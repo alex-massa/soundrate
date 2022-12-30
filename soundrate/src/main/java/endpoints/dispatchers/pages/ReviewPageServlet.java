@@ -6,7 +6,7 @@ import application.model.CatalogAgent;
 import application.model.ReviewsAgent;
 import application.model.UsersAgent;
 import deezer.model.Album;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;

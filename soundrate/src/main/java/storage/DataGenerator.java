@@ -151,7 +151,7 @@ final class DataGenerator {
                     .setEmail(email)
                     .setPassword(BCrypt.hashpw(password, BCrypt.gensalt()))
                     .setSignUpDate(signUpDate)
-                    .setPicture(AvatarGenerator.randomAvatar(username, 600, AvatarGenerator.Format.SVG))
+                    .setPicture(AvatarGenerator.generateRandomAvatarUrl(username))
                     .setRole(User.Role.USER);
             users.add(user);
         }

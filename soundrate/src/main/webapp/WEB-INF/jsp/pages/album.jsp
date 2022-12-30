@@ -56,7 +56,7 @@
             <c:otherwise>
                 <c:set var="albumReviews" value="${requestScope.albumReviews}"/>
                 <c:set var="albumGenre" value="${requestScope.albumGenre}"/>
-                <c:set var="albumNumberOfReviews" value="${requestScope.albumNumberOfReviews}"/>
+                <c:set var="albumReviewsCount" value="${requestScope.albumReviewsCount}"/>
                 <c:set var="albumAverageRating" value="${requestScope.albumAverageRating}"/>
                 <div class="ui two columns stackable grid">
                     <div class="five wide column">
@@ -83,7 +83,7 @@
                                         <fmt:message key="label.averageRating"/>
                                     </span>
                                     <c:choose>
-                                        <c:when test="${albumNumberOfReviews eq 0}">
+                                        <c:when test="${albumReviewsCount eq 0}">
                                             <span class="ui blue circular medium label">N/A</span>
                                         </c:when>
                                         <c:otherwise>
@@ -92,7 +92,7 @@
                                                                   value="${albumAverageRating}"/>
                                             </span>
                                             (<fmt:message key="label.basedOn">
-                                                <fmt:param value="${albumNumberOfReviews}"/>
+                                                <fmt:param value="${albumReviewsCount}"/>
                                             </fmt:message>)
                                         </c:otherwise>
                                     </c:choose>
@@ -149,12 +149,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <c:set var="reviewScoreMap" value="${requestScope.reviewScoreMap}"/>
-                                <c:set var="reviewerMap" value="${requestScope.reviewerMap}"/>
+                                <c:set var="reviewersMap" value="${requestScope.reviewersMap}"/>
+                                <c:set var="reviewsScoresMap" value="${requestScope.reviewsScoresMap}"/>
                                 <c:forEach items="${albumReviews}" var="review">
                                     <c:if test="${review.reviewer.username eq sessionUser.username}">
                                         <c:set var="userReview" value="${review}"/>
-                                        <c:set var="userReviewScore" value="${reviewScoreMap[review]}"/>
+                                        <c:set var="userReviewScore" value="${reviewsScoresMap[review]}"/>
                                         <c:set var="userReviewContent" value="${review.content}"/>
                                     </c:if>
                                 </c:forEach>
@@ -245,8 +245,8 @@
                                 </c:when>
                                 <c:otherwise>
                                     <c:forEach items="${albumReviews}" var="review">
-                                        <c:set var="reviewer" value="${reviewerMap[review]}"/>
-                                        <c:set var="reviewScore" value="${reviewScoreMap[review]}"/>
+                                        <c:set var="reviewer" value="${reviewersMap[review]}"/>
+                                        <c:set var="reviewScore" value="${reviewsScoresMap[review]}"/>
                                         <c:if test="${empty sessionUser or sessionUser.username ne reviewer.username}">
                                             <div class="ui fluid card" data-type="review" data-published="true"
                                                  data-reviewer="${reviewer.username}" data-album="${param.id}">

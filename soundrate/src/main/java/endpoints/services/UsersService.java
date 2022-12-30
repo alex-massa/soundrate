@@ -33,7 +33,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -43,8 +44,8 @@ import java.util.Set;
 @Lock(LockType.READ)
 public class UsersService {
 
-    // 30 minutes
-    private static final int RECOVER_ACCOUNT_TOKEN_TIME_TO_LIVE = 30 * 60 * 1000;
+    // expressed in minutes
+    private static final int RECOVER_ACCOUNT_TOKEN_TTL = 30;
 
     @Resource(mappedName = "mail/soundrateMailSession")
     private Session mailSession;
@@ -278,7 +279,7 @@ public class UsersService {
         }
         final String token = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + UsersService.RECOVER_ACCOUNT_TOKEN_TIME_TO_LIVE))
+                .withExpiresAt(Instant.now().plus(UsersService.RECOVER_ACCOUNT_TOKEN_TTL, ChronoUnit.MINUTES))
                 .sign(Algorithm.HMAC256(user.getPassword().getBytes(StandardCharsets.UTF_8)));
         final String passwordRecoveryUrl = uriInfo.getBaseUri() + "reset?token=" + token;
         final ResourceBundle emailTemplateBundle = ResourceBundle.getBundle("i18n/templates/email", request.getLocale());
